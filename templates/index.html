@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{%block title%}List of Task{%endblock title%}</title>
+</head>
+<body>
+    {%block body%}
+    <h1>Task List:</h1>
+    <table border="2">
+        <thead>
+            <tr>
+                <th>Id task</th>
+                <th>Statement</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks%}
+            <tr>
+                <td>{{task.id}}</td>
+                <td>{{task.statement}}</td>
+                <td><a href="{% url 'edit_task' task.id %}">EDIT</a></td>
+            </tr>
+            {% endfor%}
+        </tbody>
+    </table>
+    <a href="{% url 'new_task' %}">NEW TASK</a>
+    {%endblock body%}
+</body>
+</html>

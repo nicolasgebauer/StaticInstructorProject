@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <script src="https://unpkg.com/konva@8.3.12/konva.min.js"></script>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear DCL</title>
+</head>
+<body>
+    
+    <button id="create-line" onclick="newLine(20,100,60,0);"><h4>Viga</h4></button> 
+    <button id="create-empotrado" onclick="createEmpotrado(100, 100)"><h4>Empotrado</h4></button>
+    <button id="create-apoyoDeslizante" onclick="createApoyoDeslizante(200, 100);"><h4>Apoyo deslizante</h4></button>
+    <button id="create-apoyoNoDeslizante" onclick="createApoyoNoDeslizante( 300, 100);"><h4>Apoyo no deslizante</h1></button>
+    <button id="create-rotula" onclick="createRotula(400, 100);"><h4>Rotula</h4></button>
+    <button id="create-biela" onclick="createBiela(500, 100);"><h4>Biela</h4></button>
+    <button id="create-fuerza" onclick="createForce(600, 100, magnitud=10);"><h4>Fuerza</h4></button>
+    <button id="create-momento-positivo" onclick="createMomentoPositive(700, 100, magnitud=10);"><h4>Momento (+)</h4></button>
+    <button id="create-momento-negativo" onclick="createMomentoNegative(800, 100, magnitud=10);"><h4>Momento (-)</h4></button>
+
+    <div id="container" style="background-color: antiquewhite;"></div>
+
+    <script>
+        //------------------------------------------------------Variables-----------------------------------------------//
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const blockSnapSize = 40;
+
+        const stage = new Konva.Stage({
+            name: "stage",
+            container: 'container',
+            width: window.innerWidth,
+            height: window.innerHeight,
+        });
+
+        const layer = new Konva.Layer({name: 'layer'})
+        const allDCLelements = []
+       
+
+        //------------------------------------------------------Grilla-----------------------------------------------//
+        for (var i = 0; i < width / blockSnapSize; i++) {
+            layer.add(new Konva.Line({
+                name: "horizontalLines",
+                points: [Math.round(i * blockSnapSize) + 0.5, 0, Math.round(i * blockSnapSize) + 0.5, height],
+                stroke: '#777777',
+                strokeWidth: 1,
+            }));
+        }
+
+
+        for (var j = 0; j < height / blockSnapSize; j++) {
+            layer.add(new Konva.Line({
+                name: "verticalLines",
+                points: [0, Math.round(j * blockSnapSize), width, Math.round(j * blockSnapSize)],
+                stroke: '#7777777',
+                strokeWidth: 0.5,
+            }));
+        }
+
+
+        //------------------------------------------------------Viga-----------------------------------------------//
+        function createLine(x0, y0, x1, y1){
+            console.log("createLine()")
+            const group = new Konva.Group({draggable: true, name: "viga"});
+
+            const line = new Konva.Line({
+                name: 'subElmentoViga',
+                x: x0,
+                y: y0,
+                points: [0, 0, x1, y1],
+                strokeWidth: 5,
+                stroke: 'black'
+            });
+
+            const circle1 = new Konva.Circle({
+                name: 'subElmentoViga',
+                x: x0,
+                y: y0,
+                radius: 5,
+                fill: 'red',
+                draggable: true
+            });
+
+            const circle2 = circle1.clone({
+                name: 'subElmentoViga',
+                x: x0+(x1),
+                y: y0+(y1)
+            });
+
+            group.add(line, circle1, circle2);
+            return [group, line, circle1, circle2]
+        };
+
+
+        function updateLine(line){
+           
+            line[2].on('dragmove', function(event){
+            const circle1Pos = line[2].getPosition(),
+                    circle2Pos = line[3].getPosition();  
+            line[1].position(circle1Pos);
+            line[1].points([0, 0, circle2Pos.x - circle1Pos.x, circle2Pos.y - circle1Pos.y])
+            })
+
+            line[3].on('dragmove', function(event){
+            const linePos = line[1].getPosition(),
+                    circle2Pos = line[3].getPosition();  
+            line[1].points([0, 0, circle2Pos.x - linePos.x, circle2Pos.y - linePos.y])
+            })
+        }
+
+
+        function newLine(x0, y0, x1, y1){
+            const line = createLine(x0, y0, x1, y1);
+            updateLine(line)
+            layer.add(line[0]);
+            allDCLelements.push(line[0])
+            return line[0]
+        }
+        
+
+        //------------------------------------------------------Vinculos externos-----------------------------------------------//
+        function createEmpotrado(x0, y0){
+            const group = new Konva.Group({draggable: true, name: "empotrado"});
+            const base = new Konva.Line({
+                name: "subElmento Empotrado",
+                x: x0,
+                y: y0,
+                points: [0, 0, 52, 0],
+                strokeWidth: 5,
+                stroke: 'black'
+            });
+
+            const l1 = new Konva.Line({name: "subElmento Empotrado", x: x0, y: y0, points: [0, 12.5, 12.5, 0], strokeWidth: 5, stroke: 'black'});
+            const l2 = new Konva.Line({name: "subElmento Empotrado",x: x0+12.5, y: y0, points: [0, 12.5, 12.5, 0], strokeWidth: 5, stroke: 'black'});
+            const l3 = new Konva.Line({name: "subElmento Empotrado",x: x0+25, y: y0, points: [0, 12.5, 12.5, 0], strokeWidth: 5, stroke: 'black'});
+            const l4 = new Konva.Line({name: "subElmento Empotrado",x: x0+37.5, y: y0, points: [0, 12.5, 12.5, 0], strokeWidth: 5, stroke: 'black'});
+
+            group.add(base, l1, l2, l3, l4);
+            layer.add(group);
+            allDCLelements.push(group)
+
+            rotateElement(group);
+            return group;
+        }
+
+
+        function createApoyoDeslizante(x0, y0){
+            const group = new Konva.Group({draggable: true, name: "apoyo-deslizante"});
+            const triangle = new Konva.RegularPolygon({
+                name: "subElmento ApoyoDeslizante",
+                x: x0,
+                y: y0,
+                sides: 3,
+                radius: 20,
+                fill: '#00D2FF',
+                stroke: 'black',
+                strokeWidth: 4,
+            });
+
+            const base = new Konva.Line({
+                name: "subElmento ApoyoDeslizante",
+                x: x0,
+                y: y0+20,
+                points: [-20, 0, 20, 0],
+                strokeWidth: 5,
+                stroke: 'black'
+            });
+
+            group.add(triangle, base);
+            layer.add(group);
+            allDCLelements.push(group);
+
+            rotateElement(group);
+            return group;
+        }
+
+
+        function createApoyoNoDeslizante(x0, y0){
+            const group = new Konva.Group({draggable: true, name: "apoyo-no-deslizante"});
+            const triangle = new Konva.RegularPolygon({
+                name: "subElmento ApoyoNoDeslizante",
+                x: x0,
+                y: y0,
+                sides: 3,
+                radius: 20,
+                fill: '#00F210',
+                stroke: 'black',
+                strokeWidth: 4,
+                draggable: true,
+                name: "apoyo-no-deslizante"
+            });
+
+            group.add(triangle)
+            layer.add(group);
+            allDCLelements.push(group);
+
+            rotateElement(group)
+            return group
+        }
+
+
+        //------------------------------------------------------Vinculos internos-----------------------------------------------//
+        function createRotula(x0, y0){
+            const group = new Konva.Group({draggable: true, name: "rotula"});
+            const circle = new Konva.Circle({
+                x: x0,
+                y: y0,
+                radius: 16,
+                fill: 'yellow',
+                stroke: 'black',
+                strokeWidth: 4,
+                draggable: true,
+                name: "rotula"
+            });
+            group.add(circle);
+            layer.add(group);
+            allDCLelements.push(group);
+            return group;
+        }
+
+
+        function createBiela(x0, y0){
+            const group = new Konva.Group({draggable: true, name: "biela"});
+            const large = 30
+            const line = new Konva.Line({
+                name: "subElmento Biela",
+                x: x0,
+                y: y0,
+                points: [0, 0, large, 0],
+                strokeWidth: 5,
+                stroke: 'black'
+            });
+            const circle1 = new Konva.Circle({
+                name: "subElmento Biela",
+                x: x0,
+                y: y0,
+                radius: 7,
+                fill: 'yellow',
+                stroke: 'black',
+                strokeWidth: 4,
+            });
+            const circle2 = circle1.clone({
+                // name: 'cricle2',
+                x: x0+large,
+                y: y0
+            });
+
+            group.add(line, circle1, circle2);
+            layer.add(group);
+            allDCLelements.push(group);
+
+            rotateElement(group);
+            return group
+        }
+
+
+        //------------------------------------------------------Fuerzas y momentos-----------------------------------------------//
+        function createForce(x0, y0, magnitude=1){
+            const arrow = new Konva.Arrow({
+                x: x0,
+                y: y0,
+                points: [0, 0, 60, 0],
+                pointerLength: 15,
+                pointerWidth: 15,
+                fill: 'black',
+                stroke: 'black',
+                strokeWidth: 4,
+                draggable: true,
+                name: "fuerza"
+            });
+            layer.add(arrow);
+            allDCLelements.push(arrow);
+
+            rotateElement(arrow)
+            return arrow;
+        }
+
+
+        function createMomentoPositive(x0, y0, magnitud=1){
+            const group = new Konva.Group({draggable: true, name: "momento-positivo"});
+            const arrow = new Konva.Arrow({
+                x: x0,
+                y: y0,
+                points: [17.68, 17.68, 18.63, 16.67, 19.53, 15.61, 20.36, 14.5, 21.14, 13.35, 21.85, 12.15, 22.49, 10.92, 23.06, 9.66, 23.56, 8.36, 23.99, 7.04, 24.34, 5.7, 24.62, 4.34, 24.82, 2.97, 24.95, 1.59, 25.0, 0.2, 24.97, -1.19, 24.87, -2.57, 24.69, -3.95, 24.43, -5.31, 24.1, -6.66, 23.69, -7.99, 23.21, -9.29, 22.66, -10.57, 22.04, -11.81, 21.35, -13.01, 20.59, -14.18, 19.77, -15.3, 18.89, -16.37, 17.96, -17.39, 16.96, -18.36, 15.92, -19.28, 14.82, -20.13, 13.68, -20.92, 12.5, -21.65, 11.28, -22.31, 10.02, -22.9, 8.74, -23.42, 7.42, -23.87, 6.09, -24.25, 4.73, -24.55, 3.36, -24.77, 1.98, -24.92, 0.59, -24.99, -0.79, -24.99, -2.18, -24.9, -3.56, -24.75, -4.93, -24.51, -6.28, -24.2, -7.61, -23.81, -8.92, -23.35, -10.2, -22.82, -11.46, -22.22, -12.67, -21.55, -13.85, -20.81, -14.98, -20.01, -16.07, -19.15, -17.11, -18.23, -18.09, -17.25, -19.02, -16.22, -19.89, -15.14, -20.7, -14.01, -21.45, -12.84, -22.13, -11.63, -22.74, -10.39, -23.28, -9.11, -23.75, -7.8, -24.15, -6.47, -24.47, -5.12, -24.72, -3.75, -24.89, -2.38, -24.98, -0.99, -25.0, 0.4, -24.94, 1.78, -24.8, 3.16, -24.58, 4.54, -24.3, 5.89, -23.93, 7.23, -23.49, 8.55, -22.98, 9.84, -22.4, 11.1, -21.75, 12.33, -21.03, 13.52, -20.25, 14.66, -19.4, 15.76, -18.5, 16.82, -17.54, 17.82, -16.52, 18.76, -15.45, 19.65, -14.34, 20.48, -13.18, 21.24, -11.98, 21.94, -10.74, 22.57, -9.48, 23.13, -8.18, 23.63, -6.85, 24.04, -5.51, 24.39, -4.15, 24.65, -2.77, 24.85, -1.39, 24.96, -0.0, 25.0],
+                pointerLength: 10,
+                pointerWidth: 10,
+                fill: 'black',
+                stroke: 'black',
+                strokeWidth: 4,
+                draggable: true,
+                name: "subElemento MomentoPositivo"
+            });
+            group.add(arrow)
+            layer.add(group);
+            allDCLelements.push(group);
+            return group;
+        }
+
+
+        function createMomentoNegative(x0, y0, magnitud=1){
+            const group = new Konva.Group({draggable: true, name: "momento-negativo"});
+            const arrow = new Konva.Arrow({
+                x: x0,
+                y: y0,
+                points: [-17.68, 17.68, -18.63, 16.67, -19.53, 15.61, -20.36, 14.5, -21.14, 13.35, -21.85, 12.15, -22.49, 10.92, -23.06, 9.66, -23.56, 8.36, -23.99, 7.04, -24.34, 5.7, -24.62, 4.34, -24.82, 2.97, -24.95, 1.59, -25.0, 0.2, -24.97, -1.19, -24.87, -2.57, -24.69, -3.95, -24.43, -5.31, -24.1, -6.66, -23.69, -7.99, -23.21, -9.29, -22.66, -10.57, -22.04, -11.81, -21.35, -13.01, -20.59, -14.18, -19.77, -15.3, -18.89, -16.37, -17.96, -17.39, -16.96, -18.36, -15.92, -19.28, -14.82, -20.13, -13.68, -20.92, -12.5, -21.65, -11.28, -22.31, -10.02, -22.9, -8.74, -23.42, -7.42, -23.87, -6.09, -24.25, -4.73, -24.55, -3.36, -24.77, -1.98, -24.92, -0.59, -24.99, 0.79, -24.99, 2.18, -24.9, 3.56, -24.75, 4.93, -24.51, 6.28, -24.2, 7.61, -23.81, 8.92, -23.35, 10.2, -22.82, 11.46, -22.22, 12.67, -21.55, 13.85, -20.81, 14.98, -20.01, 16.07, -19.15, 17.11, -18.23, 18.09, -17.25, 19.02, -16.22, 19.89, -15.14, 20.7, -14.01, 21.45, -12.84, 22.13, -11.63, 22.74, -10.39, 23.28, -9.11, 23.75, -7.8, 24.15, -6.47, 24.47, -5.12, 24.72, -3.75, 24.89, -2.38, 24.98, -0.99, 25.0, 0.4, 24.94, 1.78, 24.8, 3.16, 24.58, 4.54, 24.3, 5.89, 23.93, 7.23, 23.49, 8.55, 22.98, 9.84, 22.4, 11.1, 21.75, 12.33, 21.03, 13.52, 20.25, 14.66, 19.4, 15.76, 18.5, 16.82, 17.54, 17.82, 16.52, 18.76, 15.45, 19.65, 14.34, 20.48, 13.18, 21.24, 11.98, 21.94, 10.74, 22.57, 9.48, 23.13, 8.18, 23.63, 6.85, 24.04, 5.51, 24.39, 4.15, 24.65, 2.77, 24.85, 1.39, 24.96, 0.0, 25.0],
+                pointerLength: 10,
+                pointerWidth: 10,
+                fill: 'black',
+                stroke: 'black',
+                strokeWidth: 4,
+                draggable: true,
+                name: "subElemento MomentoNegativo"
+            });
+            group.add(arrow)
+            layer.add(group);
+            allDCLelements.push(group);
+            return group;
+        }
+        //------------------------------------------------------Funcionalidades-----------------------------------------------//
+        function rotateElement(element){
+            var tr = new Konva.Transformer({
+                nodes: [element],
+                centeredScaling: false,
+                resizeEnabled: false,
+                rotationSnaps: [0, 90, 180, 270],
+            });
+
+            layer.add(tr);
+    
+            stage.on('click tap',  (e) => {
+                if (e.target === element) {
+                    tr.nodes([element]);
+                }
+
+                else if (e.target === stage) {
+                    tr.nodes([]);
+                   
+                    return;
+                }
+
+                const metaPressed = e.evt.ctrlKey;
+                const isSelected = tr.nodes().indexOf(e.target) >= 0;
+
+                if (metaPressed && isSelected) {
+                    tr.nodes([]);
+                    const nodes = e.target.destroy(); 
+                }
+
+            });
+            
+        }
+
+
+        //------------------------------------------------------Declaraciones-----------------------------------------------//
+        stage.add(layer);
+
+        stage.on('mousedown',  (e) => {
+            // console.log("elemento: " + e.target.name());
+            // console.log("padre: " + e.target.getParent().name());
+            if (e.target != stage && e.target) {
+
+                if (e.target.name() === "fuerza"){
+                    document.addEventListener("keydown", (kd) => {
+                        const key = kd.key;
+                        if(key == "Delete" && e.target){
+                            e.target.destroy();
+                        } 
+                    });
+
+                } else if (e.target.getParent().name() != "layer"){
+                    document.addEventListener("keydown", (kd) => {
+                        const key = kd.key;
+                        if(key == "Delete" && e.target.getParent()){
+                            e.target.getParent().destroy();
+                        } 
+                    });
+                }
+            }
+        });
+
+    
+    </script>
+    <button onclick="history.back()">Go Back</button>
+</body>
+</html>
