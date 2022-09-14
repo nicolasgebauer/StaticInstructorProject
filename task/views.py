@@ -42,8 +42,6 @@ def edit_task(request,id):
             task_form.save()
             return redirect('index')
     return render (request,'create_task.html',context)
-
-
 def add_dcl(request):
     return render(request,'painterdcl.html')
     
