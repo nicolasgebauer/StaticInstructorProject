@@ -188,8 +188,8 @@
         }
 
 
-        function createShadowline(x0, y0, x1, y1){
-            const group = new Konva.Group({draggable: true, name: "viga"});
+        function createShadowViga(x0, y0, x1, y1){
+            const group = new Konva.Group({draggable: true, name: "shadow-viga"});
             const line = new Konva.Line({
                 name: "subElementoViga",
                 x: x0,
@@ -351,7 +351,7 @@
             
 
             const line = newViga(x0, y0, x1, y1, nameViga);
-            const shadowLine = createShadowline(x0, y0, x1, y1);
+            const shadowLine = createShadowViga(x0, y0, x1, y1);
 
             layer.add(line[0]);
             layer.add(shadowLine[0].hide());
