@@ -17,7 +17,7 @@ def create_task(request):
             'form':task_form
         }
     else:
-        task_form = TaskForm(request.POST)
+        task_form = TaskForm(request.POST, request.FILES)
         context = {
             'form':task_form
         }
@@ -35,7 +35,7 @@ def edit_task(request,id):
             'drawJSON': task.draw
         }
     else:
-        task_form = TaskForm(request.POST, instance = task)
+        task_form = TaskForm(request.POST, request.FILES , instance = task)
         context = {
             'form':task_form
         }

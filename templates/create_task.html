@@ -12,10 +12,13 @@
 {%endblock head%}
 {%block body%}
 <h1>Create Task:</h1>
-<form method="post">
+<form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{form.as_p}}
-
+    {% if img_obj %}
+    <h3>Succesfully uploaded : {{img_obj.title}}</h3>
+    <img src="{{ img_obj.image.url}}" alt="connect" style="max-height:300px">
+    {% endif %}
     
     <div id="scoreContainer" style="height: 40px;"></div>
     <div id="equationsContainer" style="height: 120px;"></div>
@@ -1315,6 +1318,7 @@
                             allDCLelements.splice(idx, 1);
                             e.target.getParent().destroy();
                             updateScorePanel();
+                            updateEquations();
                         }
                     });
                 }
