@@ -16,18 +16,16 @@
     {% csrf_token %}
     {{form.as_p}}
 
-    <header>
-        <div id="scoreContainer"></div>
-    </header>
-    <main>
-        <div id="scorecontainer" style="height: 40px;"></div>
-        <div id="container" style="background-color: antiquewhite; border: 5px; border-color: black;"></div>
-    </main>
+    
+    <div id="scoreContainer" style="height: 40px;"></div>
+    <div id="equationsContainer" style="height: 120px;"></div>
+    <div id="container" style="background-color: antiquewhite; border: 5px; border-color: black;"></div>
+
     
     {{drawJSON|json_script:"drawJSON"}}
     <script>
         const drawJSON = JSON.parse(document.querySelector("#drawJSON").textContent);
-        console.log("AQUI VIENE EL JSON! 2" + drawJSON);
+        // console.log("AQUI VIENE EL JSON! 2" + drawJSON);
         //------------------------------------------------------Variables-----------------------------------------------//
         // const width = window.innerWidth;
         // const height = window.innerHeight;
@@ -51,16 +49,43 @@
             return element.name() == "shadow-viga"
         })
 
-        console.log("vigas y sombras:  " + defaultVigas.length + " " + defaultShadowVigas.length)
-        
+        stage.find( (element) => { 
+            if (element.name() == "viga"                ||
+                element.name() == "initialViga"         ||
+                element.name() == "empotrado"           ||
+                element.name() == "apoyo-deslizante"    ||
+                element.name() == "apoyo-no-deslizante" ||
+                element.name() == "rotula"              ||
+                element.name() == "biela"               ||
+                element.name() == "fuerza"              ||
+                element.name() == "momento-positivo"    ||
+                element.name() == "momento-negativo" 
+                 ){
+                    allDCLelements.push(element);
+            }
+        });
         for(let i=0; i<defaultVigas.length; i++){
             updateViga(defaultVigas[i], defaultShadowVigas[i]); // por favor
-            allDCLelements.push(defaultVigas[i]);
+            
         }
+
+        const divEquationsContainer = document.querySelector('#equationsContainer');
+        const divScoreContainer = document.querySelector('#scoreContainer');
+        const divKonvaContainer = document.querySelector("#container");
+        
+        const equationsPanel = createEquationsPanel();
+        const scorePanel = createScorePanel(stage.x,stage.y);
+        const panel = createPanel(400, 80);
+
+        divEquationsContainer.appendChild(equationsPanel);
+        divScoreContainer.appendChild(scorePanel);
+        divKonvaContainer.appendChild(panel);
+
+        listenPanelMovement(panel);
+        updateScorePanel();
+
         const layer = new Konva.Layer({name: "layer"});
     
-
-
         //------------------------------------------------------Grilla-----------------------------------------------//
         // for (var i = 0; i < widthStage / blockSnapSize; i++) {
         //     layer.add(new Konva.Line({
@@ -376,6 +401,7 @@
 
             updateViga(line, shadowLine);
             panel.style.visibility = "hidden";
+            updateScorePanel();
             return line
         }
 
@@ -411,7 +437,8 @@
             correctPosition(group, shadowEmpotrado);
             rotateElement(group, shadowEmpotrado);
             panel.style.visibility = "hidden";
-            return group;
+            updateScorePanel();
+            return group;    
         }
 
 
@@ -451,6 +478,7 @@
             correctPosition(group, shadowApoyoDeslizante);
             rotateElement(group, shadowApoyoDeslizante);
             panel.style.visibility = "hidden";
+            updateScorePanel();
             return group;
         }
 
@@ -483,6 +511,7 @@
             correctPosition(group, shadowApoyoNoDeslizante);
             //rotateElementOwn(group, shadowApoyoNoDeslizante);
             panel.style.visibility = "hidden";
+            updateScorePanel();
             return group
         }
 
@@ -512,6 +541,7 @@
 
             correctPosition(group, shadowRotula);
             panel.style.visibility = "hidden";
+            updateScorePanel();
             return group;
         }
 
@@ -556,17 +586,22 @@
             correctPosition(group, shadowBiela);
             rotateElement(group, shadowBiela);
             panel.style.visibility = "hidden";
+            updateScorePanel();
             return group
         }
 
 
         //------------------------------------------------------Fuerzas y momentos-----------------------------------------------//
-        function createFuerza(x0, y0, val){
+        function createFuerza(x0, y0, valMagnitud, valAngle=0){
             const mouseXY = roundXY(getXY());
             x0 = mouseXY.x
             y0 = mouseXY.y
 
-            var magnitud = val.value;
+            const magnitud = valMagnitud.value;
+            const angle = valAngle.value;
+            const large = blockSnapSize * 2;
+            const lx = large * Math.cos(angle * Math.PI / 180)
+            const ly = large * Math.sin(angle * Math.PI / 180)
 
             if(magnitud == "" || magnitud == null || magnitud == NaN || magnitud == undefined || magnitud == 0 ){
                 return
@@ -576,45 +611,46 @@
             const arrow = new Konva.Arrow({
                 x: x0,
                 y: y0,
-                points: [-80, 0, 0, 0],
+                points: [-lx, -ly, 0, 0],
                 pointerLength: 15,
                 pointerWidth: 15,
                 fill: "black",
                 stroke: "black",
                 strokeWidth: 4,
                 name: "fuerza",
-                tension: magnitud,
+                tension: [magnitud, angle],
                 
 
             });
 
-            const invisibleArrow = new Konva.Arrow({
-                x: x0,
-                y: y0,
-                points: [0, 0, 80, 0],
-                pointerLength: 15,
-                pointerWidth: 15,
-                fill: "red",
-                opacity: 0,
-                strokeWidth: 4,
-
-
-            });
-
-            // const magnitudValue = new Konva.Text({
+            // const invisibleArrow = new Konva.Arrow({
             //     x: x0,
-            //     y: y0-blockSnapSize,
-            //     text: magnitud + " N",
-            //     fontSize: 15,
-            //     fontFamily: "Impact"
+            //     y: y0,
+            //     points: [0, 0, 80, 0],
+            //     pointerLength: 15,
+            //     pointerWidth: 15,
+            //     fill: "red",
+            //     opacity: 0,
+            //     strokeWidth: 4,
+
+
             // });
 
-            group.add(arrow, invisibleArrow); //, magnitudValue);
+            const magnitudValue = new Konva.Text({
+                x: x0,
+                y: y0-blockSnapSize,
+                text: magnitud + " N" + ", " + angle + " °",
+                fontSize: 15,
+                fontFamily: "Impact"
+            });
+
+
+            group.add(arrow, magnitudValue);
             layer.add(group);
             allDCLelements.push(arrow);
-
-            rotateElementOwn(group);
+            // rotateElementOwn(group);
             panel.style.visibility = "hidden";
+            updateScorePanel();
             return group;
         }
 
@@ -657,6 +693,7 @@
             allDCLelements.push(group);
 
             panel.style.visibility = "hidden";
+            updateScorePanel();
             return group;
         }
 
@@ -699,6 +736,7 @@
             allDCLelements.push(group);
 
             panel.style.visibility = "hidden";
+            updateScorePanel();
             return group;
         }
 
@@ -861,7 +899,7 @@
             };
         }
         //------------------------------------------------------Panel Herramientas-----------------------------------------------//
-        function createButton(widthPanel, heightPanel, idNameText, btnText, execFunction, inputVal, x0=160, y0=160, x1=80, y1=0){
+        function createButton(widthPanel, heightPanel, idNameText, btnText, execFunction, valMagnitud=0, valAngle=0, x0=160, y0=160, x1=80, y1=0){
             
             const btn = document.createElement("button");
             btn.type = "button";
@@ -874,8 +912,10 @@
 
                 if (idNameText == "vigaBtn"){
                     execFunction(x0, y0, x1, y1);
-                } else if (idNameText == "fuerzaBtn" || idNameText == "momentoPositivoBtn" || idNameText == "momentoNegativoBtn"){
-                    execFunction(x0, y0, inputVal);
+                } else if (idNameText == "fuerzaBtn"){
+                    execFunction(x0, y0, valMagnitud, valAngle);
+                } else if (idNameText == "momentoPositivoBtn" || idNameText == "momentoNegativoBtn"){
+                    execFunction(x0, y0, valMagnitud);
                 } else {
                     execFunction(x0, y0);
                 }
@@ -884,7 +924,7 @@
         }
 
 
-        function createInput(idParam, widthPanel, heightPanel){
+        function createInputMagnitud(idParam, widthPanel, heightPanel){
             const input = document.createElement("input");
             input.type = "number";
             input.setAttribute("id", idParam);
@@ -896,16 +936,29 @@
             return input;
         }
 
+        function createInputAngle(idParam, widthPanel, heightPanel){
+            const input = document.createElement("input");
+            input.type = "number";
+            input.setAttribute("id", idParam);
+            input.min = "0";
+            input.max = "359";
+            input.value = "90"
+            input.style.width = widthPanel / 4 + "px";
+            input.style.height = heightPanel  +"px";
 
-        function createContainer(button, input){
-            const container= document.createElement("div");
-            container.style.display = "flex";
-            container.appendChild(button);
-            container.appendChild(input);
-
-            return container;
+            return input;
         }
 
+
+        function createContainer(list){
+            const container= document.createElement("div");
+            container.style.display = "flex";
+            list.forEach(element => {
+                container.appendChild(element);
+            });
+        
+            return container;
+        }
 
         function createPanel(x0, y0){
             const widthPanel = 200;
@@ -926,23 +979,25 @@
             panel.style.visibility = "hidden";
             // panel.style.visibility = "visible";
 
-            const inputCreateFuerza = createInput("input-create-fuerza", widthPanel, heightPanelElement);
-            const inputCreateMomentoPositivo = createInput("input-create-momento-positivo", widthPanel, heightPanelElement);
-            const inputCreateMomentoNegativo = createInput("input-create-momento-negativo", widthPanel, heightPanelElement);
+            const inputCreateFuerzaMagnitud = createInputMagnitud("input-create-fuerza", widthPanel, heightPanelElement);
+            const inputCreateMomentoPositivoMagnitud = createInputMagnitud("input-create-momento-positivo", widthPanel, heightPanelElement);
+            const inputCreateMomentoNegativoMagnitud = createInputMagnitud("input-create-momento-negativo", widthPanel, heightPanelElement);
 
+            const inputCreateFuerzaAngle = createInputAngle("input-create-fuerza-angle", widthPanel, heightPanelElement);
+    
             const btnViga = createButton(widthPanel, heightPanelElement, "vigaBtn", "Viga", createViga, null); //x0, y0
-            const btnApoyoDeslizante = createButton(widthPanel, heightPanelElement, "apoyoDeslizanteBtn", "Apoyo deslizante", createApoyoDeslizante, null); //x0, y0
-            const btnApoyoNoDeslizante = createButton(widthPanel, heightPanelElement, "apoyoNoDeslizanteBtn", "Apoyo no deslizante", createApoyoNoDeslizante, null); //x0, y0
-            const btnEmpotrado = createButton(widthPanel, heightPanelElement, "empotradoBtn", "Empotrado", createEmpotrado, null); //x0, y0
-            const btnRotula = createButton(widthPanel, heightPanelElement, "rotulaBtn", "Rotula", createRotula, null); //x0, y0
-            const btnBiela = createButton(widthPanel, heightPanelElement, "bielaBtn", "Biela", createBiela, null); //x0, y0
-            const btnFuerza = createButton(widthPanel, heightPanelElement, "fuerzaBtn", "Fuerza", createFuerza, inputCreateFuerza); //x0, y0
-            const btnMomentoPositivo = createButton(widthPanel, heightPanelElement, "momentoPositivoBtn", "Momento (+)", createMomentoPositivo, inputCreateMomentoPositivo); //x0, y0
-            const btnMomentoNegativo = createButton(widthPanel, heightPanelElement, "momentoNegativoBtn", "Momento (-)", createMomentoNegativo, inputCreateMomentoNegativo); //x0, y0
+            const btnApoyoDeslizante = createButton(widthPanel, heightPanelElement, "apoyoDeslizanteBtn", "Apoyo deslizante", createApoyoDeslizante); //x0, y0
+            const btnApoyoNoDeslizante = createButton(widthPanel, heightPanelElement, "apoyoNoDeslizanteBtn", "Apoyo no deslizante", createApoyoNoDeslizante); //x0, y0
+            const btnEmpotrado = createButton(widthPanel, heightPanelElement, "empotradoBtn", "Empotrado", createEmpotrado); //x0, y0
+            const btnRotula = createButton(widthPanel, heightPanelElement, "rotulaBtn", "Rotula", createRotula); //x0, y0
+            const btnBiela = createButton(widthPanel, heightPanelElement, "bielaBtn", "Biela", createBiela); //x0, y0
+            const btnFuerza = createButton(widthPanel, heightPanelElement, "fuerzaBtn", "Fuerza", createFuerza, inputCreateFuerzaMagnitud, inputCreateFuerzaAngle); //x0, y0
+            const btnMomentoPositivo = createButton(widthPanel, heightPanelElement, "momentoPositivoBtn", "Momento (+)", createMomentoPositivo, inputCreateMomentoPositivoMagnitud); //x0, y0
+            const btnMomentoNegativo = createButton(widthPanel, heightPanelElement, "momentoNegativoBtn", "Momento (-)", createMomentoNegativo, inputCreateMomentoNegativoMagnitud); //x0, y0
 
-            const containerFuerza = createContainer(btnFuerza, inputCreateFuerza);
-            const containerCreateMomentoPositivo = createContainer(btnMomentoPositivo, inputCreateMomentoPositivo);
-            const containerCreateMomentoNegativo = createContainer(btnMomentoNegativo, inputCreateMomentoNegativo);
+            const containerFuerza = createContainer([btnFuerza, inputCreateFuerzaMagnitud, inputCreateFuerzaAngle]);
+            const containerCreateMomentoPositivo = createContainer([btnMomentoPositivo, inputCreateMomentoPositivoMagnitud]);
+            const containerCreateMomentoNegativo = createContainer([btnMomentoNegativo, inputCreateMomentoNegativoMagnitud]);
 
             const topOfPanel = document.createElement("div");
             topOfPanel.style.width = widthPanel;
@@ -1013,7 +1068,7 @@
         function getXY(){
             const mouseXY = stage.getPointerPosition();
             if (mouseXY){
-                console.log("En mouseXY: " + mouseXY.x + ", " + mouseXY.y);
+                // console.log("En mouseXY: " + mouseXY.x + ", " + mouseXY.y);
                 return {x: mouseXY.x, y: mouseXY.y};
             } else {
                 console.log("Fallo en ");
@@ -1144,28 +1199,58 @@
             scorePanel.querySelector("#valueScore").innerHTML = score
         }
 
+        //------------------------------------------------------Ecuaciones-----------------------------------------------//
+        function createEquationsPanel(){
+
+            // const colorPanel = "#DDDDDD"
+    
+            // panel.style.backgroundColor = colorPanel;
+            // panel.style.borderColor = "black";
+            // panel.style.border = "40px";
+
+            const panel = document.createElement("div");
+            
+
+            const equationFxDiv = document.createElement("div");
+            equationFxDiv.id = "fx"
+            const contentFx = document.createElement("h4");
+            contentFx.innerText = "ΣFx:" + " = 0";
+            equationFxDiv.appendChild(contentFx);
+
+            const equationFyDiv = document.createElement("div");
+            equationFyDiv.id = "fy"
+            const contentFy = document.createElement("h4");
+            contentFy.innerText = "ΣFy:" + " = 0";
+            equationFyDiv.appendChild(contentFy);
+
+            const equationMoDiv = document.createElement("div");
+            equationFyDiv.id = "fy"
+            const contentMo = document.createElement("h4");
+            contentMo.innerText = "ΣMo:" + " = 0";
+            equationMoDiv.appendChild(contentMo);
+
+            panel.appendChild(equationFxDiv);
+            panel.appendChild(equationFyDiv);
+            panel.appendChild(equationMoDiv);
+
+            return panel;
+        }
+
         //------------------------------------------------------Declaraciones-----------------------------------------------//
-        const divKonvaContainer = document.querySelector("#container");
-        console.log("divKonvaContainer pos: " + divKonvaContainer.style.left + ", " + divKonvaContainer.style.top)
-        const divScoreContainer = document.querySelector('#scorecontainer');
-        // const mousePos = mousePosition();
-        const scorePanel = createScorePanel(stage.x,stage.y);
-        divScoreContainer.appendChild(scorePanel)
-        // document.querySelector("#scoreContainer").appendChild(scorePanel)
-
-        const panel = createPanel(400, 80);
-        divKonvaContainer.appendChild(panel);
-
-        listenPanelMovement(panel);
+    
         //const initialViga = createViga(blockSnapSize*15, blockSnapSize*5 , blockSnapSize*4, 0, nameViga="initialViga"); // initialViga no puede ser destruida
 
         stage.add(layer);
         
         stage.on("click",  (e) => {
-
-            console.log("objeto clickeado: " + e.target.name());
             console.log(allDCLelements);
+            updateScorePanel();
+            document.querySelector("#id_draw").value = stage.toJSON()
+            document.querySelector("#id_category").value = document.querySelector("#valueCategory").innerText
+            document.querySelector("#id_level_points").value = document.querySelector("#valueScore").innerText
+            panel.style.visibility = "hidden";
 
+    
             if (e.target != stage && e.target) {
                 var mouseXY = stage.getPointerPosition();
 
@@ -1177,6 +1262,7 @@
                             idx = allDCLelements.indexOf(e.target.getParent());;
                             allDCLelements.splice(idx, 1);
                             e.target.getParent().destroy();
+                            updateScorePanel();
                         }
                     });
                 }
@@ -1184,27 +1270,17 @@
         });
 
         stage.on("dblclick", (e) => {
-            console.log(panel.childNodes)
             if (e.target != stage && e.target) {
                 const mouseXY = roundXY(getXY());
-                console.log("mous pos: "+mouseXY.x+", "+mouseXY.y)
+                // console.log("mous pos: "+mouseXY.x+", "+mouseXY.y)
                 if (e.target.name() == "subElementoVigaCirculo1" || e.target.name() == "subElementoVigaCirculo2"){
                     panel.style.visibility = "visible"
                     movePanelTo(panel, mouseXY.x, mouseXY.y)
-    
                 }
             }
         });
 
-        stage.on("click", (e) => {
-        updateScorePanel();
-        console.log("cacaaaaa: " + document.querySelector("#valueCategory").innerText)
-        console.log("AQUI VIENE EL JSONNNNNNO" + "\n" + stage.toJSON());
-        document.querySelector("#id_draw").value = stage.toJSON()
-        document.querySelector("#id_category").value = document.querySelector("#valueCategory").innerText
-        document.querySelector("#id_level_points").value = document.querySelector("#valueScore").innerText
-    });
-
+       
     </script>
 
     <button type="submit">SAVE</button>
