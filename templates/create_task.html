@@ -615,7 +615,7 @@
                 return
             }
           
-            const group = new Konva.Group({name: "fuerza"});
+            const group = new Konva.Group({tension: [magnitud, angle], name: "fuerza"});
             const arrow = new Konva.Arrow({
                 x: x0,
                 y: y0,
@@ -626,9 +626,6 @@
                 stroke: "black",
                 strokeWidth: 4,
                 name: "fuerza",
-                tension: [magnitud, angle],
-                
-
             });
 
 
@@ -643,7 +640,7 @@
 
             group.add(arrow, magnitudValue);
             layer.add(group);
-            allDCLelements.push(arrow);
+            allDCLelements.push(group);
             panel.style.visibility = "hidden";
             updateScorePanel();
             updateEquations();

@@ -64,9 +64,9 @@
                     allDCLelements.push(element);
             }
         });
+
         for(let i=0; i<defaultVigas.length; i++){
-            updateViga(defaultVigas[i], defaultShadowVigas[i]); // por favor
-            
+            updateViga(defaultVigas[i], defaultShadowVigas[i]); // por favor       
         }
 
         const divEquationsContainer = document.querySelector('#equationsContainer');
@@ -87,24 +87,24 @@
         const layer = new Konva.Layer({name: "layer"});
     
         //------------------------------------------------------Grilla-----------------------------------------------//
-        // for (var i = 0; i < widthStage / blockSnapSize; i++) {
-        //     layer.add(new Konva.Line({
-        //         name: "horizontalLines",
-        //         points: [Math.round(i * blockSnapSize) + 0.5, 0, Math.round(i * blockSnapSize) + 0.5, heightStage],
-        //         stroke: "#777777",
-        //         strokeWidth: 1,
-        //     }));
-        // }
+        for (var i = 0; i < widthStage / blockSnapSize; i++) {
+            layer.add(new Konva.Line({
+                name: "horizontalLines",
+                points: [Math.round(i * blockSnapSize) + 0.5, 0, Math.round(i * blockSnapSize) + 0.5, heightStage],
+                stroke: "#777777",
+                strokeWidth: 1,
+            }));
+        }
 
 
-        // for (var j = 0; j < heightStage / blockSnapSize; j++) {
-        //     layer.add(new Konva.Line({
-        //         name: "verticalLines",
-        //         points: [0, Math.round(j * blockSnapSize), widthStage, Math.round(j * blockSnapSize)],
-        //         stroke: "#7777777",
-        //         strokeWidth: 0.5,
-        //     }));
-        // }
+        for (var j = 0; j < heightStage / blockSnapSize; j++) {
+            layer.add(new Konva.Line({
+                name: "verticalLines",
+                points: [0, Math.round(j * blockSnapSize), widthStage, Math.round(j * blockSnapSize)],
+                stroke: "#7777777",
+                strokeWidth: 0.5,
+            }));
+        }
 
         //------------------------------------------------------Sombras-----------------------------------------------//
 
@@ -157,7 +157,7 @@
 
 
         function createShadowEmpotrado(x0, y0){
-            const group = new Konva.Group({ name: "shadow-empotrado"});
+            const group = new Konva.Group({name: "shadow-empotrado"});
             const base = new Konva.Line({
                 name: "subElemento Empotrado Shadow",
                 x: x0,
@@ -246,7 +246,7 @@
                 y: y0,
                 radius: 5,
                 fill: "#CF6412",
-            
+                draggable: true
             });
 
             const circle2 = circle1.clone({
@@ -263,7 +263,7 @@
 
         //------------------------------------------------------Viga-----------------------------------------------//
         function newViga(x0, y0, x1, y1, nameViga="viga"){ //parte en el punto (x0, y0) y se desplaza x1 horizontalmente ^ y1 verticalmente ( no va al punto (x1, y1))
-            const group = new Konva.Group({name: nameViga});
+            const group = new Konva.Group({draggable: false, name: nameViga});
             const line = new Konva.Line({
                 name: "subElementoVigaLinea",
                 x: x0,
@@ -403,17 +403,19 @@
             updateViga(line, shadowLine);
             panel.style.visibility = "hidden";
             updateScorePanel();
+            updateEquations();
             return line
         }
 
 
         //------------------------------------------------------Vinculos externos-----------------------------------------------//
         function createEmpotrado(x0, y0){
+            countEmpotrado += 1;
             const mouseXY = roundXY(getXY());
             x0 = mouseXY.x
             y0 = mouseXY.y
 
-            const group = new Konva.Group({ name: "empotrado"});
+            const group = new Konva.Group({id: "e" + countEmpotrado, name: "empotrado"});
             const base = new Konva.Line({
                 name: "subElemento Empotrado",
                 x: x0,
@@ -439,17 +441,20 @@
             rotateElement(group, shadowEmpotrado);
             panel.style.visibility = "hidden";
             updateScorePanel();
+            updateEquations();
             return group;    
         }
 
 
         function createApoyoDeslizante(x0, y0){
+            countApoyoDeslizante += 1;
+
             const mouseXY = roundXY(getXY());
             x0 = mouseXY.x
             y0 = mouseXY.y
 
-            const group = new Konva.Group({name: "apoyo-deslizante", offset: {x:0, y:-15}});
-            const triangle = new Konva.RegularPolygon({
+            const group = new Konva.Group({id: "ad" + countApoyoDeslizante, name: "apoyo-deslizante", offset: {x:0, y:-15}});
+            const triangle = new Konva.RegularPolygon({    
                 name: "subElemento ApoyoDeslizante",
                 x: x0,
                 y: y0+10,
@@ -480,16 +485,18 @@
             rotateElement(group, shadowApoyoDeslizante);
             panel.style.visibility = "hidden";
             updateScorePanel();
+            updateEquations();
             return group;
         }
 
 
         function createApoyoNoDeslizante(x0, y0){
+            countpoyoNoDeslizante += 1;
             const mouseXY = roundXY(getXY());
             x0 = mouseXY.x
             y0 = mouseXY.y
 
-            const group = new Konva.Group({name: "apoyo-no-deslizante", offset: {x: 0, y:-20}});
+            const group = new Konva.Group({id: "an" + countpoyoNoDeslizante, name: "apoyo-no-deslizante", offset: {x: 0, y:-20}});
             const triangle = new Konva.RegularPolygon({
                 name: "subElemento ApoyoNoDeslizante",
                 x: x0,
@@ -513,6 +520,7 @@
             //rotateElementOwn(group, shadowApoyoNoDeslizante);
             panel.style.visibility = "hidden";
             updateScorePanel();
+            updateEquations();
             return group
         }
 
@@ -543,6 +551,7 @@
             correctPosition(group, shadowRotula);
             panel.style.visibility = "hidden";
             updateScorePanel();
+            updateEquations();
             return group;
         }
 
@@ -588,6 +597,7 @@
             rotateElement(group, shadowBiela);
             panel.style.visibility = "hidden";
             updateScorePanel();
+            updateEquations();
             return group
         }
 
@@ -608,7 +618,7 @@
                 return
             }
           
-            const group = new Konva.Group({name: "fuerza"});
+            const group = new Konva.Group({tension: [magnitud, angle], name: "fuerza"});
             const arrow = new Konva.Arrow({
                 x: x0,
                 y: y0,
@@ -619,23 +629,11 @@
                 stroke: "black",
                 strokeWidth: 4,
                 name: "fuerza",
-                tension: [magnitud, angle],
+                // tension: [magnitud, angle],
                 
 
             });
 
-            // const invisibleArrow = new Konva.Arrow({
-            //     x: x0,
-            //     y: y0,
-            //     points: [0, 0, 80, 0],
-            //     pointerLength: 15,
-            //     pointerWidth: 15,
-            //     fill: "red",
-            //     opacity: 0,
-            //     strokeWidth: 4,
-
-
-            // });
 
             const magnitudValue = new Konva.Text({
                 x: x0,
@@ -649,9 +647,9 @@
             group.add(arrow, magnitudValue);
             layer.add(group);
             allDCLelements.push(arrow);
-            // rotateElementOwn(group);
             panel.style.visibility = "hidden";
             updateScorePanel();
+            updateEquations();
             return group;
         }
 
@@ -695,6 +693,7 @@
 
             panel.style.visibility = "hidden";
             updateScorePanel();
+            updateEquations();
             return group;
         }
 
@@ -738,6 +737,7 @@
 
             panel.style.visibility = "hidden";
             updateScorePanel();
+            updateEquations();
             return group;
         }
 
@@ -1203,12 +1203,6 @@
         //------------------------------------------------------Ecuaciones-----------------------------------------------//
         function createEquationsPanel(){
 
-            // const colorPanel = "#DDDDDD"
-    
-            // panel.style.backgroundColor = colorPanel;
-            // panel.style.borderColor = "black";
-            // panel.style.border = "40px";
-
             const panel = document.createElement("div");
             
 
@@ -1237,9 +1231,73 @@
             return panel;
         }
 
+        function updateEquations(){
+            var textFx = "ΣFx:";
+            var textFy = "ΣFy:";
+            console.log("uptade equations: ")
+            allDCLelements.forEach((element) => {
+                if(element.name() == "fuerza"){
+                    console.log(element)
+                    const tension = element.getAttr("tension");
+                    const magnitud = parseInt(tension[0]);
+                    const angle = parseInt(tension[1]);
+                    if(0 <= angle && angle < 90){ // sen - cos +
+                        if(angle == 0){
+                            textFx += `+ ${tension[0]}N `;
+                        } else {
+                            textFx += `+ ${tension[0]}cos(${angle})N `;
+                            textFy += `- ${tension[0]}sin(${angle})N `;
+                        }
+                    } else if(90 <= angle && angle < 180){ // sen cos 
+                        if(angle == 90){
+                            textFy += `- ${tension[0]}N `;
+                        } else {
+                            textFx += `- ${tension[0]}cos(${180 - angle})N `;
+                            textFy += `- ${tension[0]}sin(${180 - angle})N `;
+                        }
+                    } else if(180 <= angle && angle < 270){ // sen cos
+                        if(angle == 180){
+                            textFx += `- ${tension[0]}N `;
+                        } else {
+                            textFx += `- ${tension[0]}cos(${angle - 180})N `;
+                            textFy += `+ ${tension[0]}sin(${angle - 180})N `;
+                        }
+                    } else if(270 <= angle && angle < 360){ // sen cos
+                        if(angle == 270){
+                            textFy += `+ ${tension[0]}N `;
+                        } else {
+                            textFx += `+ ${tension[0]}cos(${360 - angle})N `;
+                            textFy += `+ ${tension[0]}sin(${360 - angle})N `;
+                        }
+                    }
+                } else if (element.name() == "empotrado" ){
+                    console.log(element.getAttrs())
+                    textFx +=  `+ F${element.getAttr("id")}_x`;
+                    textFy +=  `+ F${element.getAttr("id")}_y`;
+                } else if (element.name() == "apoyo-deslizante" ){
+                    console.log(element.getAttrs())
+                    textFy +=  `+ F${element.getAttr("id")}_y`;
+                } else if (element.name() == "apoyo-no-deslizante" ){
+                    console.log(element.getAttrs())
+                    textFx +=  `+ F${element.getAttr("id")}_x`;
+                    textFy +=  `+ F${element.getAttr("id")}_y`;
+                }
+            });
+            textFx += "= 0";
+            textFy += "= 0";
+            const fx = document.querySelector("#fx");
+            const fy = document.querySelector("#fy");
+            fx.innerText = textFx;
+            fy.innerText = textFy;
+        }
+
         //------------------------------------------------------Declaraciones-----------------------------------------------//
     
-        //const initialViga = createViga(blockSnapSize*15, blockSnapSize*5 , blockSnapSize*4, 0, nameViga="initialViga"); // initialViga no puede ser destruida
+        const initialViga = createViga(blockSnapSize*15, blockSnapSize*5 , blockSnapSize*4, 0, nameViga="initialViga"); // initialViga no puede ser destruida
+
+        var countEmpotrado = 0;
+        var countApoyoDeslizante = 0;
+        var countpoyoNoDeslizante = 0;
 
         stage.add(layer);
         
@@ -1280,8 +1338,6 @@
                 }
             }
         });
-
-       
     </script>
 
     <button type="submit">SAVE</button>
