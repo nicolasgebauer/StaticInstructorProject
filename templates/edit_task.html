@@ -109,7 +109,7 @@
         //------------------------------------------------------Sombras-----------------------------------------------//
 
         function createShadowApoyoDeslizante(x0, y0){
-            const group = new Konva.Group({draggable: true, name: "shadow-apoyo-deslizante"});
+            const group = new Konva.Group({name: "shadow-apoyo-deslizante"});
             const triangle = new Konva.RegularPolygon({
                 name: "subElemento ApoyoDeslizante Shadow",
                 x: x0,
@@ -138,7 +138,7 @@
 
 
         function createShadowApoyoNoDeslizante(x0, y0){
-            const group = new Konva.Group({draggable: true, name: "shadow-apoyo-no-deslizante"});
+            const group = new Konva.Group({name: "shadow-apoyo-no-deslizante"});
             const triangle = new Konva.RegularPolygon({
                 name: "subElemento ApoyoNoDeslizante Shadow",
                 x: x0,
@@ -157,7 +157,7 @@
 
 
         function createShadowEmpotrado(x0, y0){
-            const group = new Konva.Group({draggable: true, name: "shadow-empotrado"});
+            const group = new Konva.Group({ name: "shadow-empotrado"});
             const base = new Konva.Line({
                 name: "subElemento Empotrado Shadow",
                 x: x0,
@@ -180,7 +180,7 @@
 
 
         function createShadowRotula(x0, y0){
-            const group = new Konva.Group({draggable: true, name: "shadow-rotula"});
+            const group = new Konva.Group({name: "shadow-rotula"});
             const circle = new Konva.Circle({
                 x: x0,
                 y: y0,
@@ -198,7 +198,7 @@
 
 
         function createShadowBiela(x0, y0){
-            const group = new Konva.Group({draggable: true, name: "shadow-biela"});
+            const group = new Konva.Group({name: "shadow-biela"});
             const large = 40;
             const line = new Konva.Line({
                 name: "subElemento Biela",
@@ -229,7 +229,7 @@
 
 
         function createShadowViga(x0, y0, x1, y1){
-            const group = new Konva.Group({draggable: true, name: "shadow-viga"});
+            const group = new Konva.Group({name: "shadow-viga"});
             const line = new Konva.Line({
                 name: "subElementoViga",
                 x: x0,
@@ -246,7 +246,7 @@
                 y: y0,
                 radius: 5,
                 fill: "#CF6412",
-                draggable: true
+            
             });
 
             const circle2 = circle1.clone({
@@ -263,7 +263,7 @@
 
         //------------------------------------------------------Viga-----------------------------------------------//
         function newViga(x0, y0, x1, y1, nameViga="viga"){ //parte en el punto (x0, y0) y se desplaza x1 horizontalmente ^ y1 verticalmente ( no va al punto (x1, y1))
-            const group = new Konva.Group({draggable: false, name: nameViga});
+            const group = new Konva.Group({name: nameViga});
             const line = new Konva.Line({
                 name: "subElementoVigaLinea",
                 x: x0,
@@ -285,7 +285,8 @@
             const circle2 = circle1.clone({
                 name: "subElementoVigaCirculo2",
                 x: x0+(x1),
-                y: y0+(y1)
+                y: y0+(y1),
+                draggable: true
             });
 
             group.add(line, circle1, circle2);
@@ -412,7 +413,7 @@
             x0 = mouseXY.x
             y0 = mouseXY.y
 
-            const group = new Konva.Group({draggable: true, name: "empotrado"});
+            const group = new Konva.Group({ name: "empotrado"});
             const base = new Konva.Line({
                 name: "subElemento Empotrado",
                 x: x0,
@@ -447,7 +448,7 @@
             x0 = mouseXY.x
             y0 = mouseXY.y
 
-            const group = new Konva.Group({name: "apoyo-deslizante", draggable: true, offset: {x:0, y:-15}});
+            const group = new Konva.Group({name: "apoyo-deslizante", offset: {x:0, y:-15}});
             const triangle = new Konva.RegularPolygon({
                 name: "subElemento ApoyoDeslizante",
                 x: x0,
@@ -522,7 +523,7 @@
             x0 = mouseXY.x
             y0 = mouseXY.y
 
-            const group = new Konva.Group({draggable: true, name: "rotula"});
+            const group = new Konva.Group({name: "rotula"});
             const circle = new Konva.Circle({
                 x: x0,
                 y: y0,
@@ -551,7 +552,7 @@
             x0 = mouseXY.x
             y0 = mouseXY.y
 
-            const group = new Konva.Group({draggable: true, name: "biela"});
+            const group = new Konva.Group({name: "biela"});
             const large = 40;
             const line = new Konva.Line({
                 name: "subElemento Biela",
@@ -607,7 +608,7 @@
                 return
             }
           
-            const group = new Konva.Group({draggable: true, name: "fuerza"});
+            const group = new Konva.Group({name: "fuerza"});
             const arrow = new Konva.Arrow({
                 x: x0,
                 y: y0,
@@ -666,7 +667,7 @@
                 return
             }
 
-            const group = new Konva.Group({draggable: true, name: "momento-positivo"});
+            const group = new Konva.Group({name: "momento-positivo"});
             const arrow = new Konva.Arrow({
                 x: x0,
                 y: y0,
@@ -709,7 +710,7 @@
                 return
             }
 
-            const group = new Konva.Group({draggable: true, name: "momento-negativo"});
+            const group = new Konva.Group({name: "momento-negativo"});
             const arrow = new Konva.Arrow({
                 x: x0,
                 y: y0,

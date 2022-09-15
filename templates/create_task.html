@@ -11,41 +11,78 @@
 {%block title%}Create a new Task{%endblock title%}
 {%endblock head%}
 {%block body%}
-<h1>Create a new task:</h1>
+<h1>Create Task:</h1>
 <form method="post">
     {% csrf_token %}
     {{form.as_p}}
 
-    <header>
-        <div id="scoreContainer"></div>
-    </header>
-    <main>
-        <div id="scorecontainer" style="height: 40px;"></div>
-        <div id="container" style="background-color: antiquewhite; border: 5px; border-color: black;"></div>
-    </main>
     
-    {{drawJASON|json_script:"drawJSON"}}
+    <div id="scoreContainer" style="height: 40px;"></div>
+    <div id="equationsContainer" style="height: 120px;"></div>
+    <div id="container" style="background-color: antiquewhite; border: 5px; border-color: black;"></div>
+
     <script>
-        // const value = JSON.parse(document.getElementById('').textContent)
-        // console.log("AQUI VIENE EL JSON! 2" + value);
+        
+        // console.log("AQUI VIENE EL JSON! 2" + drawJSON);
         //------------------------------------------------------Variables-----------------------------------------------//
         // const width = window.innerWidth;
         // const height = window.innerHeight;
         const blockSnapSize = 40;
         const widthStage = blockSnapSize * 100;
         const heightStage = blockSnapSize * 80;
-    
+        const allDCLelements = [];
         const stage = new Konva.Stage({
             name: "stage",
             container: "container",
             width: widthStage,
             height: heightStage
         });
+        
+        const defaultVigas = stage.find( (element) =>{
+            return element.name() == "viga" || element.name() == "initialViga"
+        })
+        const defaultShadowVigas = stage.find( (element) =>{
+            return element.name() == "shadow-viga"
+        })
+
+        stage.find( (element) => { 
+            if (element.name() == "viga"                ||
+                element.name() == "initialViga"         ||
+                element.name() == "empotrado"           ||
+                element.name() == "apoyo-deslizante"    ||
+                element.name() == "apoyo-no-deslizante" ||
+                element.name() == "rotula"              ||
+                element.name() == "biela"               ||
+                element.name() == "fuerza"              ||
+                element.name() == "momento-positivo"    ||
+                element.name() == "momento-negativo" 
+                 ){
+                    allDCLelements.push(element);
+            }
+        });
+        for(let i=0; i<defaultVigas.length; i++){
+            updateViga(defaultVigas[i], defaultShadowVigas[i]); // por favor
+            
+        }
+
+        const divEquationsContainer = document.querySelector('#equationsContainer');
+        const divScoreContainer = document.querySelector('#scoreContainer');
+        const divKonvaContainer = document.querySelector("#container");
+        
+        const equationsPanel = createEquationsPanel();
+        const scorePanel = createScorePanel(stage.x,stage.y);
+        const panel = createPanel(400, 80);
+
+        divEquationsContainer.appendChild(equationsPanel);
+        divScoreContainer.appendChild(scorePanel);
+        divKonvaContainer.appendChild(panel);
+
+        listenPanelMovement(panel);
+        updateScorePanel();
 
         const layer = new Konva.Layer({name: "layer"});
-        const allDCLelements = [];
 
-
+    
         //------------------------------------------------------Grilla-----------------------------------------------//
         for (var i = 0; i < widthStage / blockSnapSize; i++) {
             layer.add(new Konva.Line({
@@ -69,7 +106,7 @@
         //------------------------------------------------------Sombras-----------------------------------------------//
 
         function createShadowApoyoDeslizante(x0, y0){
-            const group = new Konva.Group({draggable: true, name: "shadow-apoyo-deslizante"});
+            const group = new Konva.Group({name: "shadow-apoyo-deslizante"});
             const triangle = new Konva.RegularPolygon({
                 name: "subElemento ApoyoDeslizante Shadow",
                 x: x0,
@@ -98,7 +135,7 @@
 
 
         function createShadowApoyoNoDeslizante(x0, y0){
-            const group = new Konva.Group({draggable: true, name: "shadow-apoyo-no-deslizante"});
+            const group = new Konva.Group({name: "shadow-apoyo-no-deslizante"});
             const triangle = new Konva.RegularPolygon({
                 name: "subElemento ApoyoNoDeslizante Shadow",
                 x: x0,
@@ -117,7 +154,7 @@
 
 
         function createShadowEmpotrado(x0, y0){
-            const group = new Konva.Group({draggable: true, name: "shadow-empotrado"});
+            const group = new Konva.Group({name: "shadow-empotrado"});
             const base = new Konva.Line({
                 name: "subElemento Empotrado Shadow",
                 x: x0,
@@ -140,7 +177,7 @@
 
 
         function createShadowRotula(x0, y0){
-            const group = new Konva.Group({draggable: true, name: "rotula"});
+            const group = new Konva.Group({name: "shadow-rotula"});
             const circle = new Konva.Circle({
                 x: x0,
                 y: y0,
@@ -158,7 +195,7 @@
 
 
         function createShadowBiela(x0, y0){
-            const group = new Konva.Group({draggable: true, name: "biela"});
+            const group = new Konva.Group({name: "shadow-biela"});
             const large = 40;
             const line = new Konva.Line({
                 name: "subElemento Biela",
@@ -189,7 +226,7 @@
 
 
         function createShadowViga(x0, y0, x1, y1){
-            const group = new Konva.Group({draggable: true, name: "shadow-viga"});
+            const group = new Konva.Group({name: "shadow-viga"});
             const line = new Konva.Line({
                 name: "subElementoViga",
                 x: x0,
@@ -216,7 +253,8 @@
             });
 
             group.add(line, circle1, circle2);
-            return [group, line, circle1, circle2]
+            console.log("poto:" + group.getChildren());
+            return group
         }
 
 
@@ -244,95 +282,99 @@
             const circle2 = circle1.clone({
                 name: "subElementoVigaCirculo2",
                 x: x0+(x1),
-                y: y0+(y1)
+                y: y0+(y1),
+                draggable: true
             });
 
             group.add(line, circle1, circle2);
-            return [group, line, circle1, circle2]
+            // return [group, line, circle1, circle2]
+            return group
         }
-
 
         function updateViga(viga, shadow){
 
-            viga[2].on("dragstart", () => {
-                shadow[0].show();
-                shadow[0].moveToTop();
-                viga[0].moveToTop();
+            // 1 linea 2 ciculo1 3 circulo
+            const vigaList = viga.getChildren();
+            const shadowList = shadow.getChildren();
+            vigaList[1].on("dragstart", () => {
+                shadow.show();
+                shadow.moveToTop();
+                viga.moveToTop();
             });
 
-            viga[2].on("dragmove", () => {
-                const circle1Pos = viga[2].getPosition();
-                const circle2Pos = viga[3].getPosition();
-                const shadowCircle1Pos = shadow[2].getPosition();
+            vigaList[1].on("dragmove", () => {
+                const circle1Pos = vigaList[1].getPosition();
+                const circle2Pos = vigaList[2].getPosition();
+                const shadowCircle1Pos = shadowList[1].getPosition();
 
-                viga[1].position(circle1Pos);
-                viga[1].points([0, 0, circle2Pos.x - circle1Pos.x, circle2Pos.y - circle1Pos.y]);
+                vigaList[0].position(circle1Pos);
+                vigaList[0].points([0, 0, circle2Pos.x - circle1Pos.x, circle2Pos.y - circle1Pos.y]);
 
-                viga[2].position({x: circle1Pos.x, y: circle1Pos.y});
-                shadow[2].position({
+                vigaList[1].position({x: circle1Pos.x, y: circle1Pos.y});
+                shadowList[1].position({
                     x: Math.round(circle1Pos.x / blockSnapSize) * blockSnapSize,
                     y: Math.round(circle1Pos.y / blockSnapSize) * blockSnapSize
                 });
 
-                shadow[1].position(circle2Pos);
-                shadow[1].points([0, 0, shadowCircle1Pos.x - circle2Pos.x, shadowCircle1Pos.y - circle2Pos.y]);
+                shadowList[0].position(circle2Pos);
+                shadowList[0].points([0, 0, shadowCircle1Pos.x - circle2Pos.x, shadowCircle1Pos.y - circle2Pos.y]);
             })
 
-            viga[2].on("dragend", () => {
-                const circle2Pos = viga[3].getPosition();
-                const shadowCircle1Pos = shadow[2].getPosition();
+            vigaList[1].on("dragend", () => {
+                const circle2Pos = vigaList[2].getPosition();
+                const shadowCircle1Pos = shadowList[1].getPosition();
 
                 const newX = circle2Pos.x - shadowCircle1Pos.x;
                 const newY = circle2Pos.y - shadowCircle1Pos.y;
 
-                viga[1].position(shadowCircle1Pos);
-                viga[1].points([0, 0, newX, newY]);
-                viga[2].position({
+                vigaList[0].position(shadowCircle1Pos);
+                vigaList[0].points([0, 0, newX, newY]);
+                vigaList[1].position({
                     x: shadowCircle1Pos.x,
                     y: shadowCircle1Pos.y
                 });
 
-                shadow[1].position(viga[1].position());
-                shadow[0].hide();
+                shadowList[0].position(vigaList[0].position());
+                shadow.hide();
             });
 
-            viga[3].on("dragstart", () => {
-                shadow[0].show();
-                shadow[0].moveToTop();
-                viga[0].moveToTop();
+            vigaList[2].on("dragstart", () => {
+                shadow.show();
+                shadow.moveToTop();
+                viga.moveToTop();
             });
 
-            viga[3].on("dragmove", () => {
-                const linePos = viga[1].getPosition();
-                const circle2Pos = viga[3].getPosition();
+            vigaList[2].on("dragmove", () => {
+                const linePos = vigaList[0].getPosition();
+                const circle2Pos = vigaList[2].getPosition();
 
                 const newX = Math.round((circle2Pos.x - linePos.x) / blockSnapSize) * blockSnapSize
                 const newY = Math.round((circle2Pos.y - linePos.y) / blockSnapSize) * blockSnapSize
 
-                viga[1].points([0, 0, circle2Pos.x - linePos.x, circle2Pos.y - linePos.y])
-                shadow[1].points([0, 0, newX, newY])
+                vigaList[0].points([0, 0, circle2Pos.x - linePos.x, circle2Pos.y - linePos.y])
+                shadowList[0].points([0, 0, newX, newY])
 
-                viga[3].position({x: circle2Pos.x, y: circle2Pos.y})
-                shadow[3].position({
+                vigaList[2].position({x: circle2Pos.x, y: circle2Pos.y})
+                shadowList[2].position({
                     x: Math.round(circle2Pos.x / blockSnapSize) * blockSnapSize,
                     y: Math.round(circle2Pos.y / blockSnapSize) * blockSnapSize
                 });
             });
 
-            viga[3].on("dragend", () => {
-                const linePos = viga[1].getPosition();
-                const circle2Pos = viga[3].getPosition();
-                const shadowCircle2Pos = shadow[3].getPosition();
+            vigaList[2].on("dragend", () => {
+                const linePos = vigaList[0].getPosition();
+                const circle2Pos = vigaList[2].getPosition();
+                const shadowCircle2Pos = shadowList[2].getPosition();
 
                 const newX = Math.round((circle2Pos.x - linePos.x) / blockSnapSize) * blockSnapSize
                 const newY = Math.round((circle2Pos.y - linePos.y) / blockSnapSize) * blockSnapSize
 
-                viga[1].points([0, 0, newX, newY])
-                viga[3].position({
+                vigaList[0].points([0, 0, newX, newY])
+                vigaList[2].position({
                     x: shadowCircle2Pos.x,
                     y: shadowCircle2Pos.y
                 });
-                shadow[0].hide();
+                shadow.hide();
             });
         }
 
@@ -348,28 +390,29 @@
                 x1 = blockSnapSize * 3;
             }
         
-            
-
             const line = newViga(x0, y0, x1, y1, nameViga);
             const shadowLine = createShadowViga(x0, y0, x1, y1);
 
-            layer.add(line[0]);
-            layer.add(shadowLine[0].hide());
-            allDCLelements.push(line[0]);
+            layer.add(line);
+            layer.add(shadowLine.hide());
+            allDCLelements.push(line);
 
             updateViga(line, shadowLine);
             panel.style.visibility = "hidden";
-            return line[0]
+            updateScorePanel();
+            updateEquations();
+            return line
         }
 
 
         //------------------------------------------------------Vinculos externos-----------------------------------------------//
         function createEmpotrado(x0, y0){
+            countEmpotrado += 1;
             const mouseXY = roundXY(getXY());
             x0 = mouseXY.x
             y0 = mouseXY.y
 
-            const group = new Konva.Group({draggable: true, name: "empotrado"});
+            const group = new Konva.Group({id: "e" + countEmpotrado, name: "empotrado"});
             const base = new Konva.Line({
                 name: "subElemento Empotrado",
                 x: x0,
@@ -394,17 +437,21 @@
             correctPosition(group, shadowEmpotrado);
             rotateElement(group, shadowEmpotrado);
             panel.style.visibility = "hidden";
-            return group;
+            updateScorePanel();
+            updateEquations();
+            return group;    
         }
 
 
         function createApoyoDeslizante(x0, y0){
+            countApoyoDeslizante += 1;
+
             const mouseXY = roundXY(getXY());
             x0 = mouseXY.x
             y0 = mouseXY.y
 
-            const group = new Konva.Group({name: "apoyo-deslizante", offset: {x:0, y:-15}});
-            const triangle = new Konva.RegularPolygon({
+            const group = new Konva.Group({id: "ad" + countApoyoDeslizante, name: "apoyo-deslizante", offset: {x:0, y:-15}});
+            const triangle = new Konva.RegularPolygon({    
                 name: "subElemento ApoyoDeslizante",
                 x: x0,
                 y: y0+10,
@@ -434,16 +481,19 @@
             correctPosition(group, shadowApoyoDeslizante);
             rotateElement(group, shadowApoyoDeslizante);
             panel.style.visibility = "hidden";
+            updateScorePanel();
+            updateEquations();
             return group;
         }
 
 
         function createApoyoNoDeslizante(x0, y0){
+            countpoyoNoDeslizante += 1;
             const mouseXY = roundXY(getXY());
             x0 = mouseXY.x
             y0 = mouseXY.y
 
-            const group = new Konva.Group({name: "apoyo-no-deslizante", offset: {x: 0, y:-20}});
+            const group = new Konva.Group({id: "an" + countpoyoNoDeslizante, name: "apoyo-no-deslizante", offset: {x: 0, y:-20}});
             const triangle = new Konva.RegularPolygon({
                 name: "subElemento ApoyoNoDeslizante",
                 x: x0,
@@ -466,6 +516,8 @@
             correctPosition(group, shadowApoyoNoDeslizante);
             //rotateElementOwn(group, shadowApoyoNoDeslizante);
             panel.style.visibility = "hidden";
+            updateScorePanel();
+            updateEquations();
             return group
         }
 
@@ -476,7 +528,7 @@
             x0 = mouseXY.x
             y0 = mouseXY.y
 
-            const group = new Konva.Group({draggable: true, name: "rotula"});
+            const group = new Konva.Group({name: "rotula"});
             const circle = new Konva.Circle({
                 x: x0,
                 y: y0,
@@ -495,6 +547,8 @@
 
             correctPosition(group, shadowRotula);
             panel.style.visibility = "hidden";
+            updateScorePanel();
+            updateEquations();
             return group;
         }
 
@@ -504,7 +558,7 @@
             x0 = mouseXY.x
             y0 = mouseXY.y
 
-            const group = new Konva.Group({draggable: true, name: "biela"});
+            const group = new Konva.Group({name: "biela"});
             const large = 40;
             const line = new Konva.Line({
                 name: "subElemento Biela",
@@ -539,65 +593,60 @@
             correctPosition(group, shadowBiela);
             rotateElement(group, shadowBiela);
             panel.style.visibility = "hidden";
+            updateScorePanel();
+            updateEquations();
             return group
         }
 
 
         //------------------------------------------------------Fuerzas y momentos-----------------------------------------------//
-        function createFuerza(x0, y0, val){
+        function createFuerza(x0, y0, valMagnitud, valAngle=0){
             const mouseXY = roundXY(getXY());
             x0 = mouseXY.x
             y0 = mouseXY.y
 
-            var magnitud = val.value;
+            const magnitud = valMagnitud.value;
+            const angle = valAngle.value;
+            const large = blockSnapSize * 2;
+            const lx = large * Math.cos(angle * Math.PI / 180)
+            const ly = large * Math.sin(angle * Math.PI / 180)
 
             if(magnitud == "" || magnitud == null || magnitud == NaN || magnitud == undefined || magnitud == 0 ){
                 return
             }
           
-            const group = new Konva.Group({draggable: true, name: "fuerza"});
+            const group = new Konva.Group({name: "fuerza"});
             const arrow = new Konva.Arrow({
                 x: x0,
                 y: y0,
-                points: [-80, 0, 0, 0],
+                points: [-lx, -ly, 0, 0],
                 pointerLength: 15,
                 pointerWidth: 15,
                 fill: "black",
                 stroke: "black",
                 strokeWidth: 4,
                 name: "fuerza",
-                tension: magnitud,
+                tension: [magnitud, angle],
                 
 
             });
 
-            const invisibleArrow = new Konva.Arrow({
+
+            const magnitudValue = new Konva.Text({
                 x: x0,
-                y: y0,
-                points: [0, 0, 80, 0],
-                pointerLength: 15,
-                pointerWidth: 15,
-                fill: "red",
-                opacity: 0,
-                strokeWidth: 4,
-
-
+                y: y0-blockSnapSize,
+                text: magnitud + " N" + ", " + angle + " °",
+                fontSize: 15,
+                fontFamily: "Impact"
             });
 
-            // const magnitudValue = new Konva.Text({
-            //     x: x0,
-            //     y: y0-blockSnapSize,
-            //     text: magnitud + " N",
-            //     fontSize: 15,
-            //     fontFamily: "Impact"
-            // });
 
-            group.add(arrow, invisibleArrow); //, magnitudValue);
+            group.add(arrow, magnitudValue);
             layer.add(group);
             allDCLelements.push(arrow);
-
-            rotateElementOwn(group);
             panel.style.visibility = "hidden";
+            updateScorePanel();
+            updateEquations();
             return group;
         }
 
@@ -613,7 +662,7 @@
                 return
             }
 
-            const group = new Konva.Group({draggable: true, name: "momento-positivo"});
+            const group = new Konva.Group({name: "momento-positivo"});
             const arrow = new Konva.Arrow({
                 x: x0,
                 y: y0,
@@ -640,6 +689,8 @@
             allDCLelements.push(group);
 
             panel.style.visibility = "hidden";
+            updateScorePanel();
+            updateEquations();
             return group;
         }
 
@@ -655,7 +706,7 @@
                 return
             }
 
-            const group = new Konva.Group({draggable: true, name: "momento-negativo"});
+            const group = new Konva.Group({name: "momento-negativo"});
             const arrow = new Konva.Arrow({
                 x: x0,
                 y: y0,
@@ -682,6 +733,8 @@
             allDCLelements.push(group);
 
             panel.style.visibility = "hidden";
+            updateScorePanel();
+            updateEquations();
             return group;
         }
 
@@ -844,7 +897,7 @@
             };
         }
         //------------------------------------------------------Panel Herramientas-----------------------------------------------//
-        function createButton(widthPanel, heightPanel, idNameText, btnText, execFunction, inputVal, x0=160, y0=160, x1=80, y1=0){
+        function createButton(widthPanel, heightPanel, idNameText, btnText, execFunction, valMagnitud=0, valAngle=0, x0=160, y0=160, x1=80, y1=0){
             
             const btn = document.createElement("button");
             btn.type = "button";
@@ -857,8 +910,10 @@
 
                 if (idNameText == "vigaBtn"){
                     execFunction(x0, y0, x1, y1);
-                } else if (idNameText == "fuerzaBtn" || idNameText == "momentoPositivoBtn" || idNameText == "momentoNegativoBtn"){
-                    execFunction(x0, y0, inputVal);
+                } else if (idNameText == "fuerzaBtn"){
+                    execFunction(x0, y0, valMagnitud, valAngle);
+                } else if (idNameText == "momentoPositivoBtn" || idNameText == "momentoNegativoBtn"){
+                    execFunction(x0, y0, valMagnitud);
                 } else {
                     execFunction(x0, y0);
                 }
@@ -867,7 +922,7 @@
         }
 
 
-        function createInput(idParam, widthPanel, heightPanel){
+        function createInputMagnitud(idParam, widthPanel, heightPanel){
             const input = document.createElement("input");
             input.type = "number";
             input.setAttribute("id", idParam);
@@ -879,16 +934,29 @@
             return input;
         }
 
+        function createInputAngle(idParam, widthPanel, heightPanel){
+            const input = document.createElement("input");
+            input.type = "number";
+            input.setAttribute("id", idParam);
+            input.min = "0";
+            input.max = "359";
+            input.value = "90"
+            input.style.width = widthPanel / 4 + "px";
+            input.style.height = heightPanel  +"px";
 
-        function createContainer(button, input){
-            const container= document.createElement("div");
-            container.style.display = "flex";
-            container.appendChild(button);
-            container.appendChild(input);
-
-            return container;
+            return input;
         }
 
+
+        function createContainer(list){
+            const container= document.createElement("div");
+            container.style.display = "flex";
+            list.forEach(element => {
+                container.appendChild(element);
+            });
+        
+            return container;
+        }
 
         function createPanel(x0, y0){
             const widthPanel = 200;
@@ -909,23 +977,25 @@
             panel.style.visibility = "hidden";
             // panel.style.visibility = "visible";
 
-            const inputCreateFuerza = createInput("input-create-fuerza", widthPanel, heightPanelElement);
-            const inputCreateMomentoPositivo = createInput("input-create-momento-positivo", widthPanel, heightPanelElement);
-            const inputCreateMomentoNegativo = createInput("input-create-momento-negativo", widthPanel, heightPanelElement);
+            const inputCreateFuerzaMagnitud = createInputMagnitud("input-create-fuerza", widthPanel, heightPanelElement);
+            const inputCreateMomentoPositivoMagnitud = createInputMagnitud("input-create-momento-positivo", widthPanel, heightPanelElement);
+            const inputCreateMomentoNegativoMagnitud = createInputMagnitud("input-create-momento-negativo", widthPanel, heightPanelElement);
 
+            const inputCreateFuerzaAngle = createInputAngle("input-create-fuerza-angle", widthPanel, heightPanelElement);
+    
             const btnViga = createButton(widthPanel, heightPanelElement, "vigaBtn", "Viga", createViga, null); //x0, y0
-            const btnApoyoDeslizante = createButton(widthPanel, heightPanelElement, "apoyoDeslizanteBtn", "Apoyo deslizante", createApoyoDeslizante, null); //x0, y0
-            const btnApoyoNoDeslizante = createButton(widthPanel, heightPanelElement, "apoyoNoDeslizanteBtn", "Apoyo no deslizante", createApoyoNoDeslizante, null); //x0, y0
-            const btnEmpotrado = createButton(widthPanel, heightPanelElement, "empotradoBtn", "Empotrado", createEmpotrado, null); //x0, y0
-            const btnRotula = createButton(widthPanel, heightPanelElement, "rotulaBtn", "Rotula", createRotula, null); //x0, y0
-            const btnBiela = createButton(widthPanel, heightPanelElement, "bielaBtn", "Biela", createBiela, null); //x0, y0
-            const btnFuerza = createButton(widthPanel, heightPanelElement, "fuerzaBtn", "Fuerza", createFuerza, inputCreateFuerza); //x0, y0
-            const btnMomentoPositivo = createButton(widthPanel, heightPanelElement, "momentoPositivoBtn", "Momento (+)", createMomentoPositivo, inputCreateMomentoPositivo); //x0, y0
-            const btnMomentoNegativo = createButton(widthPanel, heightPanelElement, "momentoNegativoBtn", "Momento (-)", createMomentoNegativo, inputCreateMomentoNegativo); //x0, y0
+            const btnApoyoDeslizante = createButton(widthPanel, heightPanelElement, "apoyoDeslizanteBtn", "Apoyo deslizante", createApoyoDeslizante); //x0, y0
+            const btnApoyoNoDeslizante = createButton(widthPanel, heightPanelElement, "apoyoNoDeslizanteBtn", "Apoyo no deslizante", createApoyoNoDeslizante); //x0, y0
+            const btnEmpotrado = createButton(widthPanel, heightPanelElement, "empotradoBtn", "Empotrado", createEmpotrado); //x0, y0
+            const btnRotula = createButton(widthPanel, heightPanelElement, "rotulaBtn", "Rotula", createRotula); //x0, y0
+            const btnBiela = createButton(widthPanel, heightPanelElement, "bielaBtn", "Biela", createBiela); //x0, y0
+            const btnFuerza = createButton(widthPanel, heightPanelElement, "fuerzaBtn", "Fuerza", createFuerza, inputCreateFuerzaMagnitud, inputCreateFuerzaAngle); //x0, y0
+            const btnMomentoPositivo = createButton(widthPanel, heightPanelElement, "momentoPositivoBtn", "Momento (+)", createMomentoPositivo, inputCreateMomentoPositivoMagnitud); //x0, y0
+            const btnMomentoNegativo = createButton(widthPanel, heightPanelElement, "momentoNegativoBtn", "Momento (-)", createMomentoNegativo, inputCreateMomentoNegativoMagnitud); //x0, y0
 
-            const containerFuerza = createContainer(btnFuerza, inputCreateFuerza);
-            const containerCreateMomentoPositivo = createContainer(btnMomentoPositivo, inputCreateMomentoPositivo);
-            const containerCreateMomentoNegativo = createContainer(btnMomentoNegativo, inputCreateMomentoNegativo);
+            const containerFuerza = createContainer([btnFuerza, inputCreateFuerzaMagnitud, inputCreateFuerzaAngle]);
+            const containerCreateMomentoPositivo = createContainer([btnMomentoPositivo, inputCreateMomentoPositivoMagnitud]);
+            const containerCreateMomentoNegativo = createContainer([btnMomentoNegativo, inputCreateMomentoNegativoMagnitud]);
 
             const topOfPanel = document.createElement("div");
             topOfPanel.style.width = widthPanel;
@@ -996,7 +1066,7 @@
         function getXY(){
             const mouseXY = stage.getPointerPosition();
             if (mouseXY){
-                console.log("En mouseXY: " + mouseXY.x + ", " + mouseXY.y);
+                // console.log("En mouseXY: " + mouseXY.x + ", " + mouseXY.y);
                 return {x: mouseXY.x, y: mouseXY.y};
             } else {
                 console.log("Fallo en ");
@@ -1127,28 +1197,115 @@
             scorePanel.querySelector("#valueScore").innerHTML = score
         }
 
+        //------------------------------------------------------Ecuaciones-----------------------------------------------//
+        function createEquationsPanel(){
+
+            const panel = document.createElement("div");
+            
+
+            const equationFxDiv = document.createElement("div");
+            equationFxDiv.id = "fx"
+            const contentFx = document.createElement("h4");
+            contentFx.innerText = "ΣFx:" + " = 0";
+            equationFxDiv.appendChild(contentFx);
+
+            const equationFyDiv = document.createElement("div");
+            equationFyDiv.id = "fy"
+            const contentFy = document.createElement("h4");
+            contentFy.innerText = "ΣFy:" + " = 0";
+            equationFyDiv.appendChild(contentFy);
+
+            const equationMoDiv = document.createElement("div");
+            equationFyDiv.id = "fy"
+            const contentMo = document.createElement("h4");
+            contentMo.innerText = "ΣMo:" + " = 0";
+            equationMoDiv.appendChild(contentMo);
+
+            panel.appendChild(equationFxDiv);
+            panel.appendChild(equationFyDiv);
+            panel.appendChild(equationMoDiv);
+
+            return panel;
+        }
+
+        function updateEquations(){
+            var textFx = "ΣFx:";
+            var textFy = "ΣFy:";
+            console.log("uptade equations: ")
+            allDCLelements.forEach((element) => {
+                if(element.name() == "fuerza"){
+                    const tension = element.getAttr("tension");
+                    const magnitud = parseInt(tension[0]);
+                    const angle = parseInt(tension[1]);
+                    if(0 <= angle && angle < 90){ // sen - cos +
+                        if(angle == 0){
+                            textFx += `+ ${tension[0]}N `;
+                        } else {
+                            textFx += `+ ${tension[0]}cos(${angle})N `;
+                            textFy += `- ${tension[0]}sin(${angle})N `;
+                        }
+                    } else if(90 <= angle && angle < 180){ // sen cos 
+                        if(angle == 90){
+                            textFy += `- ${tension[0]}N `;
+                        } else {
+                            textFx += `- ${tension[0]}cos(${180 - angle})N `;
+                            textFy += `- ${tension[0]}sin(${180 - angle})N `;
+                        }
+                    } else if(180 <= angle && angle < 270){ // sen cos
+                        if(angle == 180){
+                            textFx += `- ${tension[0]}N `;
+                        } else {
+                            textFx += `- ${tension[0]}cos(${angle - 180})N `;
+                            textFy += `+ ${tension[0]}sin(${angle - 180})N `;
+                        }
+                    } else if(270 <= angle && angle < 360){ // sen cos
+                        if(angle == 270){
+                            textFy += `+ ${tension[0]}N `;
+                        } else {
+                            textFx += `+ ${tension[0]}cos(${360 - angle})N `;
+                            textFy += `+ ${tension[0]}sin(${360 - angle})N `;
+                        }
+                    }
+                } else if (element.name() == "empotrado" ){
+                    console.log(element.getAttrs())
+                    textFx +=  `+ F${element.getAttr("id")}_x`;
+                    textFy +=  `+ F${element.getAttr("id")}_y`;
+                } else if (element.name() == "apoyo-deslizante" ){
+                    console.log(element.getAttrs())
+                    textFy +=  `+ F${element.getAttr("id")}_y`;
+                } else if (element.name() == "apoyo-no-deslizante" ){
+                    console.log(element.getAttrs())
+                    textFx +=  `+ F${element.getAttr("id")}_x`;
+                    textFy +=  `+ F${element.getAttr("id")}_y`;
+                }
+            });
+            textFx += "= 0";
+            textFy += "= 0";
+            const fx = document.querySelector("#fx");
+            const fy = document.querySelector("#fy");
+            fx.innerText = textFx;
+            fy.innerText = textFy;
+        }
+
         //------------------------------------------------------Declaraciones-----------------------------------------------//
-        const divKonvaContainer = document.querySelector("#container");
-        console.log("divKonvaContainer pos: " + divKonvaContainer.style.left + ", " + divKonvaContainer.style.top)
-        const divScoreContainer = document.querySelector('#scorecontainer');
-        // const mousePos = mousePosition();
-        const scorePanel = createScorePanel(stage.x,stage.y);
-        divScoreContainer.appendChild(scorePanel)
-        // document.querySelector("#scoreContainer").appendChild(scorePanel)
-
-        const panel = createPanel(400, 80);
-        divKonvaContainer.appendChild(panel);
-
-        listenPanelMovement(panel);
+    
         const initialViga = createViga(blockSnapSize*15, blockSnapSize*5 , blockSnapSize*4, 0, nameViga="initialViga"); // initialViga no puede ser destruida
+
+        var countEmpotrado = 0;
+        var countApoyoDeslizante = 0;
+        var countpoyoNoDeslizante = 0;
 
         stage.add(layer);
         
         stage.on("click",  (e) => {
-
-            console.log("objeto clickeado: " + e.target.name());
             console.log(allDCLelements);
+            updateScorePanel();
+            document.querySelector("#id_draw").value = stage.toJSON()
+            document.querySelector("#id_category").value = document.querySelector("#valueCategory").innerText
+            document.querySelector("#id_level_points").value = document.querySelector("#valueScore").innerText
+            panel.style.visibility = "hidden";
 
+    
             if (e.target != stage && e.target) {
                 var mouseXY = stage.getPointerPosition();
 
@@ -1160,6 +1317,7 @@
                             idx = allDCLelements.indexOf(e.target.getParent());;
                             allDCLelements.splice(idx, 1);
                             e.target.getParent().destroy();
+                            updateScorePanel();
                         }
                     });
                 }
@@ -1167,27 +1325,17 @@
         });
 
         stage.on("dblclick", (e) => {
-            console.log(panel.childNodes)
             if (e.target != stage && e.target) {
                 const mouseXY = roundXY(getXY());
-                console.log("mous pos: "+mouseXY.x+", "+mouseXY.y)
+                // console.log("mous pos: "+mouseXY.x+", "+mouseXY.y)
                 if (e.target.name() == "subElementoVigaCirculo1" || e.target.name() == "subElementoVigaCirculo2"){
                     panel.style.visibility = "visible"
                     movePanelTo(panel, mouseXY.x, mouseXY.y)
-    
                 }
             }
         });
 
-        stage.on("click", (e) => {
-        updateScorePanel();
-        console.log("cacaaaaa: " + document.querySelector("#valueCategory").innerText)
-        console.log("AQUI VIENE EL JSONNNNNNO" + "\n" + stage.toJSON());
-        document.querySelector("#id_draw").value = stage.toJSON()
-        document.querySelector("#id_category").value = document.querySelector("#valueCategory").innerText
-        document.querySelector("#id_level_points").value = document.querySelector("#valueScore").innerText
-    });
-
+       
     </script>
 
     <button type="submit">SAVE</button>
