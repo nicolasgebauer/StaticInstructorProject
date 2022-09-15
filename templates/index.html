@@ -16,6 +16,7 @@
             <tr>
                 <th>Id task</th>
                 <th>Statement</th>
+
                 <th>Action</th>
             </tr>
         </thead>
@@ -24,7 +25,10 @@
             <tr>
                 <td>{{task.id}}</td>
                 <td>{{task.statement}}</td>
-                <td><a href="{% url 'edit_task' task.id %}">EDIT</a></td>
+                <td>
+                    <a href="{% url 'edit_task' task.id %}">EDIT</a>
+                    <a href="{% url 'delete_task' task.id %}">DELETE</a>
+                </td>
             </tr>
             {% endfor%}
         </tbody>

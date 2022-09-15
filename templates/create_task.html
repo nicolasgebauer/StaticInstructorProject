@@ -3,7 +3,7 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Crear DCL</title>
+<title>Crear Tarea</title>
 <!-- import Konva-->
 <script src="https://unpkg.com/konva@8.3.12/konva.min.js"></script>
 <!-- import Bootstrap-->
@@ -15,16 +15,19 @@
 <form method="post">
     {% csrf_token %}
     {{form.as_p}}
+
     <header>
         <div id="scoreContainer"></div>
     </header>
     <main>
-        <div id="scorecontainer"></div>
+        <div id="scorecontainer" style="height: 40px;"></div>
         <div id="container" style="background-color: antiquewhite; border: 5px; border-color: black;"></div>
     </main>
     
-
+    {{drawJASON|json_script:"drawJSON"}}
     <script>
+        // const value = JSON.parse(document.getElementById('').textContent)
+        // console.log("AQUI VIENE EL JSON! 2" + value);
         //------------------------------------------------------Variables-----------------------------------------------//
         // const width = window.innerWidth;
         // const height = window.innerHeight;
@@ -335,15 +338,16 @@
 
 
         function createViga(x0, y0, x1, y1, nameViga="viga"){
-            if (x0 == !undefined && y0 == !undefined){
-                const mouseXY = roundXY(getXY());
-                x0 = mouseXY.x
-                y0 = mouseXY.y
-                console.log("peneeeeeeeeeeeeeeeesdsssahbd.aeeeeeee")
-            } else {
-                x0 = 40*10
-                y0 = 40*6
+            const mouseXY = roundXY(getXY());
+            x0 = mouseXY.x;
+            y0 = mouseXY.y;
+            if (nameViga == "initialViga"){
+                x0 = blockSnapSize * 5;
+                y0 = blockSnapSize * 3
+                y1 = 0;
+                x1 = blockSnapSize * 3;
             }
+        
             
 
             const line = newViga(x0, y0, x1, y1, nameViga);
@@ -832,12 +836,18 @@
 
         }
 
-
+        function getOffset(element) {
+            const rect = element.getBoundingClientRect();
+            return {
+                left: rect.left + window.scrollX,
+                top: rect.top + window.scrollY
+            };
+        }
         //------------------------------------------------------Panel Herramientas-----------------------------------------------//
         function createButton(widthPanel, heightPanel, idNameText, btnText, execFunction, inputVal, x0=160, y0=160, x1=80, y1=0){
             
             const btn = document.createElement("button");
-
+            btn.type = "button";
             btn.style.backgroundColor = "yellow";
             btn.style.width = widthPanel + "px";
             btn.style.height = heightPanel  + "px";
@@ -889,8 +899,8 @@
 
             const panel = document.createElement("div");
             panel.style.position = "absolute";
-            panel.style.left = x0 + "px";
-            panel.style.top = y0 +"px";
+            panel.style.left = divKonvaContainer.getBoundingClientRect().left + x0 + "px";
+            panel.style.top = divKonvaContainer.getBoundingClientRect().left + y0 +"px";
             panel.style.width = widthPanel + "px";
             panel.style.height = heightPanel +"px";
             panel.style.backgroundColor = colorPanel;
@@ -976,8 +986,10 @@
 
 
         function movePanelTo(panel, x, y){
-            panel.style.left = x + "px";
-            panel.style.top  = y + "px";
+            
+            panel.style.left = getOffset(divKonvaContainer).left + x + "px";
+            panel.style.top  = getOffset(divKonvaContainer).top + y + "px";
+
         }
 
 
@@ -992,6 +1004,7 @@
             }
         }
 
+
         function roundXY(mouseXY){
             var {x, y} = mouseXY;
             X = Math.round(x / blockSnapSize) * blockSnapSize
@@ -1004,7 +1017,7 @@
         function createScorePanel(x0, y0){
             const widthPanel = 240;
             const heightPanel = 40;
-            const colorPanel = "#DDDDDD"
+            const colorPanel = "#DDDDDD";
 
             const panel = document.createElement("div");
             panel.style.position = "absolute";
@@ -1017,9 +1030,9 @@
             panel.style.border = "40px";
             panel.style.visibility = "visible"; // hidden or visible
             panel.style.display = "flex";
-;
+
             const categoryText = document.createElement("h4")
-            categoryText.id = "categoryText"
+            categoryText.id = "categoryText";
             categoryText.innerText = "Categoria: ";
 
             const valueCategory = document.createElement("h4");
@@ -1114,17 +1127,17 @@
             scorePanel.querySelector("#valueScore").innerHTML = score
         }
 
-
         //------------------------------------------------------Declaraciones-----------------------------------------------//
-    
+        const divKonvaContainer = document.querySelector("#container");
+        console.log("divKonvaContainer pos: " + divKonvaContainer.style.left + ", " + divKonvaContainer.style.top)
+        const divScoreContainer = document.querySelector('#scorecontainer');
         // const mousePos = mousePosition();
         const scorePanel = createScorePanel(stage.x,stage.y);
-        //document.body.appendChild(scorePanel);
-        document.querySelector('#scorecontainer').appendChild(scorePanel)
+        divScoreContainer.appendChild(scorePanel)
         // document.querySelector("#scoreContainer").appendChild(scorePanel)
 
         const panel = createPanel(400, 80);
-        document.body.appendChild(panel);
+        divKonvaContainer.appendChild(panel);
 
         listenPanelMovement(panel);
         const initialViga = createViga(blockSnapSize*15, blockSnapSize*5 , blockSnapSize*4, 0, nameViga="initialViga"); // initialViga no puede ser destruida
@@ -1157,6 +1170,7 @@
             console.log(panel.childNodes)
             if (e.target != stage && e.target) {
                 const mouseXY = roundXY(getXY());
+                console.log("mous pos: "+mouseXY.x+", "+mouseXY.y)
                 if (e.target.name() == "subElementoVigaCirculo1" || e.target.name() == "subElementoVigaCirculo2"){
                     panel.style.visibility = "visible"
                     movePanelTo(panel, mouseXY.x, mouseXY.y)
@@ -1166,11 +1180,16 @@
         });
 
         stage.on("click", (e) => {
-            updateScorePanel();
-            console.log("AQUI VIENE EL JSONNNNNNO" + "\n" + stage.toJSON());
-        });
+        updateScorePanel();
+        console.log("cacaaaaa: " + document.querySelector("#valueCategory").innerText)
+        console.log("AQUI VIENE EL JSONNNNNNO" + "\n" + stage.toJSON());
+        document.querySelector("#id_draw").value = stage.toJSON()
+        document.querySelector("#id_category").value = document.querySelector("#valueCategory").innerText
+        document.querySelector("#id_level_points").value = document.querySelector("#valueScore").innerText
+    });
 
     </script>
+
     <button type="submit">SAVE</button>
 </form>
 {%endblock body%}

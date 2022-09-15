@@ -31,7 +31,8 @@ def edit_task(request,id):
     if request.method == 'GET':
         task_form = TaskForm(instance = task)
         context = {
-            'form': task_form
+            'form': task_form,
+            'drawJSON': task.draw
         }
     else:
         task_form = TaskForm(request.POST, instance = task)
@@ -41,7 +42,9 @@ def edit_task(request,id):
         if task_form.is_valid():
             task_form.save()
             return redirect('index')
-    return render (request,'create_task.html',context)
-def add_dcl(request):
-    return render(request,'painterdcl.html')
-    
+    return render (request,'edit_task.html',context)
+
+def delete_task(request,id=None):
+    task = Task.objects.get(id = id)
+    task.delete()
+    return redirect('index')
