@@ -90,24 +90,24 @@
         const layer = new Konva.Layer({name: "layer"});
     
         //------------------------------------------------------Grilla-----------------------------------------------//
-        for (var i = 0; i < widthStage / blockSnapSize; i++) {
-            layer.add(new Konva.Line({
-                name: "horizontalLines",
-                points: [Math.round(i * blockSnapSize) + 0.5, 0, Math.round(i * blockSnapSize) + 0.5, heightStage],
-                stroke: "#777777",
-                strokeWidth: 1,
-            }));
-        }
+        // for (var i = 0; i < widthStage / blockSnapSize; i++) {
+        //     layer.add(new Konva.Line({
+        //         name: "horizontalLines",
+        //         points: [Math.round(i * blockSnapSize) + 0.5, 0, Math.round(i * blockSnapSize) + 0.5, heightStage],
+        //         stroke: "#777777",
+        //         strokeWidth: 1,
+        //     }));
+        // }
 
 
-        for (var j = 0; j < heightStage / blockSnapSize; j++) {
-            layer.add(new Konva.Line({
-                name: "verticalLines",
-                points: [0, Math.round(j * blockSnapSize), widthStage, Math.round(j * blockSnapSize)],
-                stroke: "#7777777",
-                strokeWidth: 0.5,
-            }));
-        }
+        // for (var j = 0; j < heightStage / blockSnapSize; j++) {
+        //     layer.add(new Konva.Line({
+        //         name: "verticalLines",
+        //         points: [0, Math.round(j * blockSnapSize), widthStage, Math.round(j * blockSnapSize)],
+        //         stroke: "#7777777",
+        //         strokeWidth: 0.5,
+        //     }));
+        // }
 
         //------------------------------------------------------Sombras-----------------------------------------------//
         function createShadowViga(x0, y0, x1, y1){
@@ -1000,11 +1000,12 @@
 
         //------------------------------------------------------Declaraciones-----------------------------------------------//
     
-        const initialViga = createViga(blockSnapSize*15, blockSnapSize*5 , blockSnapSize*4, 0, nameViga="initialViga"); // initialViga no puede ser destruida
-
         var countEmpotrado = 0;
         var countApoyoDeslizante = 0;
         var countpoyoNoDeslizante = 0;
+
+        updateScorePanel();
+        updateEquations();
 
         stage.add(layer);
         
@@ -1046,7 +1047,13 @@
                 }
             }
         });
+
+        stage.on("mouseout", (e) => {
+            document.querySelector("#id_draw").value = stage.toJSON();
+        });
+
     </script>
+    
 
     <button type="submit">SAVE</button>
 </form>

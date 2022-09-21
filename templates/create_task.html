@@ -106,6 +106,7 @@
             }));
         }
 
+        
         //------------------------------------------------------Sombras-----------------------------------------------//
         function createShadowViga(x0, y0, x1, y1){
             const group = new Konva.Group({name: "shadow-viga"});
@@ -1005,9 +1006,9 @@
         stage.on("click",  (e) => {
             console.log(allDCLelements);
             updateScorePanel();
-            document.querySelector("#id_draw").value = stage.toJSON()
-            document.querySelector("#id_category").value = document.querySelector("#valueCategory").innerText
-            document.querySelector("#id_level_points").value = document.querySelector("#valueScore").innerText
+            document.querySelector("#id_draw").value = stage.toJSON();
+            document.querySelector("#id_category").value = document.querySelector("#valueCategory").innerText;
+            document.querySelector("#id_level_points").value = document.querySelector("#valueScore").innerText;
             panel.style.visibility = "hidden";
 
     
@@ -1039,6 +1040,10 @@
                     movePanelTo(panel, mouseXY.x, mouseXY.y)
                 }
             }
+        });
+
+        stage.on("mouseout", (e) => {
+            document.querySelector("#id_draw").value = stage.toJSON();
         });
 
        
