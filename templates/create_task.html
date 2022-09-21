@@ -22,7 +22,7 @@
     
     <div id="scoreContainer" style="height: 40px;"></div>
     <div id="equationsContainer" style="height: 120px;"></div>
-    <div id="container" style="background-color: antiquewhite; border: 5px; border-color: black;"></div>
+    <div id="container" style="background-color: antiquewhite; border: 5px; border-color: black; margin-left: 40px; margin-right: 25px;"></div>
 
     <script>
         
@@ -31,8 +31,8 @@
         // const width = window.innerWidth;
         // const height = window.innerHeight;
         const blockSnapSize = 40;
-        const widthStage = blockSnapSize * 100;
-        const heightStage = blockSnapSize * 80;
+        const widthStage = blockSnapSize * 46;
+        const heightStage = blockSnapSize * 15;
         const allDCLelements = [];
         const stage = new Konva.Stage({
             name: "stage",
@@ -87,7 +87,7 @@
 
     
         //------------------------------------------------------Grilla-----------------------------------------------//
-        for (var i = 0; i < widthStage / blockSnapSize; i++) {
+        for (var i = 0; i <= widthStage / blockSnapSize; i++) {
             layer.add(new Konva.Line({
                 name: "horizontalLines",
                 points: [Math.round(i * blockSnapSize) + 0.5, 0, Math.round(i * blockSnapSize) + 0.5, heightStage],
@@ -97,7 +97,7 @@
         }
 
 
-        for (var j = 0; j < heightStage / blockSnapSize; j++) {
+        for (var j = 0; j <= heightStage / blockSnapSize; j++) {
             layer.add(new Konva.Line({
                 name: "verticalLines",
                 points: [0, Math.round(j * blockSnapSize), widthStage, Math.round(j * blockSnapSize)],
@@ -143,6 +143,10 @@
 
         //------------------------------------------------------Viga-----------------------------------------------//
         function newViga(x0, y0, x1, y1, nameViga="viga"){ //parte en el punto (x0, y0) y se desplaza x1 horizontalmente ^ y1 verticalmente ( no va al punto (x1, y1))
+            let colorCircle = "red";
+            if(nameViga == "initialViga"){
+                colorCircle = "green";
+            }
             const group = new Konva.Group({draggable: false, name: nameViga});
             const line = new Konva.Line({
                 name: "subElementoVigaLinea",
@@ -158,14 +162,16 @@
                 x: x0,
                 y: y0,
                 radius: 5,
-                fill: "red",
+                fill: colorCircle,
                 draggable: true
             });
 
-            const circle2 = circle1.clone({
+            const circle2 = new Konva.Circle({
                 name: "subElementoVigaCirculo2",
-                x: x0+(x1),
-                y: y0+(y1),
+                x: x0 + x1,
+                y: y0 + y1,
+                radius: 5,
+                fill: "red",
                 draggable: true
             });
 
@@ -289,25 +295,26 @@
         function createEmpotrado(x0, y0){
             countEmpotrado += 1;
 
-            x0 = lastVigaNodeClick.x
-            y0 = lastVigaNodeClick.y
+            x0 = lastVigaNodeClick.x;
+            y0 = lastVigaNodeClick.y;
+            const large = blockSnapSize;
 
-            const group = new Konva.Group({id: "e" + countEmpotrado, name: "empotrado"});
+            const group = new Konva.Group({id: "e" + countEmpotrado, name: "empotrado", x: x0, y: y0});
             const base = new Konva.Line({
                 name: "subElemento Empotrado",
-                x: x0,
-                y: y0,
-                points: [0, 0, 52, 0],
+                x: 0,
+                y: 0,
+                points: [-large/2, 0, large/2, 0],
                 strokeWidth: 5,
                 stroke: "black"
             });
 
-            const l1 = new Konva.Line({name: "subElemento Empotrado", x: x0, y: y0, points: [0, 12.5, 12.5, 0], strokeWidth: 5, stroke: "black"});
-            const l2 = new Konva.Line({name: "subElemento Empotrado",x: x0+12.5, y: y0, points: [0, 12.5, 12.5, 0], strokeWidth: 5, stroke: "black"});
-            const l3 = new Konva.Line({name: "subElemento Empotrado",x: x0+25, y: y0, points: [0, 12.5, 12.5, 0], strokeWidth: 5, stroke: "black"});
-            const l4 = new Konva.Line({name: "subElemento Empotrado",x: x0+37.5, y: y0, points: [0, 12.5, 12.5, 0], strokeWidth: 5, stroke: "black"});
+            const l1 = new Konva.Line({name: "subElemento Empotrado", x: -large/2, y: 0, points: [0, 12.5, 12.5, 0], strokeWidth: 5, stroke: "black"});
+            const l2 = new Konva.Line({name: "subElemento Empotrado",x: -large/2 + 12.5, y: 0, points: [0, 12.5, 12.5, 0], strokeWidth: 5, stroke: "black"});
+            const l3 = new Konva.Line({name: "subElemento Empotrado",x: -large/2 + 25, y: 0, points: [0, 12.5, 12.5, 0], strokeWidth: 5, stroke: "black"});
+            //const l4 = new Konva.Line({name: "subElemento Empotrado",x: -large/2 +37.5, y: 0, points: [0, 12.5, 12.5, 0], strokeWidth: 5, stroke: "black"});
 
-            group.add(base, l1, l2, l3, l4);
+            group.add(base, l1, l2, l3);
             layer.add(group);
             allDCLelements.push(group);
 
@@ -323,14 +330,15 @@
 
             x0 = lastVigaNodeClick.x
             y0 = lastVigaNodeClick.y
+            const large = 20; //blockSnapSize / 2;
 
-            const group = new Konva.Group({id: "ad" + countApoyoDeslizante, name: "apoyo-deslizante", offset: {x:0, y:-15}});
+            const group = new Konva.Group({id: "ad" + countApoyoDeslizante, name: "apoyo-deslizante", x: x0, y: y0});
             const triangle = new Konva.RegularPolygon({    
                 name: "subElemento ApoyoDeslizante",
-                x: x0,
-                y: y0+10,
+                x: 0,
+                y: 0 + large,
                 sides: 3,
-                radius: 20,
+                radius: large,
                 fill: "#00D2FF",
                 stroke: "black",
                 strokeWidth: 4,
@@ -338,9 +346,9 @@
 
             const base = new Konva.Line({
                 name: "subElemento ApoyoDeslizante",
-                x: x0,
-                y: y0+blockSnapSize/2+10,
-                points: [-20, 0, 20, 0],
+                x: 0,
+                y: 0 + 2*large ,
+                points: [-large, 0, large, 0],
                 strokeWidth: 5,
                 stroke: "black",
             });
@@ -361,14 +369,15 @@
             
             x0 = lastVigaNodeClick.x
             y0 = lastVigaNodeClick.y
+            const large = 20; //blockSnapSize / 2;
 
-            const group = new Konva.Group({id: "an" + countpoyoNoDeslizante, name: "apoyo-no-deslizante", offset: {x: 0, y:-20}});
+            const group = new Konva.Group({id: "an" + countpoyoNoDeslizante, name: "apoyo-no-deslizante", x: x0, y: y0});
             const triangle = new Konva.RegularPolygon({
                 name: "subElemento ApoyoNoDeslizante",
-                x: x0,
-                y: y0,
+                x: 0,
+                y: 0 + large,
                 sides: 3,
-                radius: 20,
+                radius: large,
                 fill: "#00F210",
                 stroke: "black",
                 strokeWidth: 4,
@@ -391,10 +400,10 @@
             x0 = lastVigaNodeClick.x
             y0 = lastVigaNodeClick.y
 
-            const group = new Konva.Group({name: "rotula"});
+            const group = new Konva.Group({name: "rotula", x: x0, y: y0});
             const circle = new Konva.Circle({
-                x: x0,
-                y: y0,
+                x: 0,
+                y: 0,
                 radius: 8,
                 fill: "yellow",
                 stroke: "black",
@@ -417,20 +426,20 @@
             x0 = lastVigaNodeClick.x
             y0 = lastVigaNodeClick.y
 
-            const group = new Konva.Group({name: "biela"});
-            const large = 40;
+            const group = new Konva.Group({name: "biela", x: x0, y: y0});
+            const large = blockSnapSize;
             const line = new Konva.Line({
                 name: "subElemento Biela",
-                x: x0,
-                y: y0,
+                x: 0,
+                y: 0,
                 points: [0, 0, large, 0],
                 strokeWidth: 5,
                 stroke: "black"
             });
             const circle1 = new Konva.Circle({
                 name: "subElemento Biela",
-                x: x0,
-                y: y0,
+                x: 0,
+                y: 0,
                 radius: 7,
                 fill: "yellow",
                 stroke: "black",
@@ -438,8 +447,8 @@
             });
             const circle2 = circle1.clone({
                 // name: "cricle2",
-                x: x0+large,
-                y: y0
+                x: 0+large,
+                y: 0
             });
 
             group.add(line, circle1, circle2);
@@ -468,10 +477,10 @@
                 return
             }
           
-            const group = new Konva.Group({tension: [magnitud, angle], name: "fuerza"});
+            const group = new Konva.Group({tension: [magnitud, angle], name: "fuerza", x: x0, y: y0});
             const arrow = new Konva.Arrow({
-                x: x0,
-                y: y0,
+                x: 0,
+                y: 0,
                 points: [-lx, -ly, 0, 0],
                 pointerLength: 15,
                 pointerWidth: 15,
@@ -483,8 +492,8 @@
 
 
             const magnitudValue = new Konva.Text({
-                x: x0,
-                y: y0-blockSnapSize,
+                x: 0+10,
+                y: 0-blockSnapSize,
                 text: magnitud + " N" + ", " + angle + " °",
                 fontSize: 15,
                 fontFamily: "Impact"
@@ -512,10 +521,10 @@
                 return
             }
 
-            const group = new Konva.Group({name: "momento-positivo"});
+            const group = new Konva.Group({name: "momento-positivo", tension: magnitud, x: x0, y: y0});
             const arrow = new Konva.Arrow({
-                x: x0,
-                y: y0,
+                x: 0,
+                y: 0,
                 points: [17.68, 17.68, 18.63, 16.67, 19.53, 15.61, 20.36, 14.5, 21.14, 13.35, 21.85, 12.15, 22.49, 10.92, 23.06, 9.66, 23.56, 8.36, 23.99, 7.04, 24.34, 5.7, 24.62, 4.34, 24.82, 2.97, 24.95, 1.59, 25.0, 0.2, 24.97, -1.19, 24.87, -2.57, 24.69, -3.95, 24.43, -5.31, 24.1, -6.66, 23.69, -7.99, 23.21, -9.29, 22.66, -10.57, 22.04, -11.81, 21.35, -13.01, 20.59, -14.18, 19.77, -15.3, 18.89, -16.37, 17.96, -17.39, 16.96, -18.36, 15.92, -19.28, 14.82, -20.13, 13.68, -20.92, 12.5, -21.65, 11.28, -22.31, 10.02, -22.9, 8.74, -23.42, 7.42, -23.87, 6.09, -24.25, 4.73, -24.55, 3.36, -24.77, 1.98, -24.92, 0.59, -24.99, -0.79, -24.99, -2.18, -24.9, -3.56, -24.75, -4.93, -24.51, -6.28, -24.2, -7.61, -23.81, -8.92, -23.35, -10.2, -22.82, -11.46, -22.22, -12.67, -21.55, -13.85, -20.81, -14.98, -20.01, -16.07, -19.15, -17.11, -18.23, -18.09, -17.25, -19.02, -16.22, -19.89, -15.14, -20.7, -14.01, -21.45, -12.84, -22.13, -11.63, -22.74, -10.39, -23.28, -9.11, -23.75, -7.8, -24.15, -6.47, -24.47, -5.12, -24.72, -3.75, -24.89, -2.38, -24.98, -0.99, -25.0, 0.4, -24.94, 1.78, -24.8, 3.16, -24.58, 4.54, -24.3, 5.89, -23.93, 7.23, -23.49, 8.55, -22.98, 9.84, -22.4, 11.1, -21.75, 12.33, -21.03, 13.52, -20.25, 14.66, -19.4, 15.76, -18.5, 16.82, -17.54, 17.82, -16.52, 18.76, -15.45, 19.65, -14.34, 20.48, -13.18, 21.24, -11.98, 21.94, -10.74, 22.57, -9.48, 23.13, -8.18, 23.63, -6.85, 24.04, -5.51, 24.39, -4.15, 24.65, -2.77, 24.85, -1.39, 24.96, -0.0, 25.0],
                 pointerLength: 10,
                 pointerWidth: 10,
@@ -523,12 +532,11 @@
                 stroke: "black",
                 strokeWidth: 4,
                 name: "subElemento MomentoPositivo",
-                tension: magnitud
             });
 
             const magnitudValue = new Konva.Text({
-                x: x0-blockSnapSize,
-                y: y0-blockSnapSize,
+                x: 0 - blockSnapSize,
+                y: 0 - blockSnapSize,
                 text: magnitud + " Nm",
                 fontSize: 15,
                 fontFamily: "Impact"
@@ -555,10 +563,10 @@
                 return
             }
 
-            const group = new Konva.Group({name: "momento-negativo"});
+            const group = new Konva.Group({name: "momento-negativo", tension: magnitud, x: x0, y: y0});
             const arrow = new Konva.Arrow({
-                x: x0,
-                y: y0,
+                x: 0,
+                y: 0,
                 points: [-17.68, 17.68, -18.63, 16.67, -19.53, 15.61, -20.36, 14.5, -21.14, 13.35, -21.85, 12.15, -22.49, 10.92, -23.06, 9.66, -23.56, 8.36, -23.99, 7.04, -24.34, 5.7, -24.62, 4.34, -24.82, 2.97, -24.95, 1.59, -25.0, 0.2, -24.97, -1.19, -24.87, -2.57, -24.69, -3.95, -24.43, -5.31, -24.1, -6.66, -23.69, -7.99, -23.21, -9.29, -22.66, -10.57, -22.04, -11.81, -21.35, -13.01, -20.59, -14.18, -19.77, -15.3, -18.89, -16.37, -17.96, -17.39, -16.96, -18.36, -15.92, -19.28, -14.82, -20.13, -13.68, -20.92, -12.5, -21.65, -11.28, -22.31, -10.02, -22.9, -8.74, -23.42, -7.42, -23.87, -6.09, -24.25, -4.73, -24.55, -3.36, -24.77, -1.98, -24.92, -0.59, -24.99, 0.79, -24.99, 2.18, -24.9, 3.56, -24.75, 4.93, -24.51, 6.28, -24.2, 7.61, -23.81, 8.92, -23.35, 10.2, -22.82, 11.46, -22.22, 12.67, -21.55, 13.85, -20.81, 14.98, -20.01, 16.07, -19.15, 17.11, -18.23, 18.09, -17.25, 19.02, -16.22, 19.89, -15.14, 20.7, -14.01, 21.45, -12.84, 22.13, -11.63, 22.74, -10.39, 23.28, -9.11, 23.75, -7.8, 24.15, -6.47, 24.47, -5.12, 24.72, -3.75, 24.89, -2.38, 24.98, -0.99, 25.0, 0.4, 24.94, 1.78, 24.8, 3.16, 24.58, 4.54, 24.3, 5.89, 23.93, 7.23, 23.49, 8.55, 22.98, 9.84, 22.4, 11.1, 21.75, 12.33, 21.03, 13.52, 20.25, 14.66, 19.4, 15.76, 18.5, 16.82, 17.54, 17.82, 16.52, 18.76, 15.45, 19.65, 14.34, 20.48, 13.18, 21.24, 11.98, 21.94, 10.74, 22.57, 9.48, 23.13, 8.18, 23.63, 6.85, 24.04, 5.51, 24.39, 4.15, 24.65, 2.77, 24.85, 1.39, 24.96, 0.0, 25.0],
                 pointerLength: 10,
                 pointerWidth: 10,
@@ -566,12 +574,11 @@
                 stroke: "black",
                 strokeWidth: 4,
                 name: "subElemento MomentoNegativo",
-                tension: magnitud
             });
 
             const magnitudValue = new Konva.Text({
-                x: x0-blockSnapSize,
-                y: y0-blockSnapSize,
+                x: 0 - blockSnapSize,
+                y: 0 - blockSnapSize,
                 text: magnitud + " Nm",
                 fontSize: 15,
                 fontFamily: "Impact"
@@ -915,7 +922,7 @@
             equationFyDiv.appendChild(contentFy);
 
             const equationMoDiv = document.createElement("div");
-            equationFyDiv.id = "fy"
+            equationMoDiv.id = "mo"
             const contentMo = document.createElement("h4");
             contentMo.innerText = "ΣMo:" + " = 0";
             equationMoDiv.appendChild(contentMo);
@@ -928,62 +935,117 @@
         }
 
         function updateEquations(){
+            console.log("uptade equations: ")
+
             var textFx = "ΣFx:";
             var textFy = "ΣFy:";
-            console.log("uptade equations: ")
+            var textMo = "ΣMo:";
+
+            const origin = allDCLelements[0].getChildren((child) => { return child.name() == "subElementoVigaCirculo1"})[0];
+            console.log(origin)
+            const originXY = {x: origin.getAttr("x"), y: origin.getAttr("y")};
+            console.log(originXY);
+
             allDCLelements.forEach((element) => {
+                const posXY = {x: element.getAttr("x"), y: element.getAttr("y")};
+                const diff = {x: posXY.x - originXY.x, y: posXY.y - originXY.y}
+
                 if(element.name() == "fuerza"){
                     const tension = element.getAttr("tension");
                     const magnitud = parseInt(tension[0]);
                     const angle = parseInt(tension[1]);
+
                     if(0 <= angle && angle < 90){ // sen - cos +
                         if(angle == 0){
-                            textFx += `+ ${tension[0]}N `;
+                            textFx += `+ ${magnitud}N `;
                         } else {
-                            textFx += `+ ${tension[0]}cos(${angle})N `;
-                            textFy += `- ${tension[0]}sin(${angle})N `;
+                            textFx += `+ ${magnitud}cos(${angle})N `;
+                            textFy += `- ${magnitud}sin(${angle})N `;
                         }
                     } else if(90 <= angle && angle < 180){ // sen cos 
                         if(angle == 90){
-                            textFy += `- ${tension[0]}N `;
+                            textFy += `- ${magnitud}N `;
                         } else {
-                            textFx += `- ${tension[0]}cos(${180 - angle})N `;
-                            textFy += `- ${tension[0]}sin(${180 - angle})N `;
+                            textFx += `- ${magnitud}cos(${180 - angle})N `;
+                            textFy += `- ${magnitud}sin(${180 - angle})N `;
                         }
                     } else if(180 <= angle && angle < 270){ // sen cos
                         if(angle == 180){
-                            textFx += `- ${tension[0]}N `;
+                            textFx += `- ${magnitud}N `;
                         } else {
-                            textFx += `- ${tension[0]}cos(${angle - 180})N `;
-                            textFy += `+ ${tension[0]}sin(${angle - 180})N `;
+                            textFx += `- ${magnitud}cos(${angle - 180})N `;
+                            textFy += `+ ${magnitud}sin(${angle - 180})N `;
                         }
                     } else if(270 <= angle && angle < 360){ // sen cos
                         if(angle == 270){
-                            textFy += `+ ${tension[0]}N `;
+                            textFy += `+ ${magnitud}N `;
                         } else {
-                            textFx += `+ ${tension[0]}cos(${360 - angle})N `;
-                            textFy += `+ ${tension[0]}sin(${360 - angle})N `;
+                            textFx += `+ ${magnitud}cos(${360 - angle})N `;
+                            textFy += `+ ${magnitud}sin(${360 - angle})N `;
                         }
                     }
                 } else if (element.name() == "empotrado" ){
-                    console.log(element.getAttrs())
                     textFx +=  `+ F${element.getAttr("id")}_x`;
                     textFy +=  `+ F${element.getAttr("id")}_y`;
+
+                    if (diff.x > 0){
+                        textMo +=  `+ ${Math.abs(diff.x)/blockSnapSize}m*F${element.getAttr("id")}_y`;
+                    } else if (diff.x < 0){
+                        textMo +=  `- ${Math.abs(diff.x)/blockSnapSize}m*F${element.getAttr("id")}_y`;
+                    }
+
+                    if (diff.y > 0){
+                        textMo +=  `+ ${Math.abs(diff.x)/blockSnapSize}m*F${element.getAttr("id")}_x`;
+                    } else if (diff.y < 0){
+                        textMo +=  `- ${Math.abs(diff.x)/blockSnapSize}m*F${element.getAttr("id")}_x`;
+                    }
+                    textMo +=  `+ M${element.getAttr("id")}`;
+
                 } else if (element.name() == "apoyo-deslizante" ){
-                    console.log(element.getAttrs())
                     textFy +=  `+ F${element.getAttr("id")}_y`;
+
+                    if (diff.x > 0){
+                        textMo +=  `+ ${Math.abs(diff.x)/blockSnapSize}m*F${element.getAttr("id")}_y`;
+                    } else if (diff.x < 0){
+                        textMo +=  `- ${Math.abs(diff.x)/blockSnapSize}m*F${element.getAttr("id")}_y`;
+                    }
+
+
                 } else if (element.name() == "apoyo-no-deslizante" ){
-                    console.log(element.getAttrs())
                     textFx +=  `+ F${element.getAttr("id")}_x`;
                     textFy +=  `+ F${element.getAttr("id")}_y`;
+
+                    if (diff.x > 0){
+                        textMo +=  `+ ${Math.abs(diff.x)/blockSnapSize}m*F${element.getAttr("id")}_y`;
+                    } else if (diff.x < 0){
+                        textMo +=  `- ${Math.abs(diff.x)/blockSnapSize}m*F${element.getAttr("id")}_y`;
+                    }
+
+                    if (diff.y > 0){
+                        textMo +=  `+ ${Math.abs(diff.x)/blockSnapSize}m*F${element.getAttr("id")}_x`;
+                    } else if (diff.y < 0){
+                        textMo +=  `- ${Math.abs(diff.x)/blockSnapSize}m*F${element.getAttr("id")}_x`;
+                    }
+
+
+                } else if (element.name() == "momento-positivo"){
+                    const tension = element.getAttr("tension");
+                    textMo += `+ ${tension}Nm`
+
+                } else if (element.name() == "momento-negativo"){
+                    const tension = element.getAttr("tension");
+                    textMo += `- ${tension}Nm`
                 }
             });
             textFx += "= 0";
             textFy += "= 0";
+            textMo += "= 0";
             const fx = document.querySelector("#fx");
             const fy = document.querySelector("#fy");
+            const mo = document.querySelector("#mo");
             fx.innerText = textFx;
             fy.innerText = textFy;
+            mo.innerText = textMo;
         }
 
         //------------------------------------------------------Declaraciones-----------------------------------------------//
