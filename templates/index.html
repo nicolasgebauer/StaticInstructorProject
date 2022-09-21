@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {%block head%}
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{%block title%}List of Task{%endblock title%}</title>
+    {%endblock head%}
 </head>
 <body>
     {%block body%}
@@ -14,6 +16,8 @@
             <tr>
                 <th>Id task</th>
                 <th>Statement</th>
+                <th>Category</th>
+                <th>Level</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -22,7 +26,12 @@
             <tr>
                 <td>{{task.id}}</td>
                 <td>{{task.statement}}</td>
-                <td><a href="{% url 'edit_task' task.id %}">EDIT</a></td>
+                <td>{{task.category}}</td>
+                <td>{{task.level_points}}</td>
+                <td>
+                    <a href="{% url 'edit_task' task.id %}">EDIT</a>
+                    <a href="{% url 'delete_task' task.id %}">DELETE</a>
+                </td>
             </tr>
             {% endfor%}
         </tbody>
