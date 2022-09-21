@@ -107,127 +107,6 @@
         }
 
         //------------------------------------------------------Sombras-----------------------------------------------//
-
-        function createShadowApoyoDeslizante(x0, y0){
-            const group = new Konva.Group({name: "shadow-apoyo-deslizante"});
-            const triangle = new Konva.RegularPolygon({
-                name: "subElemento ApoyoDeslizante Shadow",
-                x: x0,
-                y: y0,
-                sides: 3,
-                radius: 20,
-                fill: "#FF7B17",
-                stroke: "#CF6412",
-                strokeWidth: 4,
-                dash: [10, 4]
-            });
-
-            const base = new Konva.Line({
-                name: "subElemento ApoyoDeslizante Shadow",
-                x: x0,
-                y: y0+20,
-                points: [-20, 0, 20, 0],
-                strokeWidth: 4,
-                stroke: "#CF6412",
-                dash: [10, 4]
-            });
-
-            group.add(triangle, base);
-            return group;
-        }
-
-
-        function createShadowApoyoNoDeslizante(x0, y0){
-            const group = new Konva.Group({name: "shadow-apoyo-no-deslizante"});
-            const triangle = new Konva.RegularPolygon({
-                name: "subElemento ApoyoNoDeslizante Shadow",
-                x: x0,
-                y: y0,
-                sides: 3,
-                radius: 20,
-                fill: "#FF7B17",
-                stroke: "#CF6412",
-                strokeWidth: 4,
-                dash: [10, 4]
-            });
-
-            group.add(triangle);
-            return group;
-        }
-
-
-        function createShadowEmpotrado(x0, y0){
-            const group = new Konva.Group({name: "shadow-empotrado"});
-            const base = new Konva.Line({
-                name: "subElemento Empotrado Shadow",
-                x: x0,
-                y: y0,
-                points: [0, 0, 52, 0],
-                fill: "#FF7B17",
-                stroke: "#CF6412",
-                strokeWidth: 4,
-                dash: [10, 4]
-            });
-
-            const l1 = new Konva.Line({name: "subElemento Empotrado Empotrado", x: x0, y: y0, points: [0, 12.5, 12.5, 0], strokeWidth: 4, fill: "#FF7B17", stroke: "#CF6412", strokeWidth: 4, dash: [10, 4]});
-            const l2 = new Konva.Line({name: "subElemento Empotrado Empotrado", x: x0+12.5, y: y0, points: [0, 12.5, 12.5, 0], strokeWidth: 4, fill: "#FF7B17", stroke: "#CF6412", strokeWidth: 4, dash: [10, 4]});
-            const l3 = new Konva.Line({name: "subElemento Empotrado Empotrado", x: x0+25, y: y0, points: [0, 12.5, 12.5, 0], strokeWidth: 4, fill: "#FF7B17", stroke: "#CF6412", strokeWidth: 4, dash: [10, 4]});
-            const l4 = new Konva.Line({name: "subElemento Empotrado Empotrado", x: x0+37.5, y: y0, points: [0, 12.5, 12.5, 0], strokeWidth: 4, fill: "#FF7B17", stroke: "#CF6412", strokeWidth: 4, dash: [10, 4]});
-
-            group.add(base, l1, l2, l3, l4);
-            return group;
-        }
-
-
-        function createShadowRotula(x0, y0){
-            const group = new Konva.Group({name: "shadow-rotula"});
-            const circle = new Konva.Circle({
-                x: x0,
-                y: y0,
-                radius: 16,
-                fill: "#FF7B17",
-                stroke: "#CF6412",
-                strokeWidth: 4,
-                dash: [10, 4],
-                name: "subElemento Rotula"
-            });
-
-            group.add(circle);
-            return group;
-        }
-
-
-        function createShadowBiela(x0, y0){
-            const group = new Konva.Group({name: "shadow-biela"});
-            const large = 40;
-            const line = new Konva.Line({
-                name: "subElemento Biela",
-                x: x0,
-                y: y0,
-                points: [0, 0, large, 0],
-                strokeWidth: 5,
-                stroke: "#CF6412"
-            });
-            const circle1 = new Konva.Circle({
-                name: "subElemento Biela",
-                x: x0,
-                y: y0,
-                radius: 7,
-                fill: "#FF7B17",
-                stroke: "#CF6412",
-                strokeWidth: 4,
-            });
-            const circle2 = circle1.clone({
-                // name: "cricle2",
-                x: x0+large,
-                y: y0
-            });
-
-            group.add(line, circle1, circle2);
-            return group
-        }
-
-
         function createShadowViga(x0, y0, x1, y1){
             const group = new Konva.Group({name: "shadow-viga"});
             const line = new Konva.Line({
@@ -290,13 +169,10 @@
             });
 
             group.add(line, circle1, circle2);
-            // return [group, line, circle1, circle2]
             return group
         }
 
         function updateViga(viga, shadow){
-
-            // 1 linea 2 ciculo1 3 circulo
             const vigaList = viga.getChildren();
             const shadowList = shadow.getChildren();
             vigaList[1].on("dragstart", () => {
@@ -430,15 +306,10 @@
             const l3 = new Konva.Line({name: "subElemento Empotrado",x: x0+25, y: y0, points: [0, 12.5, 12.5, 0], strokeWidth: 5, stroke: "black"});
             const l4 = new Konva.Line({name: "subElemento Empotrado",x: x0+37.5, y: y0, points: [0, 12.5, 12.5, 0], strokeWidth: 5, stroke: "black"});
 
-            const shadowEmpotrado = createShadowEmpotrado(x0, y0).hide();
-            layer.add(shadowEmpotrado);
-
             group.add(base, l1, l2, l3, l4);
             layer.add(group);
             allDCLelements.push(group);
 
-            correctPosition(group, shadowEmpotrado);
-            rotateElement(group, shadowEmpotrado);
             panel.style.visibility = "hidden";
             updateScorePanel();
             updateEquations();
@@ -474,15 +345,10 @@
                 stroke: "black",
             });
 
-            const shadowApoyoDeslizante = createShadowApoyoDeslizante(x0, y0).hide();
-            layer.add(shadowApoyoDeslizante);
-
             group.add(triangle, base);
             layer.add(group);
             allDCLelements.push(group);
 
-            correctPosition(group, shadowApoyoDeslizante);
-            rotateElement(group, shadowApoyoDeslizante);
             panel.style.visibility = "hidden";
             updateScorePanel();
             updateEquations();
@@ -509,15 +375,10 @@
                 name: "apoyo-no-deslizante",
             });
 
-            const shadowApoyoNoDeslizante = createShadowApoyoNoDeslizante(x0, y0).hide();
-            layer.add(shadowApoyoNoDeslizante);
-
             group.add(triangle);
             layer.add(group);
             allDCLelements.push(group);
 
-            correctPosition(group, shadowApoyoNoDeslizante);
-            //rotateElementOwn(group, shadowApoyoNoDeslizante);
             panel.style.visibility = "hidden";
             updateScorePanel();
             updateEquations();
@@ -541,14 +402,12 @@
                 strokeWidth: 4,
                 name: "subElement Rotula"
             });
-            const shadowRotula = createShadowRotula(x0, y0).hide();
-            layer.add(shadowRotula);
 
+            layer.add(shadowRotula);
             group.add(circle);
             layer.add(group);
             allDCLelements.push(group);
 
-            correctPosition(group, shadowRotula);
             panel.style.visibility = "hidden";
             updateScorePanel();
             updateEquations();
@@ -586,15 +445,10 @@
                 y: y0
             });
 
-            const shadowBiela = createShadowBiela(x0, y0).hide()
-            layer.add(shadowBiela);
-
             group.add(line, circle1, circle2);
             layer.add(group);
             allDCLelements.push(group);
 
-            correctPosition(group, shadowBiela);
-            rotateElement(group, shadowBiela);
             panel.style.visibility = "hidden";
             updateScorePanel();
             updateEquations();
@@ -644,6 +498,7 @@
             group.add(arrow, magnitudValue);
             layer.add(group);
             allDCLelements.push(group);
+
             panel.style.visibility = "hidden";
             updateScorePanel();
             updateEquations();
@@ -740,155 +595,6 @@
 
 
         //------------------------------------------------------Funcionalidades-----------------------------------------------//
-        function rotateElement(element, shadow=false){
-            var tr = new Konva.Transformer({
-                nodes: [],
-                centeredScaling: false,
-                resizeEnabled: false,
-                rotationSnaps: [0, 90, 180, 270],
-            });
-
-            layer.add(tr);
-
-            stage.on("click tap",  (e) => {
-                if (e.target === element) {
-                    if (!shadow){
-                        tr.nodes([element]);
-                    } else {
-                        tr.nodes([element, shadow]);
-                    }
-
-                }
-
-                else {
-                    tr.nodes([]);
-                    return;
-                }
-
-                const metaPressed = e.evt.ctrlKey;
-                const isSelected = tr.nodes().indexOf(e.target) >= 0;
-
-                if (metaPressed && isSelected) {
-                    tr.nodes([]);
-                    e.target.destroy();
-                }
-            });
-        }
-
-
-        function rotateElementOwn(element, shadow=false){
-            var nodeList;
-            if (shadow){
-                nodeList = [element, shadow]
-            } else {
-                nodeList = [element]
-            }
-            var tr = new Konva.Transformer({
-                nodes: nodeList,
-                centeredScaling: false,
-                resizeEnabled: false,
-                rotationSnaps: [0, 90, 180, 270],
-                shouldOverdrawWholeArea: true
-            });
-
-            layer.add(tr)
-        }
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        function degToRad(angle) {
-            return angle / 180 * Math.PI;
-        }
-
-        function getCenter(shape) {
-            const angleRad = degToRad(shape.rotation || 0);
-            return {
-                x:
-                shape.x +
-                shape.width / 2 * Math.cos(angleRad) +
-                shape.height / 2 * Math.sin(-angleRad),
-                y:
-                shape.y +
-                shape.height / 2 * Math.cos(angleRad) +
-                shape.width / 2 * Math.sin(angleRad)
-            };
-        }
-
-        function rotateAroundPoint(shape, deltaDeg, point) {
-            const angleRad = degToRad(deltaDeg);
-            const x = Math.round(
-                point.x +
-                (shape.x - point.x) * Math.cos(angleRad) -
-                (shape.y - point.y) * Math.sin(angleRad)
-            );
-            const y = Math.round(
-                point.y +
-                (shape.x - point.x) * Math.sin(angleRad) +
-                (shape.y - point.y) * Math.cos(angleRad)
-            );
-            return {
-                ...shape,
-                rotation: Math.round((shape.rotation + deltaDeg)),
-                x,
-                y
-            };
-        }
-
-        function rotateAroundCenter(shape, deltaDeg) {
-            const center = getCenter(shape);
-            return rotateAroundPoint(shape, deltaDeg, center);
-        }
-
-        function getSnapRotation(rotation) {
-            if (rotation >= 45 && rotation < 135) {
-                return 90;
-            } else if (rotation >= 135 && rotation < 225) {
-                return 180;
-            } else if (rotation >= 225 && rotation < 305) {
-                return 270;
-            } else {
-                return 0;
-            }
-        }
-
-        var tr = new Konva.Transformer({
-            boundBoxFunc: function(oldBoundBox, newBoundBox) {
-                const closesSnap = getSnapRotation(newBoundBox.rotation);
-                const diff = closesSnap - oldBoundBox.rotation;
-                if (Math.abs(diff) > 0) {
-                return rotateAroundCenter(oldBoundBox, diff);
-                }
-                return oldBoundBox;
-            }
-            });
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        function correctPosition(element, shadow){
-            element.on("dragstart", (e) => {
-                shadow.show();
-                shadow.moveToTop();
-                element.moveToTop();
-            });
-            element.on("dragend", (e) => {
-                element.position({
-                x: Math.round(element.x() / blockSnapSize) * blockSnapSize,
-                y: Math.round(element.y() / blockSnapSize) * blockSnapSize
-                });
-                stage.batchDraw();
-                shadow.hide();
-            });
-            element.on("dragmove", (e) => {
-                shadow.position({
-                x: Math.round(element.x() / blockSnapSize) * blockSnapSize,
-                y: Math.round(element.y() / blockSnapSize) * blockSnapSize
-                });
-                stage.batchDraw();
-            });
-
-        }
-
         function getOffset(element) {
             const rect = element.getBoundingClientRect();
             return {
@@ -896,9 +602,10 @@
                 top: rect.top + window.scrollY
             };
         }
+
+
         //------------------------------------------------------Panel Herramientas-----------------------------------------------//
         function createButton(widthPanel, heightPanel, idNameText, btnText, execFunction, valMagnitud=0, valAngle=0, x0=160, y0=160, x1=80, y1=0){
-            
             const btn = document.createElement("button");
             btn.type = "button";
             btn.style.backgroundColor = "yellow";
@@ -933,6 +640,7 @@
 
             return input;
         }
+
 
         function createInputAngle(idParam, widthPanel, heightPanel){
             const input = document.createElement("input");
@@ -1017,7 +725,6 @@
             panel.appendChild(containerCreateMomentoPositivo);
             panel.appendChild(containerCreateMomentoNegativo);
 
-            
             return panel;
         }
 
@@ -1136,7 +843,6 @@
      
         
         function calculateScore(){
-            //console.log("Estoy en calculate score ... imprimiento los name() ")
             var result = 0;
             allDCLelements.some((element) =>{
                 //console.log(element.name())
@@ -1197,12 +903,11 @@
             scorePanel.querySelector("#valueScore").innerHTML = score
         }
 
+
         //------------------------------------------------------Ecuaciones-----------------------------------------------//
         function createEquationsPanel(){
-
             const panel = document.createElement("div");
-            
-
+        
             const equationFxDiv = document.createElement("div");
             equationFxDiv.id = "fx"
             const contentFx = document.createElement("h4");
