@@ -260,9 +260,9 @@
 
 
         function createViga(x0, y0, x1, y1, nameViga="viga"){
-            const mouseXY = roundXY(getXY());
-            x0 = mouseXY.x;
-            y0 = mouseXY.y;
+            x0 = lastVigaNodeClick.x
+            y0 = lastVigaNodeClick.y
+
             if (nameViga == "initialViga"){
                 x0 = blockSnapSize * 5;
                 y0 = blockSnapSize * 3
@@ -987,11 +987,9 @@
         }
 
         //------------------------------------------------------Declaraciones-----------------------------------------------//
-    
-        const initialViga = createViga(blockSnapSize*15, blockSnapSize*5 , blockSnapSize*4, 0, nameViga="initialViga"); // initialViga no puede ser destruida
-
         const lastVigaNodeClick = {x: 0, y: 0};
-
+        const initialViga = createViga(blockSnapSize*15, blockSnapSize*5 , blockSnapSize*4, 0, nameViga="initialViga"); // initialViga no puede ser destruida
+        
         var countEmpotrado = 0;
         var countApoyoDeslizante = 0;
         var countpoyoNoDeslizante = 0;
