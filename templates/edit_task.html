@@ -263,9 +263,9 @@
 
 
         function createViga(x0, y0, x1, y1, nameViga="viga"){
-            const mouseXY = roundXY(getXY());
-            x0 = mouseXY.x;
-            y0 = mouseXY.y;
+            x0 = lastVigaNodeClick.x
+            y0 = lastVigaNodeClick.y
+            
             if (nameViga == "initialViga"){
                 x0 = blockSnapSize * 5;
                 y0 = blockSnapSize * 3
@@ -291,9 +291,9 @@
         //------------------------------------------------------Vinculos externos-----------------------------------------------//
         function createEmpotrado(x0, y0){
             countEmpotrado += 1;
-            const mouseXY = roundXY(getXY());
-            x0 = mouseXY.x
-            y0 = mouseXY.y
+
+            x0 = lastVigaNodeClick.x
+            y0 = lastVigaNodeClick.y
 
             const group = new Konva.Group({id: "e" + countEmpotrado, name: "empotrado"});
             const base = new Konva.Line({
@@ -324,9 +324,8 @@
         function createApoyoDeslizante(x0, y0){
             countApoyoDeslizante += 1;
 
-            const mouseXY = roundXY(getXY());
-            x0 = mouseXY.x
-            y0 = mouseXY.y
+            x0 = lastVigaNodeClick.x
+            y0 = lastVigaNodeClick.y
 
             const group = new Konva.Group({id: "ad" + countApoyoDeslizante, name: "apoyo-deslizante", offset: {x:0, y:-15}});
             const triangle = new Konva.RegularPolygon({    
@@ -362,9 +361,9 @@
 
         function createApoyoNoDeslizante(x0, y0){
             countpoyoNoDeslizante += 1;
-            const mouseXY = roundXY(getXY());
-            x0 = mouseXY.x
-            y0 = mouseXY.y
+            
+            x0 = lastVigaNodeClick.x
+            y0 = lastVigaNodeClick.y
 
             const group = new Konva.Group({id: "an" + countpoyoNoDeslizante, name: "apoyo-no-deslizante", offset: {x: 0, y:-20}});
             const triangle = new Konva.RegularPolygon({
@@ -392,9 +391,8 @@
 
         //------------------------------------------------------Vinculos internos-----------------------------------------------//
         function createRotula(x0, y0){
-            const mouseXY = roundXY(getXY());
-            x0 = mouseXY.x
-            y0 = mouseXY.y
+            x0 = lastVigaNodeClick.x
+            y0 = lastVigaNodeClick.y
 
             const group = new Konva.Group({name: "rotula"});
             const circle = new Konva.Circle({
@@ -419,9 +417,8 @@
 
 
         function createBiela(x0, y0){
-            const mouseXY = roundXY(getXY());
-            x0 = mouseXY.x
-            y0 = mouseXY.y
+            x0 = lastVigaNodeClick.x
+            y0 = lastVigaNodeClick.y
 
             const group = new Konva.Group({name: "biela"});
             const large = 40;
@@ -461,9 +458,8 @@
 
         //------------------------------------------------------Fuerzas y momentos-----------------------------------------------//
         function createFuerza(x0, y0, valMagnitud, valAngle=0){
-            const mouseXY = roundXY(getXY());
-            x0 = mouseXY.x
-            y0 = mouseXY.y
+            x0 = lastVigaNodeClick.x
+            y0 = lastVigaNodeClick.y
 
             const magnitud = valMagnitud.value;
             const angle = valAngle.value;
@@ -486,10 +482,8 @@
                 stroke: "black",
                 strokeWidth: 4,
                 name: "fuerza",
-                // tension: [magnitud, angle],
-                
-
             });
+
 
             const magnitudValue = new Konva.Text({
                 x: x0,
@@ -499,9 +493,11 @@
                 fontFamily: "Impact"
             });
 
+
             group.add(arrow, magnitudValue);
             layer.add(group);
-            allDCLelements.push(arrow);
+            allDCLelements.push(group);
+
             panel.style.visibility = "hidden";
             updateScorePanel();
             updateEquations();
@@ -510,9 +506,8 @@
 
 
         function createMomentoPositivo(x0, y0, val){
-            const mouseXY = roundXY(getXY());
-            x0 = mouseXY.x
-            y0 = mouseXY.y
+            x0 = lastVigaNodeClick.x
+            y0 = lastVigaNodeClick.y
 
             var magnitud = val.value;
 
@@ -554,9 +549,8 @@
 
 
         function createMomentoNegativo(x0, y0, val){
-            const mouseXY = roundXY(getXY());
-            x0 = mouseXY.x
-            y0 = mouseXY.y
+            x0 = lastVigaNodeClick.x
+            y0 = lastVigaNodeClick.y
             
             var magnitud = val.value;
 
@@ -999,7 +993,8 @@
         }
 
         //------------------------------------------------------Declaraciones-----------------------------------------------//
-    
+        const lastVigaNodeClick = {x: 0, y: 0};
+        
         var countEmpotrado = 0;
         var countApoyoDeslizante = 0;
         var countpoyoNoDeslizante = 0;
@@ -1040,7 +1035,9 @@
         stage.on("dblclick", (e) => {
             if (e.target != stage && e.target) {
                 const mouseXY = roundXY(getXY());
-                // console.log("mous pos: "+mouseXY.x+", "+mouseXY.y)
+                lastVigaNodeClick.x = mouseXY.x
+                lastVigaNodeClick.y = mouseXY.y
+                
                 if (e.target.name() == "subElementoVigaCirculo1" || e.target.name() == "subElementoVigaCirculo2"){
                     panel.style.visibility = "visible"
                     movePanelTo(panel, mouseXY.x, mouseXY.y)
