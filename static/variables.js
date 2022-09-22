@@ -7,11 +7,11 @@ const widthStage = blockSnapSize * 46;
 const heightStage = blockSnapSize * 15;
 const allDCLelements = [];
 
-export {countEmpotrado,
-        countApoyoDeslizante,
-        countpoyoNoDeslizante,
-        blockSnapSize,
-        widthStage,
-        heightStage,
-        allDCLelements
-    }
+// export {countEmpotrado,
+//         countApoyoDeslizante,
+//         countpoyoNoDeslizante,
+//         blockSnapSize,
+//         widthStage,
+//         heightStage,
+//         allDCLelements
+//     }

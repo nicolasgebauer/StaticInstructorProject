@@ -1,6 +1,4 @@
-import {createEquationsPanel} from "/functions.js"
-
-//------------------------------------------------------Variables-----------------------------------------------//
+//------------------------------------------------------Creacion canvas-----------------------------------------------//
 
 const stage = new Konva.Stage({
     name: "stage",
@@ -9,6 +7,10 @@ const stage = new Konva.Stage({
     height: heightStage
 });
 
+const layer = new Konva.Layer({name: "layer"});
+stage.add(layer);
+
+//------------------------------------------------------Creacion paneles-----------------------------------------------//
 
 const divEquationsContainer = document.querySelector('#equationsContainer');
 const divScoreContainer = document.querySelector('#scoreContainer');
@@ -23,13 +25,9 @@ divScoreContainer.appendChild(scorePanel);
 divKonvaContainer.appendChild(panel);
 
 listenPanelMovement(panel);
-updateScorePanel();
 
-const layer = new Konva.Layer({name: "layer"});
-
-
-//------------------------------------------------------Grilla-----------------------------------------------//
-for (var i = 0; i <= widthStage / blockSnapSize; i++) {
+//------------------------------------------------------Creacion grilla-----------------------------------------------//
+for (let i = 0; i <= widthStage / blockSnapSize; i++) {
     layer.add(new Konva.Line({
         name: "horizontalLines",
         points: [Math.round(i * blockSnapSize) + 0.5, 0, Math.round(i * blockSnapSize) + 0.5, heightStage],
@@ -39,7 +37,7 @@ for (var i = 0; i <= widthStage / blockSnapSize; i++) {
 }
 
 
-for (var j = 0; j <= heightStage / blockSnapSize; j++) {
+for (let j = 0; j <= heightStage / blockSnapSize; j++) {
     layer.add(new Konva.Line({
         name: "verticalLines",
         points: [0, Math.round(j * blockSnapSize), widthStage, Math.round(j * blockSnapSize)],
@@ -49,53 +47,11 @@ for (var j = 0; j <= heightStage / blockSnapSize; j++) {
 }
 
 
-//------------------------------------------------------Declaraciones-----------------------------------------------//
+//------------------------------------------------------Elementos dcl-----------------------------------------------//
 const lastVigaNodeClick = {x: 0, y: 0};
-const initialViga = createViga(blockSnapSize*15, blockSnapSize*5 , blockSnapSize*4, 0, nameViga="initialViga"); // initialViga no puede ser destruida
-
-stage.add(layer);
-
-stage.on("click",  (e) => {
-    console.log(allDCLelements);
-    updateScorePanel();
-    document.querySelector("#id_draw").value = stage.toJSON();
-    document.querySelector("#id_category").value = document.querySelector("#valueCategory").innerText;
-    document.querySelector("#id_level_points").value = document.querySelector("#valueScore").innerText;
-    panel.style.visibility = "hidden";
+const initialViga = createViga(nameViga="initialViga"); // initialViga no puede ser destruida
+listenCreateElement();
+listenDeleteElement();
+listenSave();
 
 
-    if (e.target != stage && e.target) {
-        var mouseXY = stage.getPointerPosition();
-
-        if (e.target.getParent().name() != "layer"){
-            document.addEventListener("keydown", (kd) => {
-                const key = kd.key;
-
-                if(key == "Delete" && e.target.getParent() && e.target.getParent().name() != "initialViga"){
-                    idx = allDCLelements.indexOf(e.target.getParent());;
-                    allDCLelements.splice(idx, 1);
-                    e.target.getParent().destroy();
-                    updateScorePanel();
-                    updateEquations();
-                }
-            });
-        }
-    }
-});
-
-stage.on("dblclick", (e) => {
-    if (e.target != stage && e.target) {
-        const mouseXY = roundXY(getXY());
-        lastVigaNodeClick.x = mouseXY.x
-        lastVigaNodeClick.y = mouseXY.y
-        // console.log("mous pos: "+mouseXY.x+", "+mouseXY.y)
-        if (e.target.name() == "subElementoVigaCirculo1" || e.target.name() == "subElementoVigaCirculo2"){
-            panel.style.visibility = "visible"
-            movePanelTo(panel, mouseXY.x, mouseXY.y)
-        }
-    }
-});
-
-stage.on("mouseout", (e) => {
-    document.querySelector("#id_draw").value = stage.toJSON();
-});

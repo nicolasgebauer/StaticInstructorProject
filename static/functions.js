@@ -1,12 +1,12 @@
-import {
-    countEmpotrado,
-    countApoyoDeslizante,
-    countpoyoNoDeslizante,
-    blockSnapSize,
-    widthStage,
-    heightStage,
-    allDCLelements
-} from "variables.js"
+// import {
+//     countEmpotrado,
+//     countApoyoDeslizante,
+//     countpoyoNoDeslizante,
+//     blockSnapSize,
+//     widthStage,
+//     heightStage,
+//     allDCLelements
+// } from "letiables.js"
 
 function createShadowViga(x0, y0, x1, y1){
     const group = new Konva.Group({name: "shadow-viga"});
@@ -36,7 +36,6 @@ function createShadowViga(x0, y0, x1, y1){
     });
 
     group.add(line, circle1, circle2);
-    console.log("poto:" + group.getChildren());
     return group
 }
 
@@ -165,15 +164,15 @@ function updateViga(viga, shadow){
 }
 
 
-function createViga(x0, y0, x1, y1, nameViga="viga"){
-    x0 = lastVigaNodeClick.x
-    y0 = lastVigaNodeClick.y
+function createViga(nameViga="viga"){
+    let x0 = lastVigaNodeClick.x
+    let y0 = lastVigaNodeClick.y
+    const y1 = 0;
+    const x1 = blockSnapSize * 3;
 
     if (nameViga == "initialViga"){
         x0 = blockSnapSize * 5;
-        y0 = blockSnapSize * 3
-        y1 = 0;
-        x1 = blockSnapSize * 3;
+        y0 = blockSnapSize * 3;
     }
 
     const line = newViga(x0, y0, x1, y1, nameViga);
@@ -192,11 +191,11 @@ function createViga(x0, y0, x1, y1, nameViga="viga"){
 
 
 //------------------------------------------------------Vinculos externos-----------------------------------------------//
-function createEmpotrado(x0, y0){
+function createEmpotrado(){
     countEmpotrado += 1;
 
-    x0 = lastVigaNodeClick.x;
-    y0 = lastVigaNodeClick.y;
+    const x0 = lastVigaNodeClick.x;
+    const y0 = lastVigaNodeClick.y;
     const large = blockSnapSize;
 
     const group = new Konva.Group({id: "e" + countEmpotrado, name: "empotrado", x: x0, y: y0});
@@ -225,11 +224,11 @@ function createEmpotrado(x0, y0){
 }
 
 
-function createApoyoDeslizante(x0, y0){
+function createApoyoDeslizante(){
     countApoyoDeslizante += 1;
 
-    x0 = lastVigaNodeClick.x
-    y0 = lastVigaNodeClick.y
+    const x0 = lastVigaNodeClick.x
+    const y0 = lastVigaNodeClick.y
     const large = 20; //blockSnapSize / 2;
 
     const group = new Konva.Group({id: "ad" + countApoyoDeslizante, name: "apoyo-deslizante", x: x0, y: y0});
@@ -264,11 +263,11 @@ function createApoyoDeslizante(x0, y0){
 }
 
 
-function createApoyoNoDeslizante(x0, y0){
+function createApoyoNoDeslizante(){
     countpoyoNoDeslizante += 1;
     
-    x0 = lastVigaNodeClick.x
-    y0 = lastVigaNodeClick.y
+    const x0 = lastVigaNodeClick.x
+    const y0 = lastVigaNodeClick.y
     const large = 20; //blockSnapSize / 2;
 
     const group = new Konva.Group({id: "an" + countpoyoNoDeslizante, name: "apoyo-no-deslizante", x: x0, y: y0});
@@ -296,9 +295,9 @@ function createApoyoNoDeslizante(x0, y0){
 
 
 //------------------------------------------------------Vinculos internos-----------------------------------------------//
-function createRotula(x0, y0){
-    x0 = lastVigaNodeClick.x
-    y0 = lastVigaNodeClick.y
+function createRotula(){
+    const x0 = lastVigaNodeClick.x
+    const y0 = lastVigaNodeClick.y
 
     const group = new Konva.Group({name: "rotula", x: x0, y: y0});
     const circle = new Konva.Circle({
@@ -322,9 +321,9 @@ function createRotula(x0, y0){
 }
 
 
-function createBiela(x0, y0){
-    x0 = lastVigaNodeClick.x
-    y0 = lastVigaNodeClick.y
+function createBiela(){
+    const x0 = lastVigaNodeClick.x
+    const y0 = lastVigaNodeClick.y
 
     const group = new Konva.Group({name: "biela", x: x0, y: y0});
     const large = blockSnapSize;
@@ -363,9 +362,9 @@ function createBiela(x0, y0){
 
 
 //------------------------------------------------------Fuerzas y momentos-----------------------------------------------//
-function createFuerza(x0, y0, valMagnitud, valAngle=0){
-    x0 = lastVigaNodeClick.x
-    y0 = lastVigaNodeClick.y
+function createFuerza(valMagnitud, valAngle){
+    const x0 = lastVigaNodeClick.x
+    const y0 = lastVigaNodeClick.y
 
     const magnitud = valMagnitud.value;
     const angle = valAngle.value;
@@ -411,11 +410,11 @@ function createFuerza(x0, y0, valMagnitud, valAngle=0){
 }
 
 
-function createMomentoPositivo(x0, y0, val){
-    x0 = lastVigaNodeClick.x
-    y0 = lastVigaNodeClick.y
+function createMomentoPositivo(val){
+    const x0 = lastVigaNodeClick.x
+    const y0 = lastVigaNodeClick.y
 
-    var magnitud = val.value;
+    let magnitud = val.value;
 
     if(magnitud == "" || magnitud == null || magnitud === NaN || magnitud == undefined || magnitud == 0 ){
         return
@@ -453,11 +452,11 @@ function createMomentoPositivo(x0, y0, val){
 }
 
 
-function createMomentoNegativo(x0, y0, val){
-    x0 = lastVigaNodeClick.x
-    y0 = lastVigaNodeClick.y
+function createMomentoNegativo(val){
+    const x0 = lastVigaNodeClick.x
+    const y0 = lastVigaNodeClick.y
     
-    var magnitud = val.value;
+    let magnitud = val.value;
 
     if(magnitud == "" || magnitud == null || magnitud == NaN || magnitud == undefined || magnitud == 0 ){
         return
@@ -506,7 +505,7 @@ function getOffset(element) {
 
 
 //------------------------------------------------------Panel Herramientas-----------------------------------------------//
-function createButton(widthPanel, heightPanel, idNameText, btnText, execFunction, valMagnitud=0, valAngle=0, x0=160, y0=160, x1=80, y1=0){
+function createButton(widthPanel, heightPanel, idNameText, btnText, execFunction, valMagnitud=0, valAngle=0){
     const btn = document.createElement("button");
     btn.type = "button";
     btn.style.backgroundColor = "yellow";
@@ -517,13 +516,13 @@ function createButton(widthPanel, heightPanel, idNameText, btnText, execFunction
     btn.addEventListener("dblclick", () => {
 
         if (idNameText == "vigaBtn"){
-            execFunction(x0, y0, x1, y1);
+            execFunction();
         } else if (idNameText == "fuerzaBtn"){
-            execFunction(x0, y0, valMagnitud, valAngle);
+            execFunction(valMagnitud, valAngle);
         } else if (idNameText == "momentoPositivoBtn" || idNameText == "momentoNegativoBtn"){
-            execFunction(x0, y0, valMagnitud);
+            execFunction(valMagnitud);
         } else {
-            execFunction(x0, y0);
+            execFunction();
         }
     });
     return btn;
@@ -570,7 +569,7 @@ function createContainer(list){
 function createPanel(x0, y0){
     const widthPanel = 200;
     const heightPanel = 350;
-    const colorPanel = "#DDDDDD"
+    const colorPanel = "#DDDDDD";
 
     const heightPanelElement = heightPanel / 9;
 
@@ -592,15 +591,15 @@ function createPanel(x0, y0){
 
     const inputCreateFuerzaAngle = createInputAngle("input-create-fuerza-angle", widthPanel, heightPanelElement);
 
-    const btnViga = createButton(widthPanel, heightPanelElement, "vigaBtn", "Viga", createViga, null); //x0, y0
-    const btnApoyoDeslizante = createButton(widthPanel, heightPanelElement, "apoyoDeslizanteBtn", "Apoyo deslizante", createApoyoDeslizante); //x0, y0
-    const btnApoyoNoDeslizante = createButton(widthPanel, heightPanelElement, "apoyoNoDeslizanteBtn", "Apoyo no deslizante", createApoyoNoDeslizante); //x0, y0
-    const btnEmpotrado = createButton(widthPanel, heightPanelElement, "empotradoBtn", "Empotrado", createEmpotrado); //x0, y0
-    const btnRotula = createButton(widthPanel, heightPanelElement, "rotulaBtn", "Rotula", createRotula); //x0, y0
-    const btnBiela = createButton(widthPanel, heightPanelElement, "bielaBtn", "Biela", createBiela); //x0, y0
-    const btnFuerza = createButton(widthPanel, heightPanelElement, "fuerzaBtn", "Fuerza", createFuerza, inputCreateFuerzaMagnitud, inputCreateFuerzaAngle); //x0, y0
-    const btnMomentoPositivo = createButton(widthPanel, heightPanelElement, "momentoPositivoBtn", "Momento (+)", createMomentoPositivo, inputCreateMomentoPositivoMagnitud); //x0, y0
-    const btnMomentoNegativo = createButton(widthPanel, heightPanelElement, "momentoNegativoBtn", "Momento (-)", createMomentoNegativo, inputCreateMomentoNegativoMagnitud); //x0, y0
+    const btnViga = createButton(widthPanel, heightPanelElement, "vigaBtn", "Viga", createViga, null);
+    const btnApoyoDeslizante = createButton(widthPanel, heightPanelElement, "apoyoDeslizanteBtn", "Apoyo deslizante", createApoyoDeslizante); 
+    const btnApoyoNoDeslizante = createButton(widthPanel, heightPanelElement, "apoyoNoDeslizanteBtn", "Apoyo no deslizante", createApoyoNoDeslizante); 
+    const btnEmpotrado = createButton(widthPanel, heightPanelElement, "empotradoBtn", "Empotrado", createEmpotrado); 
+    const btnRotula = createButton(widthPanel, heightPanelElement, "rotulaBtn", "Rotula", createRotula);
+    const btnBiela = createButton(widthPanel, heightPanelElement, "bielaBtn", "Biela", createBiela); 
+    const btnFuerza = createButton(widthPanel, heightPanelElement, "fuerzaBtn", "Fuerza", createFuerza, inputCreateFuerzaMagnitud, inputCreateFuerzaAngle); 
+    const btnMomentoPositivo = createButton(widthPanel, heightPanelElement, "momentoPositivoBtn", "Momento (+)", createMomentoPositivo, inputCreateMomentoPositivoMagnitud); 
+    const btnMomentoNegativo = createButton(widthPanel, heightPanelElement, "momentoNegativoBtn", "Momento (-)", createMomentoNegativo, inputCreateMomentoNegativoMagnitud); 
 
     const containerFuerza = createContainer([btnFuerza, inputCreateFuerzaMagnitud, inputCreateFuerzaAngle]);
     const containerCreateMomentoPositivo = createContainer([btnMomentoPositivo, inputCreateMomentoPositivoMagnitud]);
@@ -615,13 +614,13 @@ function createPanel(x0, y0){
     topOfPanel.innerText = "Panel ";
     topOfPanel.align = "center";
 
-    panel.appendChild(topOfPanel)
+    panel.appendChild(topOfPanel);
     panel.appendChild(btnViga);
     panel.appendChild(btnApoyoDeslizante);
     panel.appendChild(btnApoyoNoDeslizante)
     panel.appendChild(btnEmpotrado);
     panel.appendChild(btnRotula);
-    panel.appendChild(btnBiela)
+    panel.appendChild(btnBiela);
     panel.appendChild(containerFuerza);
     panel.appendChild(containerCreateMomentoPositivo);
     panel.appendChild(containerCreateMomentoNegativo);
@@ -631,9 +630,9 @@ function createPanel(x0, y0){
 
 
 function listenPanelMovement(panel){
-    var mousePosition;
-    var isDown = false;
-    var offset = [0, 0];
+    let mousePosition;
+    let isDown = false;
+    let offset = [0, 0];
 
     panel.addEventListener("mousedown", (e) => {
         isDown = true;
@@ -664,7 +663,6 @@ function listenPanelMovement(panel){
 
 
 function movePanelTo(panel, x, y){
-    
     panel.style.left = getOffset(divKonvaContainer).left + x + "px";
     panel.style.top  = getOffset(divKonvaContainer).top + y + "px";
 
@@ -674,20 +672,19 @@ function movePanelTo(panel, x, y){
 function getXY(){
     const mouseXY = stage.getPointerPosition();
     if (mouseXY){
-        // console.log("En mouseXY: " + mouseXY.x + ", " + mouseXY.y);
         return {x: mouseXY.x, y: mouseXY.y};
     } else {
-        console.log("Fallo en ");
+        console.log("Fallo en getXY()");
         return {x: 800, y:800};
     }
 }
 
 
 function roundXY(mouseXY){
-    var {x, y} = mouseXY;
-    X = Math.round(x / blockSnapSize) * blockSnapSize
-    Y = Math.round(y / blockSnapSize) * blockSnapSize
-    return {x: X, y: Y}
+    const {x, y} = mouseXY;
+    const X = Math.round(x / blockSnapSize) * blockSnapSize;
+    const Y = Math.round(y / blockSnapSize) * blockSnapSize;
+    return {x: X, y: Y};
 }
 
 
@@ -699,8 +696,6 @@ function createScorePanel(x0, y0){
 
     const panel = document.createElement("div");
     panel.style.position = "absolute";
-    // panel.style.left = x0 + "px";
-    // panel.style.top = y0 +"px";
     panel.style.width = widthPanel + "px";
     panel.style.height = heightPanel +"px";
     panel.style.backgroundColor = colorPanel;
@@ -714,8 +709,8 @@ function createScorePanel(x0, y0){
     categoryText.innerText = "Categoria: ";
 
     const valueCategory = document.createElement("h4");
-    valueCategory.id = "valueCategory"
-    valueCategory.innerText = "1"
+    valueCategory.id = "valueCategory";
+    valueCategory.innerText = "1";
 
     const containerCategory = document.createElement("div");
     containerCategory.style.display = "flex";
@@ -739,14 +734,13 @@ function createScorePanel(x0, y0){
     panel.appendChild(containerCategory);
     panel.appendChild(containerScore);
 
-    return panel
+    return panel;
 }
 
 
 function calculateScore(){
-    var result = 0;
+    let result = 0;
     allDCLelements.some((element) =>{
-        //console.log(element.name())
         if (element.name() == "rotula"){
             result += 9;
         } else if (element.name() == "biela"){
@@ -778,10 +772,8 @@ function calculateScore(){
 
 
 function calcuateCategory(){
-    //console.log("Estoy en calculate category ... imprimiento los name() ")
-    var result = 1;
+    let result = 1;
     allDCLelements.some((element) =>{
-        //console.log(element.name());
         if (element.name() == "rotula" || element.name() == "biela"){
             result = 4;
         } else if (element.name() == "rotula" || element.name() == "biela"){
@@ -790,7 +782,7 @@ function calcuateCategory(){
         } else if (result < 4 && (element.name() == "fuerza-distribuida")){
             result = 3;
         } else if (result < 3 && (element.name() == "fuerza")){
-            result =2
+            result = 2;
         }
     });
     return result;
@@ -798,10 +790,10 @@ function calcuateCategory(){
 
 
 function updateScorePanel(){
-    var category = calcuateCategory();
-    var score = calculateScore();
-    scorePanel.querySelector("#valueCategory").innerText = category
-    scorePanel.querySelector("#valueScore").innerHTML = score
+    let category = calcuateCategory();
+    let score = calculateScore();
+    scorePanel.querySelector("#valueCategory").innerText = category;
+    scorePanel.querySelector("#valueScore").innerHTML = score;
 }
 
 
@@ -810,19 +802,19 @@ function createEquationsPanel(){
     const panel = document.createElement("div");
 
     const equationFxDiv = document.createElement("div");
-    equationFxDiv.id = "fx"
+    equationFxDiv.id = "fx";
     const contentFx = document.createElement("h4");
     contentFx.innerText = "ΣFx:" + " = 0";
     equationFxDiv.appendChild(contentFx);
 
     const equationFyDiv = document.createElement("div");
-    equationFyDiv.id = "fy"
+    equationFyDiv.id = "fy";
     const contentFy = document.createElement("h4");
     contentFy.innerText = "ΣFy:" + " = 0";
     equationFyDiv.appendChild(contentFy);
 
     const equationMoDiv = document.createElement("div");
-    equationMoDiv.id = "mo"
+    equationMoDiv.id = "mo";
     const contentMo = document.createElement("h4");
     contentMo.innerText = "ΣMo:" + " = 0";
     equationMoDiv.appendChild(contentMo);
@@ -835,20 +827,16 @@ function createEquationsPanel(){
 }
 
 function updateEquations(){
-    console.log("uptade equations: ")
-
-    var textFx = "ΣFx:";
-    var textFy = "ΣFy:";
-    var textMo = "ΣMo:";
+    let textFx = "ΣFx:";
+    let textFy = "ΣFy:";
+    let textMo = "ΣMo:";
 
     const origin = allDCLelements[0].getChildren((child) => { return child.name() == "subElementoVigaCirculo1"})[0];
-    console.log(origin)
     const originXY = {x: origin.getAttr("x"), y: origin.getAttr("y")};
-    console.log(originXY);
 
     allDCLelements.forEach((element) => {
         const posXY = {x: element.getAttr("x"), y: element.getAttr("y")};
-        const diff = {x: posXY.x - originXY.x, y: posXY.y - originXY.y}
+        const diff = {x: posXY.x - originXY.x, y: posXY.y - originXY.y};
 
         if(element.name() == "fuerza"){
             const tension = element.getAttr("tension");
@@ -895,9 +883,9 @@ function updateEquations(){
             }
 
             if (diff.y > 0){
-                textMo +=  `+ ${Math.abs(diff.x)/blockSnapSize}m*F${element.getAttr("id")}_x`;
+                textMo +=  `+ ${Math.abs(diff.y)/blockSnapSize}m*F${element.getAttr("id")}_x`;
             } else if (diff.y < 0){
-                textMo +=  `- ${Math.abs(diff.x)/blockSnapSize}m*F${element.getAttr("id")}_x`;
+                textMo +=  `- ${Math.abs(diff.y)/blockSnapSize}m*F${element.getAttr("id")}_x`;
             }
             textMo +=  `+ M${element.getAttr("id")}`;
 
@@ -930,11 +918,11 @@ function updateEquations(){
 
         } else if (element.name() == "momento-positivo"){
             const tension = element.getAttr("tension");
-            textMo += `+ ${tension}Nm`
+            textMo += `+ ${tension}Nm`;
 
         } else if (element.name() == "momento-negativo"){
             const tension = element.getAttr("tension");
-            textMo += `- ${tension}Nm`
+            textMo += `- ${tension}Nm`;
         }
     });
     textFx += "= 0";
@@ -948,33 +936,50 @@ function updateEquations(){
     mo.innerText = textMo;
 }
 
-export default {
-    createShadowViga,
-    newViga,
-    updateViga,
-    updateViga,
-    createViga,
-    createEmpotrado,
-    createApoyoDeslizante,
-    createApoyoNoDeslizante,
-    createRotula,
-    createBiela,
-    createFuerza,
-    createMomentoPositivo,
-    createMomentoNegativo,
-    getOffset,
-    createButton,
-    createInputMagnitud,
-    createInputAngle,
-    createContainer,
-    listenPanelMovement,
-    movePanelTo,
-    getXY,
-    roundXY,
-    createScorePanel,
-    calculateScore,
-    calcuateCategory,
-    updateScorePanel,
-    createEquationsPanel,
-    updateEquations
+function listenSave(){
+    stage.on("mouseout", (e) => {
+        document.querySelector("#id_draw").value = stage.toJSON();
+        document.querySelector("#id_category").value = document.querySelector("#valueCategory").innerText;
+        document.querySelector("#id_level_points").value = document.querySelector("#valueScore").innerText;
+    });
+}
+
+
+function listenCreateElement(){
+    stage.on("dblclick", (e) => {
+        if (e.target != stage && e.target) {
+            const mouseXY = roundXY(getXY());
+            lastVigaNodeClick.x = mouseXY.x;
+            lastVigaNodeClick.y = mouseXY.y;
+            
+            if (e.target.name() == "subElementoVigaCirculo1" || e.target.name() == "subElementoVigaCirculo2"){
+                panel.style.visibility = "visible";
+                movePanelTo(panel, mouseXY.x, mouseXY.y);
+            }
+        }
+    });
+}
+
+function listenDeleteElement(){
+    stage.on("click",  (e) => {
+        console.log(allDCLelements);
+  
+        panel.style.visibility = "hidden";
+
+        if (e.target != stage && e.target) {
+            if (e.target.getParent().name() != "layer"){
+                document.addEventListener("keydown", (kd) => {
+                    const key = kd.key;
+    
+                    if(key == "Delete" && e.target.getParent() && e.target.getParent().name() != "initialViga"){
+                        idx = allDCLelements.indexOf(e.target.getParent());;
+                        allDCLelements.splice(idx, 1);
+                        e.target.getParent().destroy();
+                    }
+                });
+            }
+        }
+        updateScorePanel();
+        updateEquations();
+    });
 }
