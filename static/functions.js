@@ -842,21 +842,21 @@ function updateEquations(){
     let textFy = "ΣFy: ";
     let textMo = "ΣMo: ";
 
+    
     const inital = stage.find(element => {return element.name() == "initialViga"})[0];
     const origin = inital.getChildren((child) => { return child.name() == "subElementoVigaCirculo1"})[0];
     const originXY = {x: origin.getAttr("x"), y: origin.getAttr("y")};
+    console.log(origin)
 
     allDCLelements.forEach((element) => {
         const posXY = {x: element.getAttr("x"), y: element.getAttr("y")};
         const diff = {x: posXY.x - originXY.x, y: posXY.y - originXY.y};
-        console.log(diff)
+
         if(element.name() == "fuerza"){
             const tension = element.getAttr("tension");
             const magnitud = parseInt(tension[0]);
             const angle = parseInt(tension[1]);
 
-            //console.log(Math.atan(diff.y/diff.x) + "   " + degToRad(angle))
-            console.log((-diff.y/diff.x).toFixed(4) + " ... " + Math.tan(degToRad(angle)).toFixed(4))
             if(0 == angle){
                 textFx += `- ${magnitud}N`;
                 if (diff.y > 0){
