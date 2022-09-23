@@ -85,6 +85,7 @@ function updateViga(viga, shadow){
         shadow.show();
         shadow.moveToTop();
         viga.moveToTop();
+        
     });
 
     vigaList[1].on("dragmove", () => {
@@ -846,7 +847,6 @@ function updateEquations(){
     const inital = stage.find(element => {return element.name() == "initialViga"})[0];
     const origin = inital.getChildren((child) => { return child.name() == "subElementoVigaCirculo1"})[0];
     const originXY = {x: origin.getAttr("x"), y: origin.getAttr("y")};
-    console.log(origin)
 
     allDCLelements.forEach((element) => {
         const posXY = {x: element.getAttr("x"), y: element.getAttr("y")};
@@ -1050,21 +1050,31 @@ function listenCreateElement(){
     });
 }
 
+function deleteElement(element){
+    idx = allDCLelements.indexOf(element);;
+    allDCLelements.splice(idx, 1);
+    element.destroy();
+    delete element;
+}
+
 function listenDeleteElement(){
     stage.on("click",  (e) => {
         console.log(allDCLelements);
-  
+        console.log("click")
         panel.style.visibility = "hidden";
 
         if (e.target != stage && e.target) {
             if (e.target.getParent().name() != "layer"){
                 document.addEventListener("keydown", (kd) => {
                     const key = kd.key;
-    
+                    updateScorePanel();
+                    updateEquations();
+                    console.log("delete")
                     if(key == "Delete" && e.target.getParent() && e.target.getParent().name() != "initialViga"){
-                        idx = allDCLelements.indexOf(e.target.getParent());;
-                        allDCLelements.splice(idx, 1);
-                        e.target.getParent().destroy();
+                        deleteElement(e.target.getParent());
+                        // idx = allDCLelements.indexOf(e.target.getParent());;
+                        // allDCLelements.splice(idx, 1);
+                        // e.target.getParent().destroy();
                     }
                 });
             }
