@@ -186,6 +186,7 @@ function createViga(nameViga="viga"){
     panel.style.visibility = "hidden";
     updateScorePanel();
     updateEquations();
+    moveVigasToTop();
     return line
 }
 
@@ -220,6 +221,7 @@ function createEmpotrado(){
     panel.style.visibility = "hidden";
     updateScorePanel();
     updateEquations();
+    moveVigasToTop();
     return group;    
 }
 
@@ -259,6 +261,7 @@ function createApoyoDeslizante(){
     panel.style.visibility = "hidden";
     updateScorePanel();
     updateEquations();
+    moveVigasToTop();
     return group;
 }
 
@@ -290,6 +293,7 @@ function createApoyoNoDeslizante(){
     panel.style.visibility = "hidden";
     updateScorePanel();
     updateEquations();
+    moveVigasToTop();
     return group
 }
 
@@ -317,6 +321,7 @@ function createRotula(){
     panel.style.visibility = "hidden";
     updateScorePanel();
     updateEquations();
+    moveVigasToTop();
     return group;
 }
 
@@ -357,6 +362,7 @@ function createBiela(){
     panel.style.visibility = "hidden";
     updateScorePanel();
     updateEquations();
+    moveVigasToTop();
     return group
 }
 
@@ -380,7 +386,7 @@ function createFuerza(valMagnitud, valAngle){
     const arrow = new Konva.Arrow({
         x: 0,
         y: 0,
-        points: [-lx, -ly, 0, 0],
+        points: [lx, -ly, 0, 0],
         pointerLength: 15,
         pointerWidth: 15,
         fill: "black",
@@ -391,8 +397,8 @@ function createFuerza(valMagnitud, valAngle){
 
 
     const magnitudValue = new Konva.Text({
-        x: 0+10,
-        y: 0-blockSnapSize,
+        x: lx+4,
+        y: -ly,
         text: magnitud + " N" + ", " + angle + " °",
         fontSize: 15,
         fontFamily: "Impact"
@@ -406,6 +412,7 @@ function createFuerza(valMagnitud, valAngle){
     panel.style.visibility = "hidden";
     updateScorePanel();
     updateEquations();
+    moveVigasToTop();
     return group;
 }
 
@@ -826,52 +833,135 @@ function createEquationsPanel(){
     return panel;
 }
 
-function updateEquations(){
-    let textFx = "ΣFx:";
-    let textFy = "ΣFy:";
-    let textMo = "ΣMo:";
+function degToRad(deg){
+    return deg * Math.PI / 180;
+}
 
-    const origin = allDCLelements[0].getChildren((child) => { return child.name() == "subElementoVigaCirculo1"})[0];
+function updateEquations(){
+    let textFx = "ΣFx: ";
+    let textFy = "ΣFy: ";
+    let textMo = "ΣMo: ";
+
+    const inital = stage.find(element => {return element.name() == "initialViga"})[0];
+    const origin = inital.getChildren((child) => { return child.name() == "subElementoVigaCirculo1"})[0];
     const originXY = {x: origin.getAttr("x"), y: origin.getAttr("y")};
 
     allDCLelements.forEach((element) => {
         const posXY = {x: element.getAttr("x"), y: element.getAttr("y")};
         const diff = {x: posXY.x - originXY.x, y: posXY.y - originXY.y};
-
+        console.log(diff)
         if(element.name() == "fuerza"){
             const tension = element.getAttr("tension");
             const magnitud = parseInt(tension[0]);
             const angle = parseInt(tension[1]);
 
-            if(0 <= angle && angle < 90){ // sen - cos +
-                if(angle == 0){
-                    textFx += `+ ${magnitud}N `;
-                } else {
-                    textFx += `+ ${magnitud}cos(${angle})N `;
-                    textFy += `- ${magnitud}sin(${angle})N `;
+            //console.log(Math.atan(diff.y/diff.x) + "   " + degToRad(angle))
+            console.log((-diff.y/diff.x).toFixed(4) + " ... " + Math.tan(degToRad(angle)).toFixed(4))
+            if(0 == angle){
+                textFx += `- ${magnitud}N`;
+                if (diff.y > 0){
+                    textMo +=  `- ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}N`;
+                } else if (diff.y < 0){
+                    textMo +=  `+ ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}N`;
                 }
-            } else if(90 <= angle && angle < 180){ // sen cos 
-                if(angle == 90){
-                    textFy += `- ${magnitud}N `;
+            } else if (0 < angle && angle < 90){
+                textFx += `- ${magnitud}*cos(${angle})N`;
+                textFy += `- ${magnitud}*sin(${angle})N`;
+                if ((-diff.y/diff.x).toFixed(4) == Math.tan(degToRad(angle)).toFixed(4)){
+                    console.log("fuerza y el brazo tienen la misma pendiente");
                 } else {
-                    textFx += `- ${magnitud}cos(${180 - angle})N `;
-                    textFy += `- ${magnitud}sin(${180 - angle})N `;
+                    if (diff.x > 0){
+                        textMo += `- ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}*sin(${angle})`
+                    } else if (diff.x < 0){
+                        textMo += `+ ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}*sin(${angle})`
+                    }
+                    if (diff.y > 0){
+                        textMo += `- ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}*cos(${angle})N`
+                    } else if (diff.y < 0){
+                        textMo += `+ ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}*cos(${angle})N`
+                    } 
                 }
-            } else if(180 <= angle && angle < 270){ // sen cos
-                if(angle == 180){
-                    textFx += `- ${magnitud}N `;
+        
+            } else if (90 == angle){
+                textFy += `- ${magnitud}N`;
+                if (diff.x > 0){
+                    textMo +=  `+ ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}N`;
+                } else if (diff.x < 0){
+                    textMo +=  `+ ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}N`;
+                }
+
+            } else if (90 < angle && angle < 180){
+                textFx += `+ ${magnitud}*cos(${180 - angle})N`;
+                textFy += `- ${magnitud}*sin(${180 - angle})N`;
+                if ((-diff.y/diff.x).toFixed(4) == Math.tan(degToRad(angle)).toFixed(4)){
+                    console.log("fuerza y el brazo tienen la misma pendiente");
                 } else {
-                    textFx += `- ${magnitud}cos(${angle - 180})N `;
-                    textFy += `+ ${magnitud}sin(${angle - 180})N `;
+                    if (diff.x > 0){
+                        textMo += `- ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}*sin(${angle - 90})N`
+                    } else if (diff.x < 0){
+                        textMo += `+ ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}*sin(${angle - 90})N`
+                    }
+                    if (diff.y > 0){
+                        textMo += `+ ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}*cos(${angle - 90})N`
+                    } else if (diff.y < 0){
+                        textMo += `- ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}*cos(${angle - 90})N`
+                    } 
                 }
-            } else if(270 <= angle && angle < 360){ // sen cos
-                if(angle == 270){
-                    textFy += `+ ${magnitud}N `;
+                
+            } else if (180 == angle){
+                textFx += `+ ${magnitud}N`;
+                if (diff.y > 0){
+                    textMo +=  `+ ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}N`;
+                } else if (diff.y < 0){
+                    textMo +=  `- ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}N`;
+                }
+            } else if (180 < angle && angle < 270){
+                textFx += `+ ${magnitud}*cos(${angle - 180})N`;
+                textFy += `+ ${magnitud}*sin(${angle - 180})N`;
+                if ((-diff.y/diff.x).toFixed(4) == Math.tan(degToRad(angle)).toFixed(4)){
+                    console.log("fuerza y el brazo tienen la misma pendiente");
                 } else {
-                    textFx += `+ ${magnitud}cos(${360 - angle})N `;
-                    textFy += `+ ${magnitud}sin(${360 - angle})N `;
+                    if (diff.x > 0){
+                        textMo += `+ ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}*sin(${angle - 180})N`
+                    } else if (diff.x < 0){
+                        textMo += `- ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}*sin(${angle - 180})N`
+                    }
+                    if (diff.y > 0){
+                        textMo += `+ ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}*cos(${angle - 180})N`
+                    } else if (diff.y < 0){
+                        textMo += `- ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}*cos(${angle - 180})N`
+                    } 
                 }
+                
+            } else if (270 == angle){
+                textFy += `+ ${magnitud}N`;
+                if (diff.x > 0){
+                    textMo +=  `+ ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}N`;
+                } else if (diff.x < 0){
+                    textMo +=  `- ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}N`;
+                }
+            } else if (270 < angle && angle < 360){
+                textFx += `- ${magnitud}*cos(${360 - angle})N`;
+                textFy += `+ ${magnitud}*sin(${360 - angle})N`;
+                if ((-diff.y/diff.x).toFixed(4) == Math.tan(degToRad(angle)).toFixed(4)){
+                    console.log("fuerza y el brazo tienen la misma pendiente");
+                } else {
+                    if (diff.x > 0){
+                        textMo += `+ ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}*sin(${360 - angle})N`
+                    } else if (diff.x < 0){
+                        textMo += `- ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}*sin(${360 - angle})N`
+                    }
+                    if (diff.y > 0){
+                        textMo += `- ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}*cos(${360 - angle})N`
+                    } else if (diff.y < 0){
+                        textMo += `+ ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}*cos(${360 - angle})N`
+                    } 
+                }
+                
             }
+
+            // textMo += `${magnitud}*(${Math.abs(diff.y)/blockSnapSize}*cos(${angle}) - ${Math.abs(diff.x)/blockSnapSize}*sin(${angle}))`
+
         } else if (element.name() == "empotrado" ){
             textFx +=  `+ F${element.getAttr("id")}_x`;
             textFy +=  `+ F${element.getAttr("id")}_y`;
@@ -981,5 +1071,22 @@ function listenDeleteElement(){
         }
         updateScorePanel();
         updateEquations();
+    });
+}
+
+function moveVigasToTop(){
+    console.log("holaaa")
+    const vigas = layer.getChildren(element => {
+        return element.name() == "viga";
+    });
+
+    const initialViga = layer.getChildren(element => {
+        return element.name() == "initialViga";
+    })[0];
+    console.log(initialViga)
+    vigas.push(initialViga);
+    console.log(vigas)
+    vigas.forEach(viga => {
+        viga.moveToTop();
     });
 }

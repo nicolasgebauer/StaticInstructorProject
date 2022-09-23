@@ -24,6 +24,7 @@ stage.find( (element) => {
         element.name() == "momento-negativo" 
             ){
             allDCLelements.push(element);
+            layer.add(element);
     }
 });
 
@@ -55,7 +56,7 @@ updateEquations();
 //------------------------------------------------------Elementos dcl-----------------------------------------------//
 const lastVigaNodeClick = {x: 0, y: 0};
 listenCreateElement();
-listenDeleteElement();
+listenDeleteElement2();
 listenSave();
 
 

@@ -51,7 +51,8 @@ for (let j = 0; j <= heightStage / blockSnapSize; j++) {
 const lastVigaNodeClick = {x: 0, y: 0};
 const initialViga = createViga(nameViga="initialViga"); // initialViga no puede ser destruida
 listenCreateElement();
-listenDeleteElement();
+// listenDeleteElement1();
+// listenDeleteElement2();
 listenSave();
 
 
