@@ -8,12 +8,12 @@
 //     allDCLelements
 // } from "letiables.js"
 
-function createShadowViga(x0, y0, x1, y1){
-    const group = new Konva.Group({name: "shadow-viga"});
+function createShadowViga(x0, y0, x1, y1, nameShadow="shadow-viga"){
+    const group = new Konva.Group({name: nameShadow});
     const line = new Konva.Line({
         name: "subElementoViga",
-        x: x0,
-        y: y0,
+        x: 0,
+        y: 0,
         points: [0, 0, x1, y1],
         strokeWidth: 5,
         stroke: "#FF7B17",
@@ -22,8 +22,8 @@ function createShadowViga(x0, y0, x1, y1){
 
     const circle1 = new Konva.Circle({
         name: "subElementoViga",
-        x: x0,
-        y: y0,
+        x: 0,
+        y: 0,
         radius: 5,
         fill: "#CF6412",
         draggable: true
@@ -31,8 +31,8 @@ function createShadowViga(x0, y0, x1, y1){
 
     const circle2 = circle1.clone({
         name: "subElementoViga",
-        x: x0+(x1),
-        y: y0+(y1)
+        x: 0+(x1),
+        y: 0+(y1)
     });
 
     group.add(line, circle1, circle2);
@@ -45,12 +45,13 @@ function newViga(x0, y0, x1, y1, nameViga="viga"){ //parte en el punto (x0, y0) 
     let colorCircle = "red";
     if(nameViga == "initialViga"){
         colorCircle = "green";
+
     }
-    const group = new Konva.Group({draggable: false, name: nameViga});
+    const group = new Konva.Group({draggable: false, name: nameViga, x: x0, y: y0});
     const line = new Konva.Line({
         name: "subElementoVigaLinea",
-        x: x0,
-        y: y0,
+        x: 0,
+        y: 0,
         points: [0, 0, x1, y1],
         strokeWidth: 5,
         stroke: "black"
@@ -58,8 +59,8 @@ function newViga(x0, y0, x1, y1, nameViga="viga"){ //parte en el punto (x0, y0) 
 
     const circle1 = new Konva.Circle({
         name: "subElementoVigaCirculo1",
-        x: x0,
-        y: y0,
+        x: 0,
+        y: 0,
         radius: 5,
         fill: colorCircle,
         draggable: true
@@ -67,8 +68,8 @@ function newViga(x0, y0, x1, y1, nameViga="viga"){ //parte en el punto (x0, y0) 
 
     const circle2 = new Konva.Circle({
         name: "subElementoVigaCirculo2",
-        x: x0 + x1,
-        y: y0 + y1,
+        x: 0 + x1,
+        y: 0 + y1,
         radius: 5,
         fill: "red",
         draggable: true
@@ -171,16 +172,19 @@ function createViga(nameViga="viga"){
     const y1 = 0;
     const x1 = blockSnapSize * 3;
 
+    let nameShadow = "shadow-viga";
     if (nameViga == "initialViga"){
         x0 = blockSnapSize * 5;
         y0 = blockSnapSize * 3;
+        nameShadow = "shadow-initialViga"
     }
 
     const line = newViga(x0, y0, x1, y1, nameViga);
-    const shadowLine = createShadowViga(x0, y0, x1, y1);
+    const shadowLine = createShadowViga(x0, y0, x1, y1, nameShadow);
+    shadowLine.hide();
 
     layer.add(line);
-    layer.add(shadowLine.hide());
+    layer.add(shadowLine);
     allDCLelements.push(line);
 
     updateViga(line, shadowLine);
@@ -392,8 +396,7 @@ function createFuerza(valMagnitud, valAngle){
         pointerWidth: 15,
         fill: "black",
         stroke: "black",
-        strokeWidth: 4,
-        name: "fuerza",
+        strokeWidth: 4
     });
 
 

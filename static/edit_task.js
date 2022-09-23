@@ -8,7 +8,7 @@ const defaultVigas = stage.find( (element) =>{
     return element.name() == "viga" || element.name() == "initialViga"
 })
 const defaultShadowVigas = stage.find( (element) =>{
-    return element.name() == "shadow-viga"
+    return element.name() == "shadow-viga" || element.name() == "shadow-initialViga"
 })
 
 stage.find( (element) => { 
@@ -24,7 +24,6 @@ stage.find( (element) => {
         element.name() == "momento-negativo" 
             ){
             allDCLelements.push(element);
-            layer.add(element);
     }
 });
 
@@ -81,4 +80,8 @@ stage.on("click",  (e) => {
     updateEquations();
 });
 
+allDCLelements.forEach(element => {
+    console.log(element)
+    console.log(element.getAttr("x") + ", " + element.getAttr("y"));
+});
 
