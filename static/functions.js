@@ -12,8 +12,8 @@ function createShadowViga(x0, y0, x1, y1, nameShadow="shadow-viga"){
     const group = new Konva.Group({name: nameShadow});
     const line = new Konva.Line({
         name: "subElementoViga",
-        x: 0,
-        y: 0,
+        x: x0,
+        y: y0,
         points: [0, 0, x1, y1],
         strokeWidth: 5,
         stroke: "#FF7B17",
@@ -22,8 +22,8 @@ function createShadowViga(x0, y0, x1, y1, nameShadow="shadow-viga"){
 
     const circle1 = new Konva.Circle({
         name: "subElementoViga",
-        x: 0,
-        y: 0,
+        x: x0,
+        y: y0,
         radius: 5,
         fill: "#CF6412",
         draggable: true
@@ -31,8 +31,8 @@ function createShadowViga(x0, y0, x1, y1, nameShadow="shadow-viga"){
 
     const circle2 = circle1.clone({
         name: "subElementoViga",
-        x: 0+(x1),
-        y: 0+(y1)
+        x: x0+(x1),
+        y: y0+(y1)
     });
 
     group.add(line, circle1, circle2);
@@ -47,11 +47,11 @@ function newViga(x0, y0, x1, y1, nameViga="viga"){ //parte en el punto (x0, y0) 
         colorCircle = "green";
 
     }
-    const group = new Konva.Group({draggable: false, name: nameViga, x: x0, y: y0});
+    const group = new Konva.Group({draggable: false, name: nameViga});
     const line = new Konva.Line({
         name: "subElementoVigaLinea",
-        x: 0,
-        y: 0,
+        x: x0,
+        y: y0,
         points: [0, 0, x1, y1],
         strokeWidth: 5,
         stroke: "black"
@@ -59,8 +59,8 @@ function newViga(x0, y0, x1, y1, nameViga="viga"){ //parte en el punto (x0, y0) 
 
     const circle1 = new Konva.Circle({
         name: "subElementoVigaCirculo1",
-        x: 0,
-        y: 0,
+        x: x0,
+        y: y0,
         radius: 5,
         fill: colorCircle,
         draggable: true
@@ -68,8 +68,8 @@ function newViga(x0, y0, x1, y1, nameViga="viga"){ //parte en el punto (x0, y0) 
 
     const circle2 = new Konva.Circle({
         name: "subElementoVigaCirculo2",
-        x: 0 + x1,
-        y: 0 + y1,
+        x: x0 + x1,
+        y: y0 + y1,
         radius: 5,
         fill: "red",
         draggable: true
@@ -86,6 +86,7 @@ function updateViga(viga, shadow){
         shadow.show();
         shadow.moveToTop();
         viga.moveToTop();
+        updateEquations();
         
     });
 
@@ -123,12 +124,14 @@ function updateViga(viga, shadow){
 
         shadowList[0].position(vigaList[0].position());
         shadow.hide();
+        updateEquations();
     });
 
     vigaList[2].on("dragstart", () => {
         shadow.show();
         shadow.moveToTop();
         viga.moveToTop();
+        updateEquations();
     });
 
     vigaList[2].on("dragmove", () => {
@@ -162,6 +165,7 @@ function updateViga(viga, shadow){
             y: shadowCircle2Pos.y
         });
         shadow.hide();
+        updateEquations();
     });
 }
 
@@ -783,7 +787,7 @@ function calculateScore(){
 
 
 function calcuateCategory(){
-    let result = 1;
+    let result = 0;
     allDCLelements.some((element) =>{
         if (element.name() == "rotula" || element.name() == "biela"){
             result = 4;
@@ -793,7 +797,11 @@ function calcuateCategory(){
         } else if (result < 4 && (element.name() == "fuerza-distribuida")){
             result = 3;
         } else if (result < 3 && (element.name() == "fuerza")){
-            result = 2;
+            if (element.getAttr("tension")[1] in [0, 90, 180, 270]){
+                result = 2
+            } else {
+                result = 1;
+            }
         }
     });
     return result;
