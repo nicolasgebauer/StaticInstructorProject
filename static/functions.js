@@ -370,8 +370,6 @@ function createBiela(){
 
 //------------------------------------------------------Fuerzas y momentos-----------------------------------------------//
 function createFuerza(valMagnitud, valAngle, color="black", x0=0, y0=0, layerForPaint=layer, aux="aux"){
-    console.log(aux)
-
     let x0lastPos = lastVigaNodeClick.x
     let y0lasPos = lastVigaNodeClick.y
     
@@ -1122,70 +1120,97 @@ function replaceApoyos(){
     stage2 = Konva.Node.create(JSON.parse(stage.clone({name: "stage2"}).toJSON()), 'container2');
     // console.log(stage2)
     // console.log("en funcion replace apoyos")
-    const layer2 = stage2.find(element => {
+    let layer2 = stage2.find(element => {
         return element.name() == "layer";
     })[0];
 
-    const childrean = layer2.getChildren();
-    childrean.forEach(item => {
+    console.log(layer2)
+    const apoyosDeslizantes = layer2.find(element => {
+        return element.name() == "apoyo-deslizante";
+    });
+    apoyosDeslizantes.forEach((item) => {
         const posXY = {x: item.getAttr("x"), y: item.getAttr("y")}
-        if (item.name() == "apoyo-deslizante"){
-            createFuerza(`F${item.getAttr("id")}_y`, 270, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
-            item.destroy();
+        createFuerza(`F${item.getAttr("id")}_y`, 270, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+        item.destroy();
+    })
 
-        } else if (item.name() == "apoyo-no-deslizante"){
-            createFuerza(`F${item.getAttr("id")}_y`, 270, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
-            createFuerza(`F${item.getAttr("id")}_x`, 180, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
-            item.destroy(); 
+    const apoyosNoDeslizantes = layer2.find(element => {
+        return element.name() == "apoyo-no-deslizante";
+    });
+    apoyosNoDeslizantes.forEach((item) => {
+        const posXY = {x: item.getAttr("x"), y: item.getAttr("y")}
+        createFuerza(`F${item.getAttr("id")}_y`, 270, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+        createFuerza(`F${item.getAttr("id")}_x`, 180, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+        item.destroy();
+    })
 
-        } else if (item.name() == "empotrado"){
-            createFuerza(`F${item.getAttr("id")}_y`, 270, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
-            createFuerza(`F${item.getAttr("id")}_x`, 180, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
-            createMomentoPositivo(`M${item.getAttr("id")}`, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2)
-            item.destroy();
-            
-        } else if (item.name() == "momento-positivo"){
-            createMomentoPositivo(`${item.getAttr("tension")}Nm`, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
-            item.destroy();
+    const empotrados = layer2.find(element => {
+        return element.name() == "empotrado";
+    });
+    empotrados.forEach((item) => {
+        const posXY = {x: item.getAttr("x"), y: item.getAttr("y")}
+        createFuerza(`F${item.getAttr("id")}_y`, 270, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+        createFuerza(`F${item.getAttr("id")}_x`, 180, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+        createMomentoPositivo(`M${item.getAttr("id")}`, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2)
+        item.destroy();
+    })
 
-        } else if (item.name() == "momento-negativo"){
-            createMomentoNegativo(`${item.getAttr("tension")}Nm`, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+    const fuerzas = layer2.find(element => {
+        return element.name() == "fuerza";
+    });
+    fuerzas.forEach((item) => {
+        const posXY = {x: item.getAttr("x"), y: item.getAttr("y")}
+        const magnitud = item.getAttr("tension")[0];
+        const angle = item.getAttr("tension")[1];
+        const angleRad = angle * Math.PI / 180;
+    
+        if(0 == angle){ //
+            createFuerza(`${magnitud}N`, 0, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
             item.destroy();
-
-        }else if (item.name() == "fuerza"){
-            const magnitud = item.getAttr("tension")[0];
-            const angle = item.getAttr("tension")[1];
-            if(0 == angle){ //
-                createFuerza(`${magnitud}N`, 0, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
-                item.destroy();
-            } else if (0 < angle && angle < 90){ //
-                createFuerza(`${magnitud}*cos(${angle})N`, 0, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
-                createFuerza(`${magnitud}*sin(${angle})N`, 90, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
-                item.destroy();
-            } else if (90 == angle){ //
-                createFuerza(`${magnitud}N`, 90, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
-                item.destroy();
-            } else if (90 < angle && angle < 180){
-                createFuerza(`${magnitud}*cos(${angle - 90})N`, 180, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
-                createFuerza(`${magnitud}*sin(${angle - 90})N`, 90, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
-                item.destroy();
-            } else if (180 == angle){ //
-                createFuerza(`${magnitud}N`, 180, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
-                item.destroy();
-            } else if (180 < angle && angle < 270){
-                createFuerza(`${magnitud}*cos(${angle - 180})N`, 180, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
-                createFuerza(`${magnitud}*sin(${angle - 180})N`, 270, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
-                item.destroy();
-            } else if (270 == angle){ //
-                createFuerza(`${magnitud}N`, 270, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
-                item.destroy();
-            } else if (270 < angle && angle < 360){
-                createFuerza(`${magnitud}*cos(${360 - angle})N`, 0, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
-                createFuerza(`${magnitud}*sin(${360 - angle})N`, 270, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
-                item.destroy();
-            }
+        } else if (0 < angle && angle < 90){ //
+            createFuerza(`${magnitud}*cos(${angle})N`, 0, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+            createFuerza(`${magnitud}*sin(${angle})N`, 90, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+            item.destroy();
+        } else if (90 == angle){ //
+            createFuerza(`${magnitud}N`, 90, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+            item.destroy();
+        } else if (90 < angle && angle < 180){
+            createFuerza(`${magnitud}*cos(${angle - 90})N`, 180, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+            createFuerza(`${magnitud}*sin(${angle - 90})N`, 90, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+            item.destroy();
+        } else if (180 == angle){ //
+            createFuerza(`${magnitud}N`, 180, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+            item.destroy();
+        } else if (180 < angle && angle < 270){
+            createFuerza(`${magnitud}*cos(${angle - 180})N`, 180, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+            createFuerza(`${magnitud}*sin(${angle - 180})N`, 270, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+            item.destroy();
+        } else if (270 == angle){ //
+            createFuerza(`${magnitud}N`, 270, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+            item.destroy();
+        } else if (270 < angle && angle < 360){
+            createFuerza(`${magnitud}*cos(${360 - angle})N`, 0, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+            createFuerza(`${magnitud}*sin(${360 - angle})N`, 270, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+            item.destroy();
         }
     });
+    const momentosPositivos = layer2.find(element => {
+        return element.name() == "momento-positivo";
+    });
+    momentosPositivos.forEach((item) => {
+        const posXY = {x: item.getAttr("x"), y: item.getAttr("y")}
+        createMomentoPositivo(`${item.getAttr("tension")}Nm`, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+        item.destroy();
+    });
+    const momentosNegativos = layer2.find(element => {
+        return element.name() == "momento-negativo";
+    });
+    momentosNegativos.forEach((item) => {
+        const posXY = {x: item.getAttr("x"), y: item.getAttr("y")}
+        createMomentoNegativo(`${item.getAttr("tension")}Nm`, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+        item.destroy();
+    });
+
 }
 
 function updateCounts(){
