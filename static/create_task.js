@@ -41,21 +41,24 @@ const divKonvaContainer = document.querySelector("#container");
 const equationsPanel = createEquationsPanel();
 const scorePanel = createScorePanel(stage.x,stage.y);
 const panel = createPanel(400, 80);
+const delPanel = createDelPanel(0,0);
 
 divEquationsContainer.appendChild(equationsPanel);
 divScoreContainer.appendChild(scorePanel);
 divKonvaContainer.appendChild(panel);
+divKonvaContainer.appendChild(delPanel);
 
 listenPanelMovement(panel);
-
-
+listenPanelMovement(delPanel);
 
 //------------------------------------------------------Elementos dcl-----------------------------------------------//
 const lastVigaNodeClick = {x: 0, y: 0};
+let lastElementClick = undefined;
 const initialViga = createViga(nameViga="initialViga"); // initialViga no puede ser destruida
 
 listenCreateElement();
 listenDeleteElement();
+listenHiddePanels();
 replaceApoyos();
 listenSave();
 

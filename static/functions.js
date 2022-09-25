@@ -1,13 +1,3 @@
-// import {
-//     countEmpotrado,
-//     countApoyoDeslizante,
-//     countpoyoNoDeslizante,
-//     blockSnapSize,
-//     widthStage,
-//     heightStage,
-//     allDCLelements
-// } from "letiables.js"
-
 function createShadowViga(x0, y0, x1, y1, nameShadow="shadow-viga"){
     const group = new Konva.Group({name: nameShadow});
     const line = new Konva.Line({
@@ -191,6 +181,7 @@ function createViga(nameViga="viga"){
 
     updateViga(line, shadowLine);
     panel.style.visibility = "hidden";
+    delPanel.style.visibility = "hidden";
     // updateAll();
     moveVigasToTop();
   
@@ -226,6 +217,7 @@ function createEmpotrado(){
     allDCLelements.push(group);
 
     panel.style.visibility = "hidden";
+    delPanel.style.visibility = "hidden";
     // updateAll();
     moveVigasToTop();
     return group;    
@@ -265,6 +257,7 @@ function createApoyoDeslizante(){
     allDCLelements.push(group);
 
     panel.style.visibility = "hidden";
+    delPanel.style.visibility = "hidden";
     // updateAll();
     moveVigasToTop();
     return group;
@@ -295,6 +288,7 @@ function createApoyoNoDeslizante(){
     allDCLelements.push(group);
 
     panel.style.visibility = "hidden";
+    delPanel.style.visibility = "hidden";
     // updateAll();
     moveVigasToTop();
     
@@ -322,6 +316,7 @@ function createRotula(){
     allDCLelements.push(group);
 
     panel.style.visibility = "hidden";
+    delPanel.style.visibility = "hidden";
     // updateAll();
     moveVigasToTop();
     return group;
@@ -362,6 +357,7 @@ function createBiela(){
     allDCLelements.push(group);
 
     panel.style.visibility = "hidden";
+    delPanel.style.visibility = "hidden";
     // updateAll();
     moveVigasToTop();
     return group
@@ -417,6 +413,7 @@ function createFuerza(valMagnitud, valAngle, color="black", x0=0, y0=0, layerFor
     }
     
     panel.style.visibility = "hidden";
+    delPanel.style.visibility = "hidden";
     updateEquations();
     updateScorePanel();
     moveVigasToTop();
@@ -466,6 +463,7 @@ function createMomentoPositivo(val, color="black", x0=0, y0=0, layerForPaint=lay
     }
 
     panel.style.visibility = "hidden";
+    delPanel.style.visibility = "hidden";
     updateEquations();
     updateScorePanel();
     return group;
@@ -514,6 +512,7 @@ function createMomentoNegativo(val, color="black", x0=0, y0=0, layerForPaint=lay
     }
 
     panel.style.visibility = "hidden";
+    delPanel.style.visibility = "hidden";
     updateEquations();
     updateScorePanel();
     return group;
@@ -531,7 +530,7 @@ function getOffset(element) {
 
 
 //------------------------------------------------------Panel Herramientas-----------------------------------------------//
-function createButton(widthPanel, heightPanel, idNameText, btnText, execFunction, valMagnitud=0, valAngle=0){
+function createButton(widthPanel, heightPanel, idNameText, btnText, execFunction, valMagnitud=0, valAngle=0, element=0){
     const btn = document.createElement("button");
     btn.type = "button";
     btn.style.backgroundColor = "yellow";
@@ -547,6 +546,8 @@ function createButton(widthPanel, heightPanel, idNameText, btnText, execFunction
             execFunction(valMagnitud.value, valAngle.value);
         } else if (idNameText == "momentoPositivoBtn" || idNameText == "momentoNegativoBtn"){
             execFunction(valMagnitud.value);
+        } else if(idNameText == "deleteElementBtn"){
+            execFunction(element);
         } else {
             execFunction();
         }
@@ -592,6 +593,7 @@ function createContainer(list){
 
     return container;
 }
+
 
 function createPanel(x0, y0){
     const widthPanel = 200;
@@ -690,9 +692,14 @@ function listenPanelMovement(panel){
 }
 
 
-function movePanelTo(panel, x, y){
-    panel.style.left = getOffset(divKonvaContainer).left + x + "px";
-    panel.style.top  = getOffset(divKonvaContainer).top + y + "px";
+function movePanelTo(panelParam, x, y){
+    if (panelParam == panel){
+        panelParam.style.left = getOffset(divKonvaContainer).left + x + "px";
+        panelParam.style.top  = getOffset(divKonvaContainer).top + y + "px";
+    } else if (panelParam == delPanel){
+        panelParam.style.left = getOffset(divKonvaContainer).left + x - panelParam.offsetWidth + "px";
+        panelParam.style.top  = getOffset(divKonvaContainer).top + y + "px";
+    }
 
 }
 
@@ -864,9 +871,11 @@ function createEquationsPanel(){
     return panel;
 }
 
+
 function degToRad(deg){
     return deg * Math.PI / 180;
 }
+
 
 function updateEquations(){
     let textFx = "ΣFx: ";
@@ -1055,6 +1064,7 @@ function updateEquations(){
     mo.innerText = textMo;
 }
 
+
 function listenSave(){
     stage.on("mouseout", (e) => {
         document.querySelector("#id_draw").value = stage.toJSON();
@@ -1089,6 +1099,26 @@ function deleteElement(element){
 }
 
 function listenDeleteElement(){
+    stage.on("dblclick", (e) => {
+        if (e.target && e.target.getParent()){
+            const element = e.target.getParent();
+            const name = element.name();
+            if (name == "viga"                  ||
+                name == "apoyo-deslizante"      ||
+                name == "apoyo-no-deslizante"   ||
+                name == "empotrado"             ||
+                name == "rotula"                ||
+                name == "biela"                 ||
+                name == "fuerza"                ||
+                name == "momento-positivo"      ||
+                name == "momento-negativo"){
+                    const mouseXY = roundXY(getXY());
+                    lastElementClick = element;
+                    delPanel.style.visibility = "visible";
+                    movePanelTo(delPanel, mouseXY.x, mouseXY.y);
+                }
+        } 
+    });
     // stage.on("click",  (e) => {
     //     console.log(allDCLelements);
     //     console.log("click")
@@ -1111,6 +1141,13 @@ function listenDeleteElement(){
     //     }
     //     updateAll();
     // });
+}
+
+function listenHiddePanels(){
+    stage.on("click", () => {
+        panel.style.visibility = "hidden";
+        delPanel.style.visibility = "hidden";
+    });
 }
 
 function updateAll(){
@@ -1239,4 +1276,39 @@ function moveVigasToTop(){
     // vigas.forEach(viga => {
     //     viga.moveToTop();
     // });
+}
+
+
+//------------------------------------------------------Delete panel-----------------------------------------------//
+function delElement(){
+    deleteElement(lastElementClick);
+    delPanel.style.visibility = "hidden";
+    panel.style.visibility = "hidden";
+}
+
+
+function createDelPanel(x0=0, y0=0){
+    const widthPanel = 150;
+    const heightPanel = 60;
+    const colorPanel = "#DDDDDD";
+
+    const panel = document.createElement("div");
+    panel.style.position = "absolute";
+    panel.style.left = divKonvaContainer.getBoundingClientRect().left + x0 + "px";
+    panel.style.top = divKonvaContainer.getBoundingClientRect().left + y0 +"px";
+    panel.style.width = widthPanel + "px";
+    panel.style.height = heightPanel +"px";
+    panel.style.backgroundColor = colorPanel;
+    panel.style.borderColor = "black";
+    panel.style.border = "40px";
+    panel.style.visibility = "hidden";
+    panel.style.zIndex = "1001";
+
+
+    const deleteElementBtn = createButton(widthPanel, heightPanel, "delElementBtn", "eliminar", delElement);
+
+    panel.appendChild(deleteElementBtn);
+
+
+    return panel;
 }
