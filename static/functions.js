@@ -43,9 +43,10 @@ function createShadowViga(x0, y0, x1, y1, nameShadow="shadow-viga"){
 //------------------------------------------------------Viga-----------------------------------------------//
 function newViga(x0, y0, x1, y1, nameViga="viga"){ //parte en el punto (x0, y0) y se desplaza x1 horizontalmente ^ y1 verticalmente ( no va al punto (x1, y1))
     let colorCircle = "red";
+    let dragg = true;
     if(nameViga == "initialViga"){
         colorCircle = "green";
-
+        dragg = false;
     }
     const group = new Konva.Group({draggable: false, name: nameViga});
     const line = new Konva.Line({
@@ -63,7 +64,7 @@ function newViga(x0, y0, x1, y1, nameViga="viga"){ //parte en el punto (x0, y0) 
         y: y0,
         radius: 5,
         fill: colorCircle,
-        draggable: true
+        draggable: dragg
     });
 
     const circle2 = new Konva.Circle({
@@ -175,8 +176,8 @@ function createViga(nameViga="viga"){
 
     let nameShadow = "shadow-viga";
     if (nameViga == "initialViga"){
-        x0 = blockSnapSize * 5;
-        y0 = blockSnapSize * 3;
+        x0 = blockSnapSize * 8;
+        y0 = blockSnapSize * 8;
         nameShadow = "shadow-initialViga"
     }
 
