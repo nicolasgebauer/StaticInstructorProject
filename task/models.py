@@ -10,6 +10,7 @@ class Task(models.Model):
     level_points = models.IntegerField(default=0)
     image = models.ImageField(null=True,blank = True,upload_to = "images")
     draw = models.JSONField(null=True, blank = True)
+    dcl = models.JSONField(null=True, blank = True)
 
     def __str__(self):
         return self.category + " | " + str(self.level)

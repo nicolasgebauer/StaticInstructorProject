@@ -1,8 +1,11 @@
+const lastVigaNodeClick = {x: 0, y: 0};
+
 //------------------------------------------------------Recuperacion canvas-----------------------------------------------//
 const drawJSON = JSON.parse(document.querySelector("#drawJSON").textContent);
 const stage = Konva.Node.create(drawJSON, 'container');
-const layer = new Konva.Layer({name: "layer"});
-stage.add(layer);
+const layer = stage.find(element => {
+    return element.name() == "layer";
+})[0];
 
 const defaultVigas = stage.find( (element) =>{
     return element.name() == "viga" || element.name() == "initialViga"
@@ -27,10 +30,12 @@ stage.find( (element) => {
     }
 });
 
+
 for(let i=0; i<defaultVigas.length; i++){
     updateViga(defaultVigas[i], defaultShadowVigas[i]); // por favor       
 }
 
+updateCounts();
 
 //------------------------------------------------------Creacion paneles-----------------------------------------------//
 const divEquationsContainer = document.querySelector('#equationsContainer');
@@ -47,41 +52,16 @@ divKonvaContainer.appendChild(panel);
 
 listenPanelMovement(panel);
 
+let stage2 = Konva.Node.create(JSON.parse(stage.clone({name: "stage2"}).toJSON()), 'container2');
+replaceApoyos();
 
 //------------------------------------------------------Recuperacion puntajes-----------------------------------------------//
 updateScorePanel();
 updateEquations();
 
 //------------------------------------------------------Elementos dcl-----------------------------------------------//
-const lastVigaNodeClick = {x: 0, y: 0};
+
 listenCreateElement();
 listenDeleteElement();
 listenSave();
-
-stage.on("click",  (e) => {
-    console.log(allDCLelements);
-
-    panel.style.visibility = "hidden";
-
-    if (e.target != stage && e.target) {
-        if (e.target.getParent().name() != "layer"){
-            document.addEventListener("keydown", (kd) => {
-                const key = kd.key;
-
-                if(key == "Delete" && e.target.getParent() && e.target.getParent().name() != "initialViga"){
-                    idx = allDCLelements.indexOf(e.target.getParent());;
-                    allDCLelements.splice(idx, 1);
-                    e.target.getParent().destroy();
-                }
-            });
-        }
-    }
-    updateScorePanel();
-    updateEquations();
-});
-
-allDCLelements.forEach(element => {
-    console.log(element)
-    console.log(element.getAttr("x") + ", " + element.getAttr("y"));
-});
 

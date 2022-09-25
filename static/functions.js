@@ -86,8 +86,6 @@ function updateViga(viga, shadow){
         shadow.show();
         shadow.moveToTop();
         viga.moveToTop();
-        updateEquations();
-        
     });
 
     vigaList[1].on("dragmove", () => {
@@ -124,14 +122,13 @@ function updateViga(viga, shadow){
 
         shadowList[0].position(vigaList[0].position());
         shadow.hide();
-        updateEquations();
+        updateAll();
     });
 
     vigaList[2].on("dragstart", () => {
         shadow.show();
         shadow.moveToTop();
         viga.moveToTop();
-        updateEquations();
     });
 
     vigaList[2].on("dragmove", () => {
@@ -165,7 +162,7 @@ function updateViga(viga, shadow){
             y: shadowCircle2Pos.y
         });
         shadow.hide();
-        updateEquations();
+        updateAll();
     });
 }
 
@@ -187,15 +184,15 @@ function createViga(nameViga="viga"){
     const shadowLine = createShadowViga(x0, y0, x1, y1, nameShadow);
     shadowLine.hide();
 
-    layer.add(line);
-    layer.add(shadowLine);
+    layer.add(line, shadowLine);
+   
     allDCLelements.push(line);
 
     updateViga(line, shadowLine);
     panel.style.visibility = "hidden";
-    updateScorePanel();
-    updateEquations();
+    // updateAll();
     moveVigasToTop();
+  
     return line
 }
 
@@ -228,8 +225,7 @@ function createEmpotrado(){
     allDCLelements.push(group);
 
     panel.style.visibility = "hidden";
-    updateScorePanel();
-    updateEquations();
+    // updateAll();
     moveVigasToTop();
     return group;    
 }
@@ -268,8 +264,7 @@ function createApoyoDeslizante(){
     allDCLelements.push(group);
 
     panel.style.visibility = "hidden";
-    updateScorePanel();
-    updateEquations();
+    // updateAll();
     moveVigasToTop();
     return group;
 }
@@ -292,7 +287,6 @@ function createApoyoNoDeslizante(){
         fill: "#00F210",
         stroke: "black",
         strokeWidth: 4,
-        name: "apoyo-no-deslizante",
     });
 
     group.add(triangle);
@@ -300,10 +294,9 @@ function createApoyoNoDeslizante(){
     allDCLelements.push(group);
 
     panel.style.visibility = "hidden";
-    updateScorePanel();
-    updateEquations();
+    // updateAll();
     moveVigasToTop();
-    return group
+    
 }
 
 
@@ -328,8 +321,7 @@ function createRotula(){
     allDCLelements.push(group);
 
     panel.style.visibility = "hidden";
-    updateScorePanel();
-    updateEquations();
+    // updateAll();
     moveVigasToTop();
     return group;
 }
@@ -369,81 +361,92 @@ function createBiela(){
     allDCLelements.push(group);
 
     panel.style.visibility = "hidden";
-    updateScorePanel();
-    updateEquations();
+    // updateAll();
     moveVigasToTop();
     return group
 }
 
 
 //------------------------------------------------------Fuerzas y momentos-----------------------------------------------//
-function createFuerza(valMagnitud, valAngle){
-    const x0 = lastVigaNodeClick.x
-    const y0 = lastVigaNodeClick.y
+function createFuerza(valMagnitud, valAngle, color="black", x0=0, y0=0, layerForPaint=layer, aux="aux"){
+    console.log(aux)
 
-    const magnitud = valMagnitud.value;
-    const angle = valAngle.value;
+    let x0lastPos = lastVigaNodeClick.x
+    let y0lasPos = lastVigaNodeClick.y
+    
+    let magnitud = valMagnitud;
+    let angle = valAngle;
+    let txt = magnitud + " N" + ", " + angle + " °";
+
     const large = blockSnapSize * 2;
     const lx = large * Math.cos(angle * Math.PI / 180)
     const ly = large * Math.sin(angle * Math.PI / 180)
 
-    if(magnitud == "" || magnitud == null || magnitud == NaN || magnitud == undefined || magnitud == 0 ){
-        return
+    if (color != "black"){
+        x0lastPos = x0;
+        y0lasPos = y0;
+        txt = valMagnitud
     }
   
-    const group = new Konva.Group({tension: [magnitud, angle], name: "fuerza", x: x0, y: y0});
+    const group = new Konva.Group({tension: [magnitud, angle], name: "fuerza", x: x0lastPos, y: y0lasPos});
     const arrow = new Konva.Arrow({
         x: 0,
         y: 0,
         points: [lx, -ly, 0, 0],
         pointerLength: 15,
         pointerWidth: 15,
-        fill: "black",
-        stroke: "black",
+        fill: color,
+        stroke: color,
         strokeWidth: 4
     });
-
 
     const magnitudValue = new Konva.Text({
         x: lx+4,
         y: -ly,
-        text: magnitud + " N" + ", " + angle + " °",
+        text: txt,
         fontSize: 15,
-        fontFamily: "Impact"
+        fontFamily: "Impact",
+        fill: color
     });
 
 
     group.add(arrow, magnitudValue);
     layer.add(group);
-    allDCLelements.push(group);
-
+    layerForPaint.add(group);
+    if (color == "black"){
+        allDCLelements.push(group);
+    }
+    
     panel.style.visibility = "hidden";
-    updateScorePanel();
     updateEquations();
+    updateScorePanel();
     moveVigasToTop();
     return group;
 }
 
 
-function createMomentoPositivo(val){
-    const x0 = lastVigaNodeClick.x
-    const y0 = lastVigaNodeClick.y
+function createMomentoPositivo(val, color="black", x0=0, y0=0, layerForPaint=layer){
+    let x0lastPos = lastVigaNodeClick.x
+    let y0lastPos = lastVigaNodeClick.y
 
-    let magnitud = val.value;
+    let magnitud = val;
+    let txt = magnitud + " Nm";
 
-    if(magnitud == "" || magnitud == null || magnitud === NaN || magnitud == undefined || magnitud == 0 ){
-        return
+    if (color != "black"){
+        x0lastPos = x0;
+        y0lastPos = y0;
+        txt = val;
     }
 
-    const group = new Konva.Group({name: "momento-positivo", tension: magnitud, x: x0, y: y0});
+    const group = new Konva.Group({name: "momento-positivo", tension: magnitud, x: x0lastPos, y: y0lastPos});
     const arrow = new Konva.Arrow({
         x: 0,
         y: 0,
         points: [17.68, 17.68, 18.63, 16.67, 19.53, 15.61, 20.36, 14.5, 21.14, 13.35, 21.85, 12.15, 22.49, 10.92, 23.06, 9.66, 23.56, 8.36, 23.99, 7.04, 24.34, 5.7, 24.62, 4.34, 24.82, 2.97, 24.95, 1.59, 25.0, 0.2, 24.97, -1.19, 24.87, -2.57, 24.69, -3.95, 24.43, -5.31, 24.1, -6.66, 23.69, -7.99, 23.21, -9.29, 22.66, -10.57, 22.04, -11.81, 21.35, -13.01, 20.59, -14.18, 19.77, -15.3, 18.89, -16.37, 17.96, -17.39, 16.96, -18.36, 15.92, -19.28, 14.82, -20.13, 13.68, -20.92, 12.5, -21.65, 11.28, -22.31, 10.02, -22.9, 8.74, -23.42, 7.42, -23.87, 6.09, -24.25, 4.73, -24.55, 3.36, -24.77, 1.98, -24.92, 0.59, -24.99, -0.79, -24.99, -2.18, -24.9, -3.56, -24.75, -4.93, -24.51, -6.28, -24.2, -7.61, -23.81, -8.92, -23.35, -10.2, -22.82, -11.46, -22.22, -12.67, -21.55, -13.85, -20.81, -14.98, -20.01, -16.07, -19.15, -17.11, -18.23, -18.09, -17.25, -19.02, -16.22, -19.89, -15.14, -20.7, -14.01, -21.45, -12.84, -22.13, -11.63, -22.74, -10.39, -23.28, -9.11, -23.75, -7.8, -24.15, -6.47, -24.47, -5.12, -24.72, -3.75, -24.89, -2.38, -24.98, -0.99, -25.0, 0.4, -24.94, 1.78, -24.8, 3.16, -24.58, 4.54, -24.3, 5.89, -23.93, 7.23, -23.49, 8.55, -22.98, 9.84, -22.4, 11.1, -21.75, 12.33, -21.03, 13.52, -20.25, 14.66, -19.4, 15.76, -18.5, 16.82, -17.54, 17.82, -16.52, 18.76, -15.45, 19.65, -14.34, 20.48, -13.18, 21.24, -11.98, 21.94, -10.74, 22.57, -9.48, 23.13, -8.18, 23.63, -6.85, 24.04, -5.51, 24.39, -4.15, 24.65, -2.77, 24.85, -1.39, 24.96, -0.0, 25.0],
         pointerLength: 10,
         pointerWidth: 10,
-        fill: "black",
-        stroke: "black",
+        fill: color,
+        stroke: color,
         strokeWidth: 4,
         name: "subElemento MomentoPositivo",
     });
@@ -451,18 +454,21 @@ function createMomentoPositivo(val){
     const magnitudValue = new Konva.Text({
         x: 0 - blockSnapSize,
         y: 0 - blockSnapSize,
-        text: magnitud + " Nm",
+        text: txt,
         fontSize: 15,
-        fontFamily: "Impact"
+        fontFamily: "Impact",
+        fill: color,
     });
 
     group.add(arrow, magnitudValue)
-    layer.add(group);
-    allDCLelements.push(group);
+    layerForPaint.add(group);
+    if (color == "black"){
+        allDCLelements.push(group);
+    }
 
     panel.style.visibility = "hidden";
-    updateScorePanel();
     updateEquations();
+    updateScorePanel();
     return group;
 }
 
@@ -471,11 +477,7 @@ function createMomentoNegativo(val){
     const x0 = lastVigaNodeClick.x
     const y0 = lastVigaNodeClick.y
     
-    let magnitud = val.value;
-
-    if(magnitud == "" || magnitud == null || magnitud == NaN || magnitud == undefined || magnitud == 0 ){
-        return
-    }
+    let magnitud = val;
 
     const group = new Konva.Group({name: "momento-negativo", tension: magnitud, x: x0, y: y0});
     const arrow = new Konva.Arrow({
@@ -498,13 +500,12 @@ function createMomentoNegativo(val){
         fontFamily: "Impact"
     });
 
-    group.add(arrow, magnitudValue)
+    group.add(arrow, magnitudValue);
     layer.add(group);
     allDCLelements.push(group);
 
     panel.style.visibility = "hidden";
-    updateScorePanel();
-    updateEquations();
+    // updateAll();
     return group;
 }
 
@@ -533,12 +534,13 @@ function createButton(widthPanel, heightPanel, idNameText, btnText, execFunction
         if (idNameText == "vigaBtn"){
             execFunction();
         } else if (idNameText == "fuerzaBtn"){
-            execFunction(valMagnitud, valAngle);
+            execFunction(valMagnitud.value, valAngle.value);
         } else if (idNameText == "momentoPositivoBtn" || idNameText == "momentoNegativoBtn"){
-            execFunction(valMagnitud);
+            execFunction(valMagnitud.value);
         } else {
             execFunction();
         }
+        updateAll();
     });
     return btn;
 }
@@ -854,7 +856,6 @@ function updateEquations(){
     let textFy = "ΣFy: ";
     let textMo = "ΣMo: ";
 
-    
     const inital = stage.find(element => {return element.name() == "initialViga"})[0];
     const origin = inital.getChildren((child) => { return child.name() == "subElementoVigaCirculo1"})[0];
     const originXY = {x: origin.getAttr("x"), y: origin.getAttr("y")};
@@ -1014,7 +1015,7 @@ function updateEquations(){
                 textMo +=  `+ ${Math.abs(diff.x)/blockSnapSize}m*F${element.getAttr("id")}_x`;
             } else if (diff.y < 0){
                 textMo +=  `- ${Math.abs(diff.x)/blockSnapSize}m*F${element.getAttr("id")}_x`;
-            }
+            }id_draw
 
 
         } else if (element.name() == "momento-positivo"){
@@ -1040,8 +1041,10 @@ function updateEquations(){
 function listenSave(){
     stage.on("mouseout", (e) => {
         document.querySelector("#id_draw").value = stage.toJSON();
+        document.querySelector("#id_dcl").value = stage2.toJSON();
         document.querySelector("#id_category").value = document.querySelector("#valueCategory").innerText;
         document.querySelector("#id_level_points").value = document.querySelector("#valueScore").innerText;
+  
     });
 }
 
@@ -1069,45 +1072,102 @@ function deleteElement(element){
 }
 
 function listenDeleteElement(){
-    stage.on("click",  (e) => {
-        console.log(allDCLelements);
-        console.log("click")
-        panel.style.visibility = "hidden";
+    // stage.on("click",  (e) => {
+    //     console.log(allDCLelements);
+    //     console.log("click")
+    //     panel.style.visibility = "hidden";
 
-        if (e.target != stage && e.target) {
-            if (e.target.getParent().name() != "layer"){
-                document.addEventListener("keydown", (kd) => {
-                    const key = kd.key;
-                    updateScorePanel();
-                    updateEquations();
-                    console.log("delete")
-                    if(key == "Delete" && e.target.getParent() && e.target.getParent().name() != "initialViga"){
-                        deleteElement(e.target.getParent());
-                        // idx = allDCLelements.indexOf(e.target.getParent());;
-                        // allDCLelements.splice(idx, 1);
-                        // e.target.getParent().destroy();
-                    }
-                });
-            }
-        }
-        updateScorePanel();
-        updateEquations();
+    //     if (e.target != stage && e.target) {
+    //         if (e.target.getParent().name() != "layer"){
+    //             document.addEventListener("keydown", (kd) => {
+    //                 const key = kd.key;
+    //                 updateAll();
+    //                 console.log("delete")
+    //                 if(key == "Delete" && e.target.getParent() && e.target.getParent().name() != "initialViga"){
+    //                     deleteElement(e.target.getParent());
+    //                     // idx = allDCLelements.indexOf(e.target.getParent());;
+    //                     // allDCLelements.splice(idx, 1);
+    //                     // e.target.getParent().destroy();
+    //                 }
+    //             });
+    //         }
+    //     }
+    //     updateAll();
+    // });
+}
+
+function updateAll(){
+    updateEquations();
+    updateScorePanel();
+    replaceApoyos();
+}
+
+function replaceApoyos(){
+    console.log("ak47")
+    console.log(stage)
+    console.log(stage2)
+    stage2 = Konva.Node.create(JSON.parse(stage.clone({name: "stage2"}).toJSON()), 'container2');
+    // console.log(stage2)
+    // console.log("en funcion replace apoyos")
+    let layer2 = stage2.find(element => {
+        return element.name() == "layer";
+    })[0];
+
+    console.log(layer2)
+    const apoyosDeslizantes = layer2.find(element => {
+        return element.name() == "apoyo-deslizante";
+    });
+    apoyosDeslizantes.forEach((item) => {
+        const posXY = {x: item.getAttr("x"), y: item.getAttr("y")}
+        createFuerza(`F${item.getAttr("id")}_y`, 270, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+        item.destroy();
+    })
+
+    const apoyosNoDeslizantes = layer2.find(element => {
+        return element.name() == "apoyo-no-deslizante";
+    });
+    apoyosNoDeslizantes.forEach((item) => {
+        const posXY = {x: item.getAttr("x"), y: item.getAttr("y")}
+        createFuerza(`F${item.getAttr("id")}_y`, 270, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+        createFuerza(`F${item.getAttr("id")}_x`, 180, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+        item.destroy();
+    })
+
+    const empotrados = layer2.find(element => {
+        return element.name() == "empotrado";
+    });
+    empotrados.forEach((item) => {
+        const posXY = {x: item.getAttr("x"), y: item.getAttr("y")}
+        createFuerza(`F${item.getAttr("id")}_y`, 270, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+        createFuerza(`F${item.getAttr("id")}_x`, 180, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+        createMomentoPositivo(`M${item.getAttr("id")}`, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2)
+        item.destroy();
+    })
+
+    
+
+}
+
+function updateCounts(){
+    stage.find( (element) => { 
+       if (element.name() == "empotrado") countEmpotrado += 1;
+       else if (element.name() == "apoyo-deslizante") countApoyoDeslizante += 1;
+       else if (element.name() == "empotrado") countEmpotrado += 1;
     });
 }
 
-function moveVigasToTop(){
-    console.log("holaaa")
-    const vigas = layer.getChildren(element => {
-        return element.name() == "viga";
-    });
 
-    const initialViga = layer.getChildren(element => {
-        return element.name() == "initialViga";
-    })[0];
-    console.log(initialViga)
-    vigas.push(initialViga);
-    console.log(vigas)
-    vigas.forEach(viga => {
-        viga.moveToTop();
-    });
+
+function moveVigasToTop(){
+    // const vigas = layer.getChildren(element => {
+    //     return element.name() == "viga";
+    // });
+
+    // const initialViga = layer.getChildren(element => {
+    //     return element.name() == "initialViga";
+    // })[0];
+    // vigas.push(initialViga);
+    // vigas.forEach(viga => {
+    //     viga.moveToTop();
+    // });
 }

@@ -7,24 +7,10 @@ const stage = new Konva.Stage({
     height: heightStage
 });
 
+let stage2 = Konva.Node.create(JSON.parse(stage.clone({name: "stage2"}).toJSON()), 'container2');
+
 const layer = new Konva.Layer({name: "layer"});
 stage.add(layer);
-
-//------------------------------------------------------Creacion paneles-----------------------------------------------//
-
-const divEquationsContainer = document.querySelector('#equationsContainer');
-const divScoreContainer = document.querySelector('#scoreContainer');
-const divKonvaContainer = document.querySelector("#container");
-
-const equationsPanel = createEquationsPanel();
-const scorePanel = createScorePanel(stage.x,stage.y);
-const panel = createPanel(400, 80);
-
-divEquationsContainer.appendChild(equationsPanel);
-divScoreContainer.appendChild(scorePanel);
-divKonvaContainer.appendChild(panel);
-
-listenPanelMovement(panel);
 
 //------------------------------------------------------Creacion grilla-----------------------------------------------//
 for (let i = 0; i <= widthStage / blockSnapSize; i++) {
@@ -45,13 +31,32 @@ for (let j = 0; j <= heightStage / blockSnapSize; j++) {
         strokeWidth: 0.5,
     }));
 }
+//------------------------------------------------------Creacion paneles-----------------------------------------------//
+
+
+const divEquationsContainer = document.querySelector('#equationsContainer');
+const divScoreContainer = document.querySelector('#scoreContainer');
+const divKonvaContainer = document.querySelector("#container");
+
+const equationsPanel = createEquationsPanel();
+const scorePanel = createScorePanel(stage.x,stage.y);
+const panel = createPanel(400, 80);
+
+divEquationsContainer.appendChild(equationsPanel);
+divScoreContainer.appendChild(scorePanel);
+divKonvaContainer.appendChild(panel);
+
+listenPanelMovement(panel);
+
 
 
 //------------------------------------------------------Elementos dcl-----------------------------------------------//
 const lastVigaNodeClick = {x: 0, y: 0};
 const initialViga = createViga(nameViga="initialViga"); // initialViga no puede ser destruida
+
 listenCreateElement();
 listenDeleteElement();
+replaceApoyos();
 listenSave();
 
 
