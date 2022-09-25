@@ -800,21 +800,27 @@ function calculateScore(){
 
 
 function calcuateCategory(){
+    console.log("en calculateCategory")
     let result = 0;
     allDCLelements.some((element) =>{
         if (element.name() == "rotula" || element.name() == "biela"){
-            result = 4;
-        } else if (element.name() == "rotula" || element.name() == "biela"){
-        result = 4;
-        
+            result = 4; 
+            return;
+
         } else if (result < 4 && (element.name() == "fuerza-distribuida")){
             result = 3;
+            return;
+
         } else if (result < 3 && (element.name() == "fuerza")){
-            if (element.getAttr("tension")[1] in [0, 90, 180, 270]){
+            const magnitud = element.getAttr("tension")[1];
+            
+            if (magnitud != "0" && magnitud != "90" && magnitud != "180" && magnitud != "270"){
                 result = 2
+
             } else {
                 result = 1;
             }
+            return;
         }
     });
     return result;
@@ -1114,9 +1120,9 @@ function updateAll(){
 }
 
 function replaceApoyos(){
-    console.log("ak47")
-    console.log(stage)
-    console.log(stage2)
+    // console.log("ak47")
+    // console.log(stage)
+    // console.log(stage2)
     stage2 = Konva.Node.create(JSON.parse(stage.clone({name: "stage2"}).toJSON()), 'container2');
     // console.log(stage2)
     // console.log("en funcion replace apoyos")
