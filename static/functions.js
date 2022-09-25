@@ -1145,6 +1145,46 @@ function replaceApoyos(){
         item.destroy();
     })
 
+    const fuerzas = layer2.find(element => {
+        return element.name() == "fuerza";
+    });
+    fuerzas.forEach((item) => {
+        const posXY = {x: item.getAttr("x"), y: item.getAttr("y")}
+        const magnitud = item.getAttr("tension")[0];
+        const angle = item.getAttr("tension")[1];
+        const angleRad = angle * Math.PI / 180;
+    
+        if(0 == angle){ //
+            createFuerza(`${magnitud}N`, 0, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+            item.destroy();
+        } else if (0 < angle && angle < 90){ //
+            createFuerza(`${magnitud}*cos(${angle})N`, 0, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+            createFuerza(`${magnitud}*sin(${angle})N`, 90, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+            item.destroy();
+        } else if (90 == angle){ //
+            createFuerza(`${magnitud}N`, 90, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+            item.destroy();
+        } else if (90 < angle && angle < 180){
+            createFuerza(`${magnitud}*cos(${angle - 90})N`, 180, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+            createFuerza(`${magnitud}*sin(${angle - 90})N`, 90, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+            item.destroy();
+        } else if (180 == angle){ //
+            createFuerza(`${magnitud}N`, 180, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+            item.destroy();
+        } else if (180 < angle && angle < 270){
+            createFuerza(`${magnitud}*cos(${angle - 180})N`, 180, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+            createFuerza(`${magnitud}*sin(${angle - 180})N`, 270, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+            item.destroy();
+        } else if (270 == angle){ //
+            createFuerza(`${magnitud}N`, 270, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+            item.destroy();
+        } else if (270 < angle && angle < 360){
+            createFuerza(`${magnitud}*cos(${360 - angle})N`, 0, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+            createFuerza(`${magnitud}*sin(${360 - angle})N`, 270, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+            item.destroy();
+        }
+    });
+
     
 
 }
