@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {%block head%}
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{%block title%}List of Task{%endblock title%}</title>
+    {%endblock head%}
+</head>
+{%block body%}
+<body class="text-center">
+    <header class="masthead mb-auto">
+        <div class="inner">
+            <h3 class="masthead-brand">ITS: Static Instructor </h3>
+        </div>
+    </header>
+    <main role="main" class="inner cover">
+        <h1>Task List:</h1>
+        <table border="2">
+        <!-- <table> -->
+            <thead>
+                <tr>
+                    <th>Id task</th>
+                    <th>Statement</th>
+                    <th>Category</th>
+                    <th>Level</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks%}
+                <tr>
+                    <td>{{task.id}}</td>
+                    <td>{{task.statement}}</td>
+                    <td>{{task.category}}</td>
+                    <td>{{task.level_points}}</td>
+                    <td>
+                        <a href="{% url 'edit_task' task.id %}">EDIT</a>
+                        <a href="{% url 'delete_task' task.id %}">DELETE</a>
+                    </td>
+                </tr>
+                {% endfor%}
+            </tbody>
+        </table>
+        <p class="lead">
+        <a href="{% url 'new_task' %}" class="btn btn-lg btn-secondary">Create a new task</a>
+        <a href="{% url 'logout' %}" class="btn btn-lg btn-secondary">Log out</a>
+    </main>
+{%endblock body%}
+</body>
+</html>
