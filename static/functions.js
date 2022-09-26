@@ -1382,6 +1382,9 @@ function getElementPos(element){
 }
 
 function comparePositions(list1, list2){
+    console.log("ACA en compare position")
+    console.log(list1)
+    console.log(list2)
     return JSON.stringify(list1) === JSON.stringify(list2);
 }
 
@@ -1433,7 +1436,8 @@ function compare(stage1, stage2){ //stage1 student  stage2 solution
         let verify = false;
         hashElementsStage2.vigas.forEach(viga2 => {
             let viga2Pos = getStartEndViga(viga2);
-            if (comparePositions(viga1Pos.start, viga2Pos.start && comparePositions(viga1Pos.end, viga2Pos.end))){
+            if (comparePositions(viga1Pos.start, viga2Pos.start) && comparePositions(viga1Pos.end, viga2Pos.end)){
+                console.log("LOL Estoy dentro de la condicion")
                 verify = true;
             }
         });

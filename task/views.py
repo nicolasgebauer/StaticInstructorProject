@@ -132,39 +132,44 @@ def student_page(request):
     for rt in ready_tasks:
         if rt.task in tasks:
             tasks.remove(rt.task)
-    while tasks:
-        min = float("inf")
-        min_task = ""
-        for t in tasks:
-            if t.level_points <= min:
-                min = t.level_points
-                min_task = t
-        print(min_task)
+    if tasks:
+        while tasks:
+            min = float("inf")
+            min_task = ""
+            for t in tasks:
+                if t.level_points <= min:
+                    min = t.level_points
+                    min_task = t
+            print(min_task)
+            print(tasks)
+            order_tasks.append(min_task)
+            tasks.remove(min_task)
+                
+        student = Account.objects.get(id=request.user.id)
+        next_task = TaskPerStudent.objects.create(task = order_tasks[0], student = student)       
+        next_task.save()
+        order_tasks.pop(0)
+        print('ACA'*100)
+        print(order_tasks)
         print(tasks)
-        order_tasks.append(min_task)
-        tasks.remove(min_task)
+        s = 0
+        l = []
+        for i in tasks:
+            l.append((i.id,i.level_points))
             
-    student = Account.objects.get(id=request.user.id)
-    next_task = TaskPerStudent.objects.create(task = order_tasks[0], student = student)       
-    next_task.save()
-    order_tasks.pop(0)
-    print('ACA'*100)
-    print(order_tasks)
-    print(tasks)
-    s = 0
-    l = []
-    for i in tasks:
-        l.append((i.id,i.level_points))
+        l.sort(key = lambda x: x[1]) 
+        print(l)
         
-    l.sort(key = lambda x: x[1]) 
-    print(l)
-    
-    context = {
-        'tasks': order_tasks,
-        'next_task': next_task,
-        'ready_tasks': ready_tasks,
-        'user_profile': user_profile
-    }   
+        context = {
+            'tasks': order_tasks,
+            'next_task': next_task,
+            'ready_tasks': ready_tasks,
+            'user_profile': user_profile
+        }
+    else:
+       student = Account.objects.get(id=request.user.id)
+       student.user_category += 1
+       student.save()    
     
     return render(request, 'student_page.html',context)
 
