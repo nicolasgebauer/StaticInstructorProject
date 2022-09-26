@@ -835,10 +835,12 @@ function calcuateCategory(){
 
 
 function updateScorePanel(){
-    let category = calcuateCategory();
-    let score = calculateScore();
-    scorePanel.querySelector("#valueCategory").innerText = category;
-    scorePanel.querySelector("#valueScore").innerHTML = score;
+    if(!resolvingTask){
+        let category = calcuateCategory();
+        let score = calculateScore();
+        scorePanel.querySelector("#valueCategory").innerText = category;
+        scorePanel.querySelector("#valueScore").innerHTML = score;
+    }
 }
 
 
@@ -878,190 +880,192 @@ function degToRad(deg){
 
 
 function updateEquations(){
-    let textFx = "ΣFx: ";
-    let textFy = "ΣFy: ";
-    let textMo = "ΣMo: ";
-
-    const inital = stage.find(element => {return element.name() == "initialViga"})[0];
-    const origin = inital.getChildren((child) => { return child.name() == "subElementoVigaCirculo1"})[0];
-    const originXY = {x: origin.getAttr("x"), y: origin.getAttr("y")};
-
-    allDCLelements.forEach((element) => {
-        const posXY = {x: element.getAttr("x"), y: element.getAttr("y")};
-        const diff = {x: posXY.x - originXY.x, y: posXY.y - originXY.y};
-
-        if(element.name() == "fuerza"){
-            const tension = element.getAttr("tension");
-            const magnitud = parseInt(tension[0]);
-            const angle = parseInt(tension[1]);
-
-            if(0 == angle){
-                textFx += `- ${magnitud}N`;
-                if (diff.y > 0){
-                    textMo +=  `- ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}N`;
-                } else if (diff.y < 0){
-                    textMo +=  `+ ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}N`;
-                }
-            } else if (0 < angle && angle < 90){
-                textFx += `- ${magnitud}*cos(${angle})N`;
-                textFy += `- ${magnitud}*sin(${angle})N`;
-                if ((-diff.y/diff.x).toFixed(4) == Math.tan(degToRad(angle)).toFixed(4)){
-                    console.log("fuerza y el brazo tienen la misma pendiente");
-                } else {
-                    if (diff.x > 0){
-                        textMo += `- ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}*sin(${angle})`
-                    } else if (diff.x < 0){
-                        textMo += `+ ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}*sin(${angle})`
-                    }
+    if (!resolvingTask){
+        let textFx = "ΣFx: ";
+        let textFy = "ΣFy: ";
+        let textMo = "ΣMo: ";
+    
+        const inital = stage.find(element => {return element.name() == "initialViga"})[0];
+        const origin = inital.getChildren((child) => { return child.name() == "subElementoVigaCirculo1"})[0];
+        const originXY = {x: origin.getAttr("x"), y: origin.getAttr("y")};
+    
+        allDCLelements.forEach((element) => {
+            const posXY = {x: element.getAttr("x"), y: element.getAttr("y")};
+            const diff = {x: posXY.x - originXY.x, y: posXY.y - originXY.y};
+    
+            if(element.name() == "fuerza"){
+                const tension = element.getAttr("tension");
+                const magnitud = parseInt(tension[0]);
+                const angle = parseInt(tension[1]);
+    
+                if(0 == angle){
+                    textFx += `- ${magnitud}N`;
                     if (diff.y > 0){
-                        textMo += `- ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}*cos(${angle})N`
+                        textMo +=  `- ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}N`;
                     } else if (diff.y < 0){
-                        textMo += `+ ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}*cos(${angle})N`
-                    } 
+                        textMo +=  `+ ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}N`;
+                    }
+                } else if (0 < angle && angle < 90){
+                    textFx += `- ${magnitud}*cos(${angle})N`;
+                    textFy += `- ${magnitud}*sin(${angle})N`;
+                    if ((-diff.y/diff.x).toFixed(4) == Math.tan(degToRad(angle)).toFixed(4)){
+                        console.log("fuerza y el brazo tienen la misma pendiente");
+                    } else {
+                        if (diff.x > 0){
+                            textMo += `- ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}*sin(${angle})`
+                        } else if (diff.x < 0){
+                            textMo += `+ ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}*sin(${angle})`
+                        }
+                        if (diff.y > 0){
+                            textMo += `- ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}*cos(${angle})N`
+                        } else if (diff.y < 0){
+                            textMo += `+ ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}*cos(${angle})N`
+                        } 
+                    }
+            
+                } else if (90 == angle){
+                    textFy += `- ${magnitud}N`;
+                    if (diff.x > 0){
+                        textMo +=  `+ ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}N`;
+                    } else if (diff.x < 0){
+                        textMo +=  `+ ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}N`;
+                    }
+    
+                } else if (90 < angle && angle < 180){
+                    textFx += `+ ${magnitud}*cos(${180 - angle})N`;
+                    textFy += `- ${magnitud}*sin(${180 - angle})N`;
+                    if ((-diff.y/diff.x).toFixed(4) == Math.tan(degToRad(angle)).toFixed(4)){
+                        console.log("fuerza y el brazo tienen la misma pendiente");
+                    } else {
+                        if (diff.x > 0){
+                            textMo += `- ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}*sin(${angle - 90})N`
+                        } else if (diff.x < 0){
+                            textMo += `+ ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}*sin(${angle - 90})N`
+                        }
+                        if (diff.y > 0){
+                            textMo += `+ ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}*cos(${angle - 90})N`
+                        } else if (diff.y < 0){
+                            textMo += `- ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}*cos(${angle - 90})N`
+                        } 
+                    }
+                    
+                } else if (180 == angle){
+                    textFx += `+ ${magnitud}N`;
+                    if (diff.y > 0){
+                        textMo +=  `+ ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}N`;
+                    } else if (diff.y < 0){
+                        textMo +=  `- ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}N`;
+                    }
+                } else if (180 < angle && angle < 270){
+                    textFx += `+ ${magnitud}*cos(${angle - 180})N`;
+                    textFy += `+ ${magnitud}*sin(${angle - 180})N`;
+                    if ((-diff.y/diff.x).toFixed(4) == Math.tan(degToRad(angle)).toFixed(4)){
+                        console.log("fuerza y el brazo tienen la misma pendiente");
+                    } else {
+                        if (diff.x > 0){
+                            textMo += `+ ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}*sin(${angle - 180})N`
+                        } else if (diff.x < 0){
+                            textMo += `- ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}*sin(${angle - 180})N`
+                        }
+                        if (diff.y > 0){
+                            textMo += `+ ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}*cos(${angle - 180})N`
+                        } else if (diff.y < 0){
+                            textMo += `- ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}*cos(${angle - 180})N`
+                        } 
+                    }
+                    
+                } else if (270 == angle){
+                    textFy += `+ ${magnitud}N`;
+                    if (diff.x > 0){
+                        textMo +=  `+ ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}N`;
+                    } else if (diff.x < 0){
+                        textMo +=  `- ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}N`;
+                    }
+                } else if (270 < angle && angle < 360){
+                    textFx += `- ${magnitud}*cos(${360 - angle})N`;
+                    textFy += `+ ${magnitud}*sin(${360 - angle})N`;
+                    if ((-diff.y/diff.x).toFixed(4) == Math.tan(degToRad(angle)).toFixed(4)){
+                        console.log("fuerza y el brazo tienen la misma pendiente");
+                    } else {
+                        if (diff.x > 0){
+                            textMo += `+ ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}*sin(${360 - angle})N`
+                        } else if (diff.x < 0){
+                            textMo += `- ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}*sin(${360 - angle})N`
+                        }
+                        if (diff.y > 0){
+                            textMo += `- ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}*cos(${360 - angle})N`
+                        } else if (diff.y < 0){
+                            textMo += `+ ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}*cos(${360 - angle})N`
+                        } 
+                    }
+                    
                 }
-        
-            } else if (90 == angle){
-                textFy += `- ${magnitud}N`;
+    
+                // textMo += `${magnitud}*(${Math.abs(diff.y)/blockSnapSize}*cos(${angle}) - ${Math.abs(diff.x)/blockSnapSize}*sin(${angle}))`
+    
+            } else if (element.name() == "empotrado" ){
+                textFx +=  `+ F${element.getAttr("id")}_x`;
+                textFy +=  `+ F${element.getAttr("id")}_y`;
+    
                 if (diff.x > 0){
-                    textMo +=  `+ ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}N`;
+                    textMo +=  `+ ${Math.abs(diff.x)/blockSnapSize}m*F${element.getAttr("id")}_y`;
                 } else if (diff.x < 0){
-                    textMo +=  `+ ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}N`;
+                    textMo +=  `- ${Math.abs(diff.x)/blockSnapSize}m*F${element.getAttr("id")}_y`;
                 }
-
-            } else if (90 < angle && angle < 180){
-                textFx += `+ ${magnitud}*cos(${180 - angle})N`;
-                textFy += `- ${magnitud}*sin(${180 - angle})N`;
-                if ((-diff.y/diff.x).toFixed(4) == Math.tan(degToRad(angle)).toFixed(4)){
-                    console.log("fuerza y el brazo tienen la misma pendiente");
-                } else {
-                    if (diff.x > 0){
-                        textMo += `- ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}*sin(${angle - 90})N`
-                    } else if (diff.x < 0){
-                        textMo += `+ ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}*sin(${angle - 90})N`
-                    }
-                    if (diff.y > 0){
-                        textMo += `+ ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}*cos(${angle - 90})N`
-                    } else if (diff.y < 0){
-                        textMo += `- ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}*cos(${angle - 90})N`
-                    } 
-                }
-                
-            } else if (180 == angle){
-                textFx += `+ ${magnitud}N`;
+    
                 if (diff.y > 0){
-                    textMo +=  `+ ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}N`;
+                    textMo +=  `+ ${Math.abs(diff.y)/blockSnapSize}m*F${element.getAttr("id")}_x`;
                 } else if (diff.y < 0){
-                    textMo +=  `- ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}N`;
+                    textMo +=  `- ${Math.abs(diff.y)/blockSnapSize}m*F${element.getAttr("id")}_x`;
                 }
-            } else if (180 < angle && angle < 270){
-                textFx += `+ ${magnitud}*cos(${angle - 180})N`;
-                textFy += `+ ${magnitud}*sin(${angle - 180})N`;
-                if ((-diff.y/diff.x).toFixed(4) == Math.tan(degToRad(angle)).toFixed(4)){
-                    console.log("fuerza y el brazo tienen la misma pendiente");
-                } else {
-                    if (diff.x > 0){
-                        textMo += `+ ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}*sin(${angle - 180})N`
-                    } else if (diff.x < 0){
-                        textMo += `- ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}*sin(${angle - 180})N`
-                    }
-                    if (diff.y > 0){
-                        textMo += `+ ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}*cos(${angle - 180})N`
-                    } else if (diff.y < 0){
-                        textMo += `- ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}*cos(${angle - 180})N`
-                    } 
-                }
-                
-            } else if (270 == angle){
-                textFy += `+ ${magnitud}N`;
+                textMo +=  `+ M${element.getAttr("id")}`;
+    
+            } else if (element.name() == "apoyo-deslizante" ){
+                textFy +=  `+ F${element.getAttr("id")}_y`;
+    
                 if (diff.x > 0){
-                    textMo +=  `+ ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}N`;
+                    textMo +=  `+ ${Math.abs(diff.x)/blockSnapSize}m*F${element.getAttr("id")}_y`;
                 } else if (diff.x < 0){
-                    textMo +=  `- ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}N`;
+                    textMo +=  `- ${Math.abs(diff.x)/blockSnapSize}m*F${element.getAttr("id")}_y`;
                 }
-            } else if (270 < angle && angle < 360){
-                textFx += `- ${magnitud}*cos(${360 - angle})N`;
-                textFy += `+ ${magnitud}*sin(${360 - angle})N`;
-                if ((-diff.y/diff.x).toFixed(4) == Math.tan(degToRad(angle)).toFixed(4)){
-                    console.log("fuerza y el brazo tienen la misma pendiente");
-                } else {
-                    if (diff.x > 0){
-                        textMo += `+ ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}*sin(${360 - angle})N`
-                    } else if (diff.x < 0){
-                        textMo += `- ${Math.abs(diff.x)/blockSnapSize}m*${magnitud}*sin(${360 - angle})N`
-                    }
-                    if (diff.y > 0){
-                        textMo += `- ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}*cos(${360 - angle})N`
-                    } else if (diff.y < 0){
-                        textMo += `+ ${Math.abs(diff.y)/blockSnapSize}m*${magnitud}*cos(${360 - angle})N`
-                    } 
+    
+    
+            } else if (element.name() == "apoyo-no-deslizante" ){
+                textFx +=  `+ F${element.getAttr("id")}_x`;
+                textFy +=  `+ F${element.getAttr("id")}_y`;
+    
+                if (diff.x > 0){
+                    textMo +=  `+ ${Math.abs(diff.x)/blockSnapSize}m*F${element.getAttr("id")}_y`;
+                } else if (diff.x < 0){
+                    textMo +=  `- ${Math.abs(diff.x)/blockSnapSize}m*F${element.getAttr("id")}_y`;
                 }
-                
+    
+                if (diff.y > 0){
+                    textMo +=  `+ ${Math.abs(diff.x)/blockSnapSize}m*F${element.getAttr("id")}_x`;
+                } else if (diff.y < 0){
+                    textMo +=  `- ${Math.abs(diff.x)/blockSnapSize}m*F${element.getAttr("id")}_x`;
+                }id_draw
+    
+    
+            } else if (element.name() == "momento-positivo"){
+                const tension = element.getAttr("tension");
+                textMo += `+ ${tension}Nm`;
+    
+            } else if (element.name() == "momento-negativo"){
+                const tension = element.getAttr("tension");
+                textMo += `- ${tension}Nm`;
             }
-
-            // textMo += `${magnitud}*(${Math.abs(diff.y)/blockSnapSize}*cos(${angle}) - ${Math.abs(diff.x)/blockSnapSize}*sin(${angle}))`
-
-        } else if (element.name() == "empotrado" ){
-            textFx +=  `+ F${element.getAttr("id")}_x`;
-            textFy +=  `+ F${element.getAttr("id")}_y`;
-
-            if (diff.x > 0){
-                textMo +=  `+ ${Math.abs(diff.x)/blockSnapSize}m*F${element.getAttr("id")}_y`;
-            } else if (diff.x < 0){
-                textMo +=  `- ${Math.abs(diff.x)/blockSnapSize}m*F${element.getAttr("id")}_y`;
-            }
-
-            if (diff.y > 0){
-                textMo +=  `+ ${Math.abs(diff.y)/blockSnapSize}m*F${element.getAttr("id")}_x`;
-            } else if (diff.y < 0){
-                textMo +=  `- ${Math.abs(diff.y)/blockSnapSize}m*F${element.getAttr("id")}_x`;
-            }
-            textMo +=  `+ M${element.getAttr("id")}`;
-
-        } else if (element.name() == "apoyo-deslizante" ){
-            textFy +=  `+ F${element.getAttr("id")}_y`;
-
-            if (diff.x > 0){
-                textMo +=  `+ ${Math.abs(diff.x)/blockSnapSize}m*F${element.getAttr("id")}_y`;
-            } else if (diff.x < 0){
-                textMo +=  `- ${Math.abs(diff.x)/blockSnapSize}m*F${element.getAttr("id")}_y`;
-            }
-
-
-        } else if (element.name() == "apoyo-no-deslizante" ){
-            textFx +=  `+ F${element.getAttr("id")}_x`;
-            textFy +=  `+ F${element.getAttr("id")}_y`;
-
-            if (diff.x > 0){
-                textMo +=  `+ ${Math.abs(diff.x)/blockSnapSize}m*F${element.getAttr("id")}_y`;
-            } else if (diff.x < 0){
-                textMo +=  `- ${Math.abs(diff.x)/blockSnapSize}m*F${element.getAttr("id")}_y`;
-            }
-
-            if (diff.y > 0){
-                textMo +=  `+ ${Math.abs(diff.x)/blockSnapSize}m*F${element.getAttr("id")}_x`;
-            } else if (diff.y < 0){
-                textMo +=  `- ${Math.abs(diff.x)/blockSnapSize}m*F${element.getAttr("id")}_x`;
-            }id_draw
-
-
-        } else if (element.name() == "momento-positivo"){
-            const tension = element.getAttr("tension");
-            textMo += `+ ${tension}Nm`;
-
-        } else if (element.name() == "momento-negativo"){
-            const tension = element.getAttr("tension");
-            textMo += `- ${tension}Nm`;
-        }
-    });
-    textFx += "= 0";
-    textFy += "= 0";
-    textMo += "= 0";
-    const fx = document.querySelector("#fx");
-    const fy = document.querySelector("#fy");
-    const mo = document.querySelector("#mo");
-    fx.innerText = textFx;
-    fy.innerText = textFy;
-    mo.innerText = textMo;
+        });
+        textFx += "= 0";
+        textFy += "= 0";
+        textMo += "= 0";
+        const fx = document.querySelector("#fx");
+        const fy = document.querySelector("#fy");
+        const mo = document.querySelector("#mo");
+        fx.innerText = textFx;
+        fy.innerText = textFy;
+        mo.innerText = textMo;
+    }
 }
 
 
@@ -1074,6 +1078,13 @@ function listenSave(){
   
     });
 }
+
+function listenSaveStudent(){
+    stage.on("mouseout", (e) => {
+        document.querySelector("#id_student_draw").value = stage.toJSON();
+    });
+}
+
 
 
 function listenCreateElement(){
@@ -1121,28 +1132,6 @@ function listenDeleteElement(){
                 }
         } 
     });
-    // stage.on("click",  (e) => {
-    //     console.log(allDCLelements);
-    //     console.log("click")
-    //     panel.style.visibility = "hidden";
-
-    //     if (e.target != stage && e.target) {
-    //         if (e.target.getParent().name() != "layer"){
-    //             document.addEventListener("keydown", (kd) => {
-    //                 const key = kd.key;
-    //                 updateAll();
-    //                 console.log("delete")
-    //                 if(key == "Delete" && e.target.getParent() && e.target.getParent().name() != "initialViga"){
-    //                     deleteElement(e.target.getParent());
-    //                     // idx = allDCLelements.indexOf(e.target.getParent());;
-    //                     // allDCLelements.splice(idx, 1);
-    //                     // e.target.getParent().destroy();
-    //                 }
-    //             });
-    //         }
-    //     }
-    //     updateAll();
-    // });
 }
 
 
@@ -1150,114 +1139,116 @@ function listenHiddePanels(){
     stage.on("click", () => {
         panel.style.visibility = "hidden";
         delPanel.style.visibility = "hidden";
+        if(resolvingTask){
+            compare(stage, stageSolution);
+        }
     });
 }
 
 
 function updateAll(){
-    updateEquations();
-    updateScorePanel();
-    replaceApoyos();
+    if (!resolvingTask){
+        updateEquations();
+        updateScorePanel();
+        replaceApoyos();
+    }
 }
 
 
 function replaceApoyos(){
-    // console.log("ak47")
-    // console.log(stage)
-    // console.log(stage2)
-    stage2 = Konva.Node.create(JSON.parse(stage.clone({name: "stage2"}).toJSON()), 'container2');
-    // console.log(stage2)
-    // console.log("en funcion replace apoyos")
-    let layer2 = stage2.find(element => {
-        return element.name() == "layer";
-    })[0];
+    if (!resolvingTask){
+        stage2 = Konva.Node.create(JSON.parse(stage.clone({name: "stage2"}).toJSON()), 'container2');
 
-    console.log(layer2)
-    const apoyosDeslizantes = layer2.find(element => {
-        return element.name() == "apoyo-deslizante";
-    });
-    apoyosDeslizantes.forEach((item) => {
-        const posXY = {x: item.getAttr("x"), y: item.getAttr("y")}
-        createFuerza(`F${item.getAttr("id")}_y`, 270, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
-        item.destroy();
-    })
-
-    const apoyosNoDeslizantes = layer2.find(element => {
-        return element.name() == "apoyo-no-deslizante";
-    });
-    apoyosNoDeslizantes.forEach((item) => {
-        const posXY = {x: item.getAttr("x"), y: item.getAttr("y")}
-        createFuerza(`F${item.getAttr("id")}_y`, 270, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
-        createFuerza(`F${item.getAttr("id")}_x`, 180, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
-        item.destroy();
-    })
-
-    const empotrados = layer2.find(element => {
-        return element.name() == "empotrado";
-    });
-    empotrados.forEach((item) => {
-        const posXY = {x: item.getAttr("x"), y: item.getAttr("y")}
-        createFuerza(`F${item.getAttr("id")}_y`, 270, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
-        createFuerza(`F${item.getAttr("id")}_x`, 180, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
-        createMomentoPositivo(`M${item.getAttr("id")}`, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2)
-        item.destroy();
-    })
-
-    const fuerzas = layer2.find(element => {
-        return element.name() == "fuerza";
-    });
-    fuerzas.forEach((item) => {
-        const posXY = {x: item.getAttr("x"), y: item.getAttr("y")}
-        const magnitud = item.getAttr("tension")[0];
-        const angle = item.getAttr("tension")[1];
-        const angleRad = angle * Math.PI / 180;
+        let layer2 = stage2.find(element => {
+            return element.name() == "layer";
+        })[0];
     
-        if(0 == angle){ //
-            createFuerza(`${magnitud}N`, 0, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+        const apoyosDeslizantes = layer2.find(element => {
+            return element.name() == "apoyo-deslizante";
+        });
+        apoyosDeslizantes.forEach((item) => {
+            const posXY = {x: item.getAttr("x"), y: item.getAttr("y")}
+            createFuerza(`F${item.getAttr("id")}_y`, 270, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
             item.destroy();
-        } else if (0 < angle && angle < 90){ //
-            createFuerza(`${magnitud}*cos(${angle})N`, 0, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
-            createFuerza(`${magnitud}*sin(${angle})N`, 90, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+        })
+    
+        const apoyosNoDeslizantes = layer2.find(element => {
+            return element.name() == "apoyo-no-deslizante";
+        });
+        apoyosNoDeslizantes.forEach((item) => {
+            const posXY = {x: item.getAttr("x"), y: item.getAttr("y")}
+            createFuerza(`F${item.getAttr("id")}_y`, 270, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+            createFuerza(`F${item.getAttr("id")}_x`, 180, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
             item.destroy();
-        } else if (90 == angle){ //
-            createFuerza(`${magnitud}N`, 90, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+        })
+    
+        const empotrados = layer2.find(element => {
+            return element.name() == "empotrado";
+        });
+        empotrados.forEach((item) => {
+            const posXY = {x: item.getAttr("x"), y: item.getAttr("y")}
+            createFuerza(`F${item.getAttr("id")}_y`, 270, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+            createFuerza(`F${item.getAttr("id")}_x`, 180, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+            createMomentoPositivo(`M${item.getAttr("id")}`, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2)
             item.destroy();
-        } else if (90 < angle && angle < 180){
-            createFuerza(`${magnitud}*cos(${angle - 90})N`, 180, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
-            createFuerza(`${magnitud}*sin(${angle - 90})N`, 90, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+        })
+    
+        const fuerzas = layer2.find(element => {
+            return element.name() == "fuerza";
+        });
+        fuerzas.forEach((item) => {
+            const posXY = {x: item.getAttr("x"), y: item.getAttr("y")}
+            const magnitud = item.getAttr("tension")[0];
+            const angle = item.getAttr("tension")[1];
+            const angleRad = angle * Math.PI / 180;
+        
+            if(0 == angle){ //
+                createFuerza(`${magnitud}N`, 0, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+                item.destroy();
+            } else if (0 < angle && angle < 90){ //
+                createFuerza(`${magnitud}*cos(${angle})N`, 0, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+                createFuerza(`${magnitud}*sin(${angle})N`, 90, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+                item.destroy();
+            } else if (90 == angle){ //
+                createFuerza(`${magnitud}N`, 90, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+                item.destroy();
+            } else if (90 < angle && angle < 180){
+                createFuerza(`${magnitud}*cos(${angle - 90})N`, 180, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+                createFuerza(`${magnitud}*sin(${angle - 90})N`, 90, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+                item.destroy();
+            } else if (180 == angle){ //
+                createFuerza(`${magnitud}N`, 180, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+                item.destroy();
+            } else if (180 < angle && angle < 270){
+                createFuerza(`${magnitud}*cos(${angle - 180})N`, 180, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+                createFuerza(`${magnitud}*sin(${angle - 180})N`, 270, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+                item.destroy();
+            } else if (270 == angle){ //
+                createFuerza(`${magnitud}N`, 270, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+                item.destroy();
+            } else if (270 < angle && angle < 360){
+                createFuerza(`${magnitud}*cos(${360 - angle})N`, 0, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+                createFuerza(`${magnitud}*sin(${360 - angle})N`, 270, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+                item.destroy();
+            }
+        });
+        const momentosPositivos = layer2.find(element => {
+            return element.name() == "momento-positivo";
+        });
+        momentosPositivos.forEach((item) => {
+            const posXY = {x: item.getAttr("x"), y: item.getAttr("y")}
+            createMomentoPositivo(`${item.getAttr("tension")}Nm`, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
             item.destroy();
-        } else if (180 == angle){ //
-            createFuerza(`${magnitud}N`, 180, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
+        });
+        const momentosNegativos = layer2.find(element => {
+            return element.name() == "momento-negativo";
+        });
+        momentosNegativos.forEach((item) => {
+            const posXY = {x: item.getAttr("x"), y: item.getAttr("y")}
+            createMomentoNegativo(`${item.getAttr("tension")}Nm`, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
             item.destroy();
-        } else if (180 < angle && angle < 270){
-            createFuerza(`${magnitud}*cos(${angle - 180})N`, 180, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
-            createFuerza(`${magnitud}*sin(${angle - 180})N`, 270, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
-            item.destroy();
-        } else if (270 == angle){ //
-            createFuerza(`${magnitud}N`, 270, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
-            item.destroy();
-        } else if (270 < angle && angle < 360){
-            createFuerza(`${magnitud}*cos(${360 - angle})N`, 0, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
-            createFuerza(`${magnitud}*sin(${360 - angle})N`, 270, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
-            item.destroy();
-        }
-    });
-    const momentosPositivos = layer2.find(element => {
-        return element.name() == "momento-positivo";
-    });
-    momentosPositivos.forEach((item) => {
-        const posXY = {x: item.getAttr("x"), y: item.getAttr("y")}
-        createMomentoPositivo(`${item.getAttr("tension")}Nm`, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
-        item.destroy();
-    });
-    const momentosNegativos = layer2.find(element => {
-        return element.name() == "momento-negativo";
-    });
-    momentosNegativos.forEach((item) => {
-        const posXY = {x: item.getAttr("x"), y: item.getAttr("y")}
-        createMomentoNegativo(`${item.getAttr("tension")}Nm`, color="green", x0=posXY.x, y0=posXY.y, layerForPaint=layer2);
-        item.destroy();
-    });
+        });
+    }
 
 }
 
@@ -1317,4 +1308,287 @@ function createDelPanel(x0=0, y0=0){
 
 
     return panel;
+}
+
+
+function createHashElements(stage){
+    const hash = {
+        initialViga: [],
+        vigas: [],
+        apoyosDeslizantes: [],
+        apoyosNoDeslizantes: [],
+        empotrados: [],
+        bielas: [],
+        rotulas: [],
+        fuerzas: [],
+        momentosPositivos: [],
+        momentosNegativos: []
+    }
+
+    const layer = stage.find(element => {
+        return element.name() == "layer";
+    })[0];
+
+    layer.getChildren().forEach(element => {
+        if (element.name() == "initialViga"){
+            hash.initialViga.push(element);
+
+        } else if (element.name() == "viga"){
+            hash.vigas.push(element);
+
+        } else if (element.name() == "apoyo-deslizante"){
+            hash.apoyosDeslizantes.push(element);
+
+        } else if (element.name() == "apoyo-no-deslizante"){
+            hash.apoyosNoDeslizantes.push(element);
+
+        } else if (element.name() == "empotrado"){
+            hash.empotrados.push(element);
+
+        } else if (element.name() == "biela"){
+            hash.bielas.push(element);
+
+        } else if (element.name() == "rotula"){
+            hash.rotulas.push(element);
+
+        } else if (element.name() == "fuerza"){
+            hash.fuerzas.push(element);
+
+        } else if (element.name() == "momento-positivo"){
+            hash.momentosPositivos.push(element);
+
+        } else if (element.name() == "momento-negativo"){
+            hash.momentosNegativos.push(element);
+        }
+    });
+
+    return hash;
+}
+
+function getStartEndViga(viga){
+    const circle1 = viga.getChildren()[1];
+    const circle2 = viga.getChildren()[2];
+    const c1x = circle1.getAttr("x");
+    const c1y = circle1.getAttr("y");
+    const c2x = circle2.getAttr("x");
+    const c2y = circle2.getAttr("y");
+
+    return {start: [c1x, c1y], end: [c2x, c2y]};
+}
+
+function getElementPos(element){
+    const X = element.getAttr("x");
+    const Y = element.getAttr("y");
+
+    return [X, Y];
+    return {x: X, y: Y};
+}
+
+function comparePositions(list1, list2){
+    return JSON.stringify(list1) === JSON.stringify(list2);
+}
+
+function comparefuerzas(tension1, tension2){
+    return JSON.stringify(tension1) === JSON.stringify(tension2);
+}
+
+function hashOfErros(){
+    return {
+        ERRORinitialViga: new Set(),
+        ERRORvigas: new Set(),
+        ERRORapoyosDeslizantes: new Set(),
+        ERRORapoyosNoDeslizantes: new Set(),
+        ERRORempotrados: new Set(),
+        ERRORbielas: new Set(),
+        ERRORrotulas: new Set(),
+        ERRORfuerzas: new Set(),
+        ERRORmomentosPositivos: new Set(),
+        ERRORmomentosNegativos: new Set()
+    }
+
+}
+
+function compare(stage1, stage2){ //stage1 student  stage2 solution
+    const ERRORS = hashOfErros();
+
+    const hashElementsStage1 = createHashElements(stage1);
+    const hashElementsStage2 = createHashElements(stage2);
+
+    const initViga1 = hashElementsStage1.initialViga[0];
+    const initViga2 = hashElementsStage2.initialViga[0];
+
+    const initViga1Pos = getStartEndViga(initViga1);
+    const initViga2Pos = getStartEndViga(initViga2);
+
+    let verifyedInitialViga = true;
+    if (comparePositions(initViga1Pos.end, initViga2Pos.end)){ //comparamos que la viga inicial este bien posicionada
+        console.log("Viga inicial bien posicionada!");
+    } else {
+        console.log("Viga inicial mal posicionada!");
+        verifyedInitialViga = false;
+        ERRORS.ERRORinitialViga.add("OJO: Atencion con la viga inicial");
+    }
+
+    let verifyedVigas = hashElementsStage1.vigas.length == hashElementsStage2.vigas.length;
+    if (!verifyedVigas) ERRORS.ERRORvigas.add("OJO: Atencion con la cantidad de vigas (no iniciales)");
+    hashElementsStage1.vigas.forEach(viga1 => {
+        let viga1Pos = getStartEndViga(viga1);
+        let verify = false;
+        hashElementsStage2.vigas.forEach(viga2 => {
+            let viga2Pos = getStartEndViga(viga2);
+            if (comparePositions(viga1Pos.start, viga2Pos.start && comparePositions(viga1Pos.end, viga2Pos.end))){
+                verify = true;
+            }
+        });
+        verifyedVigas &&= verify; 
+    });
+    if (!verifyedVigas) ERRORS.ERRORvigas.add("OJO: Atencion con la posicion de alguna viga");
+
+    let verifyedAD = hashElementsStage1.apoyosDeslizantes.length == hashElementsStage2.apoyosDeslizantes.length;  
+    if (!verifyedAD) ERRORS.ERRORapoyosDeslizantes.add("OJO: Atencion con la cantidad de apoyos deslizantes");
+    hashElementsStage1.apoyosDeslizantes.forEach(ad1 => {
+        let ad1Pos = getElementPos(ad1);
+        let verify = false;
+        hashElementsStage2.apoyosDeslizantes.forEach(ad2 => {
+            let ad2Pos = getElementPos(ad2);
+            if (comparePositions(ad1Pos, ad2Pos)){
+                verify = true;
+            }
+        });
+        verifyedAD &&= verify;
+    });
+    if (!verifyedAD) ERRORS.ERRORapoyosDeslizantes.add("OJO: Atencion con la posicion de algun apoyo deslizante");
+
+    let verifyedAND = hashElementsStage1.apoyosNoDeslizantes.length == hashElementsStage2.apoyosNoDeslizantes.length;
+    if (!verifyedAND) ERRORS.ERRORapoyosNoDeslizantes.add("OJO: Atencion con la cantidad de apoyos no deslizantes");
+    hashElementsStage1.apoyosNoDeslizantes.forEach(and1 => {
+        let and1Pos = getElementPos(and1);
+        let verify = false;
+        hashElementsStage2.apoyosNoDeslizantes.forEach(and2 => {
+            let and2Pos = getElementPos(and2);
+            if (comparePositions(and1Pos, and2Pos)){
+                verify = true;
+            }
+        });
+        verifyedAND &&= verify;
+    });
+    if (!verifyedAND) ERRORS.ERRORapoyosNoDeslizantes.add("OJO: Atencion con la posicion de algun apoyo no deslizante");
+
+    let verifyedEmpotrados = hashElementsStage1.empotrados.length == hashElementsStage2.empotrados.length;
+    if (!verifyedEmpotrados) ERRORS.ERRORempotrados.add("OJO: Atencion con la cantidad de empotrados");
+    hashElementsStage1.empotrados.forEach(e1 => {
+        let e1Pos = getElementPos(e1);
+        let verify = false;
+        hashElementsStage2.empotrados.forEach(e2 => {
+            let e2Pos = getElementPos(e2);
+            if (comparePositions(e1Pos, e2Pos)){
+                verify = true;
+            }
+        });
+        verifyedEmpotrados &&= verify;
+    });
+    if (!verifyedEmpotrados) ERRORS.ERRORempotrados.add("OJO: Atencion con la posicion de algun empotrado");
+
+    let verifyedRotulas = hashElementsStage1.rotulas.length == hashElementsStage2.rotulas.length;
+    if (!verifyedRotulas) ERRORS.ERRORrotulas.add("OJO: Atencion con la cantidad de rotulas");
+    hashElementsStage1.rotulas.forEach(r1 => {
+        let r1Pos = getElementPos(r1);
+        let verify = false;
+        hashElementsStage2.rotulas.forEach(r2 => {
+            let r2Pos = getElementPos(r2);
+            if (comparePositions(r1Pos, r2Pos)){
+                verify = true;
+            }
+        });
+        verifyedRotulas &&= verify;
+    });
+    if (!verifyedRotulas) ERRORS.ERRORrotulas.add("OJO: Atencion con la posicion de alguna rotula");
+
+    let verifyedBielas = hashElementsStage1.bielas.length == hashElementsStage2.bielas.length;
+    if (!verifyedBielas) ERRORS.ERRORbielas.add("OJO: Atencion con la cantidad de bielas");
+    hashElementsStage1.bielas.forEach(b1 => {
+        let b1Pos = getElementPos(b1);
+        let verify = false;
+        hashElementsStage2.bielas.forEach(b2 => {
+            let b2Pos = getElementPos(b2);
+            if (comparePositions(b1Pos, b2Pos)){
+                verify = true;
+            }
+        });
+        verifyedBielas &&= verify;
+    });
+    if (!verifyedBielas) ERRORS.ERRORrotulas.add("OJO: Atencion con la posicion de alguna biela");
+
+    let verifyedMN = hashElementsStage1.momentosNegativos.length == hashElementsStage2.momentosNegativos.length;
+    if (!verifyedMN) ERRORS.ERRORmomentosNegativos.add("OJO: Atencion con la cantidad de momentos negativos");
+    hashElementsStage1.bielas.forEach(mn1 => {
+        let mn1Pos = getElementPos(mn1);
+        let verify = false;
+        let aux = false;
+        hashElementsStage2.bielas.forEach(mn2 => {
+            let mn2Pos = getElementPos(mn2);
+            if (comparePositions(mn1Pos, mn2Pos)){
+                if (mn1.getAttr("tension") == mn2.getAttr("tension")){
+                    verify = true;
+                } else {
+                    ERRORS.ERRORmomentosNegativos.add("OJO: Atencion con la magnitud de algun momento negativo");
+                    aux = true;
+                }
+            } 
+        });
+        verifyedMN &&= verify;
+        if (!verify && !aux) ERRORS.ERRORmomentosNegativos.add("OJO: Atencion con la posicion de algun momento negativo");
+    });
+
+    let verifyedMP = hashElementsStage1.momentosPositivos.length == hashElementsStage2.momentosPositivos.length;
+    if (!verifyedMP) ERRORS.ERRORmomentosPositivos.add("OJO: Atencion con la cantidad de momentos positivos");
+    hashElementsStage1.momentosPositivos.forEach(mp1 => {
+        let mp1Pos = getElementPos(mp1);
+        let verify = false;
+        let aux = false;
+        hashElementsStage2.momentosPositivos.forEach(mp2 => {
+            let mp2Pos = getElementPos(mp2);
+            if (comparePositions(mp1Pos, mp2Pos)){
+                if (mp1.getAttr("tension") == mp2.getAttr("tension")){
+                    verify = true;
+                } else {
+                    ERRORS.ERRORmomentosPositivos.add("OJO: Atencion con la magnitud de algun momento positivo");
+                    aux = true;
+                }
+            } 
+        });
+        verifyedMP &&= verify;
+        if (!verify && !aux) ERRORS.ERRORmomentosPositivos.add("OJO: Atencion con la posicion de algun momento positivo");
+    });
+
+    let verifyedFuerzas = hashElementsStage1.fuerzas.length == hashElementsStage2.fuerzas.length;  
+    if (!verifyedFuerzas) ERRORS.ERRORfuerzas.add("OJO: Atencion con la cantidad de fuerzas");
+    hashElementsStage1.fuerzas.forEach(f1 => {
+        let f1Pos = getElementPos(f1);
+        let verify = false;
+        let aux = false;
+        hashElementsStage2.fuerzas.forEach(f2 => {
+            let f2Pos = getElementPos(f2);
+            if (comparePositions(f1Pos, f2Pos)){
+                if (comparefuerzas(f1.getAttr("tension"), f2.getAttr("tension"))){
+                    verify = true;
+                } else {
+                    ERRORS.ERRORfuerzas.add("OJO: Atencion con la magnitud o angulo de algun fuerza");
+                    aux = true;
+                }
+            } 
+        });
+        verifyedFuerzas &&= verify;
+        if (!verify && !aux) ERRORS.E.add("OJO: Atencion con la posicion de alguna fuerza");
+    });
+    
+
+    console.log("verificaciones")
+    const listOfConditions = [verifyedInitialViga, verifyedVigas, verifyedAD, verifyedAND, verifyedEmpotrados, verifyedRotulas, verifyedBielas, verifyedMP, verifyedMN, verifyedFuerzas]
+    taskResolvedSuccefully = listOfConditions.every(condition => {condition == true});
+    console.clear();
+    console.log(ERRORS);
+
+    return ERRORS;
+
 }

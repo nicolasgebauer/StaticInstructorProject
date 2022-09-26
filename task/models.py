@@ -21,9 +21,9 @@ class Task(models.Model):
 class Account(models.Model):
     email = models.CharField(max_length=30)
     user = models.ForeignKey(User,on_delete=models.CASCADE)
-    user_category = models.IntegerField(default= 1)
+    user_category = models.IntegerField(default= 0)
     user_level = models.IntegerField(default= 0)
-    id = models.IntegerField(default= 1, primary_key=True)
+    id = models.IntegerField(default= 0, primary_key=True)
 
 
     def __str__(self):

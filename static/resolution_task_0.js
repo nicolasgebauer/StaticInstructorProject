@@ -1,14 +1,21 @@
-const resolvingTask = false;
+const lastVigaNodeClick = {x: 0, y: 0};
+let lastElementClick = undefined;
+const resolvingTask = true;
+let taskResolvedSuccefully = false;
+
+//------------------------------------------------------Recuperacion canvas-----------------------------------------------//
+const solutionJSON = JSON.parse(document.querySelector("#solutionJSON").textContent);
+console.log(solutionJSON);
+const stageSolution = Konva.Node.create(solutionJSON, 'container2Solution0');
+
 //------------------------------------------------------Creacion canvas-----------------------------------------------//
 
 const stage = new Konva.Stage({
     name: "stage",
-    container: "container",
+    container: "containerSolution0",
     width: widthStage,
     height: heightStage
 });
-
-let stage2 = Konva.Node.create(JSON.parse(stage.clone({name: "stage2"}).toJSON()), 'container2');
 
 const layer = new Konva.Layer({name: "layer"});
 stage.add(layer);
@@ -34,18 +41,11 @@ for (let j = 0; j <= heightStage / blockSnapSize; j++) {
 }
 //------------------------------------------------------Creacion paneles-----------------------------------------------//
 
+const divKonvaContainer = document.querySelector("#containerSolution0");
 
-const divEquationsContainer = document.querySelector('#equationsContainer');
-const divScoreContainer = document.querySelector('#scoreContainer');
-const divKonvaContainer = document.querySelector("#container");
-
-const equationsPanel = createEquationsPanel();
-const scorePanel = createScorePanel(stage.x,stage.y);
 const panel = createPanel(400, 80);
 const delPanel = createDelPanel(0,0);
 
-divEquationsContainer.appendChild(equationsPanel);
-divScoreContainer.appendChild(scorePanel);
 divKonvaContainer.appendChild(panel);
 divKonvaContainer.appendChild(delPanel);
 
@@ -53,14 +53,11 @@ listenPanelMovement(panel);
 listenPanelMovement(delPanel);
 
 //------------------------------------------------------Elementos dcl-----------------------------------------------//
-const lastVigaNodeClick = {x: 0, y: 0};
-let lastElementClick = undefined;
 const initialViga = createViga(nameViga="initialViga"); // initialViga no puede ser destruida
 
 listenCreateElement();
 listenDeleteElement();
 listenHiddePanels();
 replaceApoyos();
-listenSave();
-
+listenSaveStudent();
 

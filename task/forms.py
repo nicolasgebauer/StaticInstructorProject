@@ -13,8 +13,8 @@ class TaskForm(forms.ModelForm):
         model = Task
         fields = '__all__'
         
-class TaskForm(forms.ModelForm):
-    student_draw = forms.JSONField #(widget=forms.HiddenInput())
+class TaskFormDraw(forms.ModelForm):
+    student_draw = forms.JSONField(widget=forms.HiddenInput())
     
     class Meta:
         model = TaskPerStudent

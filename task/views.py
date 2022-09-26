@@ -1,7 +1,7 @@
 from multiprocessing import context
 from django.shortcuts import render, redirect
 from .models import Task, Account, TaskPerStudent
-from .forms import TaskForm
+from .forms import TaskForm, TaskFormDraw
 from django.contrib.auth.models import User, auth
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
@@ -81,7 +81,6 @@ def register(request):
         password = request.POST['password']
         password2 = request.POST['password2']
         
-
         if password == password2:
             if User.objects.filter(email=user_email).exists():
                 messages.info(request, 'Email Taken')
@@ -95,10 +94,8 @@ def register(request):
                 user = User.objects.create_user(username = username,email=user_email, password=password)
                 user.save()
 
-               
                 user_login = auth.authenticate(username=username, password=password)
                 auth.login(request, user_login)
-
 
                 user_model = User.objects.get(username=username)
                 new_profile = Account.objects.create(user=user_model, id=user_model.id,email = user_email)
@@ -107,8 +104,10 @@ def register(request):
         
                 if username == "teacher":
                     return render(request, 'login.html')
+                
                 else:
                     return render(request, 'login.html')
+                
         else:
             messages.info(request, 'Las contraseñas no coinciden')
             return redirect('register')
@@ -127,6 +126,7 @@ def student_page(request):
     l = []
     for i in tasks:
         l.append((i.id,i.level_points))
+        
     l.sort(key = lambda x: x[1]) 
     print(l)
     
@@ -156,16 +156,33 @@ def task_to_student(request, id_task):
     student = Account.objects.get(id=request.user.id)
     new_homework = TaskPerStudent.objects.create(task = task, student = student)       
     new_homework.save()
-    context = {
-        'homework' : new_homework
-    }
-    return render(request, 'resolution_task.html', context)
+    draw_sjon = new_homework.task.draw
+    
+    if request.method == 'GET':
+        task_form = TaskFormDraw()
+        context = {
+            'homework' : new_homework,
+            'form':task_form,
+            'draw_json': draw_sjon
+        }
+    else:
+        task_form = TaskFormDraw(request.POST, request.FILES)
+        context = {
+            'homework' : new_homework,
+            'form': task_form,
+            'draw_json': draw_sjon
+        }
+        if task_form.is_valid():
+            task_form.save()
+            return render("vacio.html")
+    
+    return render(request, 'resolution_task_0.html', context)
 
 def users_list(request):
     users = Account.objects.all()
     h = []
     for g in users:
-        if g.user != 'teacher':
+        if g.user.username != 'teacher':
             h.append(g)
                  
     context = {
@@ -174,6 +191,8 @@ def users_list(request):
     return render (request,'users_list.html',context)
 
 def users_details(request,id):
+    print("/"*100)
+    print(id)
     user = Account.objects.get(id = id)
     print(user)
     context = {

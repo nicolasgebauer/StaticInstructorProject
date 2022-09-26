@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+{% load static %}
+
+<html lang="en">
+<head>
+    <link rel="stylesheet" href='static/task/estilos.css'>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{%block title%}Realizar ejercicio{%endblock title%}</title>
+    <!-- import Konva-->
+    <script src="https://unpkg.com/konva@8.3.12/konva.min.js"></script>
+    <!-- import Bootstrap-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+<body>
+    {% csrf_token %}
+    <div class="card">
+        <div class = "card-header">
+            <h3>Enunciado :</h3>
+        </div>
+        <div class="card-body">
+            <p class="card-text">{{homework.task.statement}}</p>
+        </div>
+    </div>
+    {% if homework.task.image %}
+    <div class="card">
+        <div class = "card-header">
+            <h3>Imagen :</h3>
+        </div>
+        <div class="card-body">
+            <img src="{{homework.task.image.url}}">
+        </div>  
+    </div>
+    {%endif%}
+    
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{form.as_p}}
+        
+        <!-- <div id="scoreContainer" style="height: 40px;"></div>
+        <div id="equationsContainer" style="height: 120px;"></div> -->
+        <div id="containerSolution0" style="background-color: antiquewhite; border: 5px; border-color: black; margin-left: 40px; margin-right: 25px; width: 1440px;"></div>
+        <br>
+        <div id="container2Solution0" style="background-color: antiquewhite; border: 5px; border-color: black; margin-left: 40px; margin-right: 25px; width: 1440px;" hidden></div>
+       
+        {{draw_json|json_script:"solutionJSON"}}
+        {% load static %}
+        <script src="{%static '/variables.js'%}" ></script>
+        <script src="{%static '/functions.js'%}" ></script>
+        <script src="{%static '/resolution_task_0.js'%}"></script> 
+    
+        <button type="submit">NEXT</button>
+    </form>
+</body>
+</html>

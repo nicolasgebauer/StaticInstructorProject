@@ -1,5 +1,8 @@
 const lastVigaNodeClick = {x: 0, y: 0};
 let lastElementClick = undefined;
+const resolvingTask = false;
+const taskResolvedSuccefully = false;
+
 
 //------------------------------------------------------Recuperacion canvas-----------------------------------------------//
 const drawJSON = JSON.parse(document.querySelector("#drawJSON").textContent);
