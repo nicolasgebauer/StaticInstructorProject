@@ -1139,9 +1139,6 @@ function listenHiddePanels(){
     stage.on("click", () => {
         panel.style.visibility = "hidden";
         delPanel.style.visibility = "hidden";
-        if(resolvingTask){
-            compare(stage, stageSolution);
-        }
     });
 }
 
@@ -1592,6 +1589,7 @@ function compare(stage1, stage2){ //stage1 student  stage2 solution
 }
 
 function showHints(){
+    compare(stage, stageSolution);
     let txt = "";
     console.log(ERRORS)
     Object.values(ERRORS).forEach((value) => {

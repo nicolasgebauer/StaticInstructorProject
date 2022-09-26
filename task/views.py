@@ -163,6 +163,8 @@ def teacher_page(request):
 def task_to_student0(request, id_task):
     task = Task.objects.get(id = id_task)
     student = Account.objects.get(id=request.user.id)
+    print("_"*100)
+    print(student.id)
     new_homework = TaskPerStudent.objects.create(task = task, student = student)       
     new_homework.save()
     draw_sjon = new_homework.task.draw
@@ -172,18 +174,21 @@ def task_to_student0(request, id_task):
         context = {
             'homework' : new_homework,
             'form':task_form,
-            'draw_json': draw_sjon
+            'draw_json': draw_sjon,
+            'task': task
         }
     else:
-        task_form = TaskFormDraw(request.POST, request.FILES)
+        task_form = TaskFormDraw(request.POST, request.FILES, instance=new_homework)
         context = {
             'homework' : new_homework,
             'form': task_form,
-            'draw_json': draw_sjon
+            'draw_json': draw_sjon,
+            'task': task 
         }
         if task_form.is_valid():
             task_form.save()
-            return render("resolution_task_1.html")
+            return redirect('student_page')
+        
     
     return render(request, 'resolution_task_0.html', context)
 
@@ -196,25 +201,25 @@ def task_to_student1(request, id_task):
     new_homework.save()
     draw_sjon = new_homework.task.draw
     
-    if request.method == 'GET':
-        task_form = TaskFormDraw()
-        context = {
-            'homework' : new_homework,
-            'form':task_form,
-            'draw_json': draw_sjon
-        }
-    else:
-        task_form = TaskFormDraw(request.POST, request.FILES)
-        context = {
-            'homework' : new_homework,
-            'form': task_form,
-            'draw_json': draw_sjon
-        }
-        if task_form.is_valid():
-            task_form.save()
-            return render("resolution_task_2.html")
+    # if request.method == 'GET':
+    #     task_form = TaskFormDraw()
+    #     context = {
+    #         'homework' : new_homework,
+    #         'form':task_form,
+    #         'draw_json': draw_sjon
+    #     }
+    # else:
+    #     task_form = TaskFormDraw(request.POST, request.FILES)
+    #     context = {
+    #         'homework' : new_homework,
+    #         'form': task_form,
+    #         'draw_json': draw_sjon
+    #     }
+    #     if task_form.is_valid():
+    #         task_form.save()
+    #         return render("resolution_task_2.html")
     
-    return render(request, 'resolution_task_1.html', context)
+    return render(request, 'resolution_task_1.html')
 
 
 @login_required(login_url="login")

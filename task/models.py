@@ -15,8 +15,6 @@ class Task(models.Model):
     draw = models.JSONField(null=True, blank = True)
     dcl = models.JSONField(null=True, blank = True)
 
-    def __str__(self):
-        return self
 
 class Account(models.Model):
     email = models.CharField(max_length=30)
@@ -25,16 +23,13 @@ class Account(models.Model):
     user_level = models.IntegerField(default= 0)
     id = models.IntegerField(default= 0, primary_key=True)
 
-
-    def __str__(self):
-        return self.user.username
-
+ 
 class TaskPerStudent(models.Model):
     task = models.ForeignKey(Task,on_delete=models.CASCADE)
     student = models.ForeignKey(Account,on_delete=models.CASCADE)
     current_stage = models.IntegerField(default=0)
-    stage0_errors = models.IntegerField(default=0)
-    stage1_errors = models.IntegerField(default=0)
-    stage2_errors = models.IntegerField(default=0)
     student_draw = models.JSONField(null=True, blank = True)
     student_dcl = models.JSONField(null=True, blank = True)
+    id = models.AutoField(primary_key=True)
+    
+    

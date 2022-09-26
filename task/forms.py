@@ -15,6 +15,7 @@ class TaskForm(forms.ModelForm):
         
 class TaskFormDraw(forms.ModelForm):
     student_draw = forms.JSONField(widget=forms.HiddenInput())
+   
     
     class Meta:
         model = TaskPerStudent
