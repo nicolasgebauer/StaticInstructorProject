@@ -129,48 +129,47 @@ def student_page(request):
     order_tasks = []
     tasks = list(Task.objects.filter(category = p+1))
     ready_tasks = TaskPerStudent.objects.filter(student = user_profile, solved = True )
+    print(tasks)
     for rt in ready_tasks:
         if rt.task in tasks:
             tasks.remove(rt.task)
-    if tasks:
-        while tasks:
-            min = float("inf")
-            min_task = ""
-            for t in tasks:
-                if t.level_points <= min:
-                    min = t.level_points
-                    min_task = t
-            print(min_task)
-            print(tasks)
-            order_tasks.append(min_task)
-            tasks.remove(min_task)
-                
-        student = Account.objects.get(id=request.user.id)
-        next_task = TaskPerStudent.objects.create(task = order_tasks[0], student = student)       
-        next_task.save()
-        order_tasks.pop(0)
-        print('ACA'*100)
-        print(order_tasks)
+    print("/"*100)
+    print(tasks)
+    while tasks:
+        min = float("inf")
+        min_task = ""
+        for t in tasks:
+            if t.level_points <= min:
+                min = t.level_points
+                min_task = t
+        print(min_task)
         print(tasks)
-        s = 0
-        l = []
-        for i in tasks:
-            l.append((i.id,i.level_points))
+        order_tasks.append(min_task)
+        tasks.remove(min_task)
             
-        l.sort(key = lambda x: x[1]) 
-        print(l)
+    student = Account.objects.get(id=request.user.id)
+    print(order_tasks)
+    next_task = TaskPerStudent.objects.create(task = order_tasks[0], student = student)       
+    next_task.save()
+    order_tasks.pop(0)
+    print('ACA'*100)
+    print(order_tasks)
+    print(tasks)
+    s = 0
+    l = []
+    for i in tasks:
+        l.append((i.id,i.level_points))
         
-        context = {
-            'tasks': order_tasks,
-            'next_task': next_task,
-            'ready_tasks': ready_tasks,
-            'user_profile': user_profile
-        }
-    else:
-       student = Account.objects.get(id=request.user.id)
-       student.user_category += 1
-       student.save()    
+    l.sort(key = lambda x: x[1]) 
+    print(l)
     
+    context = {
+        'tasks': order_tasks,
+        'next_task': next_task,
+        'ready_tasks': ready_tasks,
+        'user_profile': user_profile
+    }
+        
     return render(request, 'student_page.html',context)
 
 
