@@ -1580,7 +1580,7 @@ function compare(stage1, stage2){ //stage1 student  stage2 solution
             } 
         });
         verifyedFuerzas &&= verify;
-        if (!verify && !aux) ERRORS.E.add("OJO: Atencion con la posicion de alguna fuerza");
+        if (!verify && !aux) ERRORS.ERRORfuerzas.add("OJO: Atencion con la posicion de alguna fuerza");
     });
     
 
