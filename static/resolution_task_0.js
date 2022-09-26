@@ -2,6 +2,7 @@ const lastVigaNodeClick = {x: 0, y: 0};
 let lastElementClick = undefined;
 const resolvingTask = true;
 let taskResolvedSuccefully = false;
+let ERRORS = hashOfErros();
 
 //------------------------------------------------------Recuperacion canvas-----------------------------------------------//
 const solutionJSON = JSON.parse(document.querySelector("#solutionJSON").textContent);
@@ -9,7 +10,6 @@ console.log(solutionJSON);
 const stageSolution = Konva.Node.create(solutionJSON, 'container2Solution0');
 
 //------------------------------------------------------Creacion canvas-----------------------------------------------//
-
 const stage = new Konva.Stage({
     name: "stage",
     container: "containerSolution0",
@@ -19,6 +19,7 @@ const stage = new Konva.Stage({
 
 const layer = new Konva.Layer({name: "layer"});
 stage.add(layer);
+
 
 //------------------------------------------------------Creacion grilla-----------------------------------------------//
 for (let i = 0; i <= widthStage / blockSnapSize; i++) {
@@ -55,6 +56,7 @@ listenPanelMovement(delPanel);
 //------------------------------------------------------Elementos dcl-----------------------------------------------//
 const initialViga = createViga(nameViga="initialViga"); // initialViga no puede ser destruida
 
+compare(stage, stageSolution);
 listenCreateElement();
 listenDeleteElement();
 listenHiddePanels();

@@ -1151,7 +1151,7 @@ function updateAll(){
         updateEquations();
         updateScorePanel();
         replaceApoyos();
-    }
+    } 
 }
 
 
@@ -1409,7 +1409,7 @@ function hashOfErros(){
 }
 
 function compare(stage1, stage2){ //stage1 student  stage2 solution
-    const ERRORS = hashOfErros();
+    ERRORS = hashOfErros();
 
     const hashElementsStage1 = createHashElements(stage1);
     const hashElementsStage2 = createHashElements(stage2);
@@ -1586,9 +1586,18 @@ function compare(stage1, stage2){ //stage1 student  stage2 solution
     console.log("verificaciones")
     const listOfConditions = [verifyedInitialViga, verifyedVigas, verifyedAD, verifyedAND, verifyedEmpotrados, verifyedRotulas, verifyedBielas, verifyedMP, verifyedMN, verifyedFuerzas]
     taskResolvedSuccefully = listOfConditions.every(condition => {condition == true});
-    console.clear();
+    // console.clear();
     console.log(ERRORS);
 
-    return ERRORS;
+}
 
+function showHints(){
+    let txt = "";
+    console.log(ERRORS)
+    Object.values(ERRORS).forEach((value) => {
+        value.forEach(hint => {
+            txt += hint + "\n";
+        });
+    })
+    alert(txt);
 }

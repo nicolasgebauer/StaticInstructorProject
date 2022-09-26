@@ -15,6 +15,7 @@ def list_tasks(request):
     }
     return render (request,'index.html',context)
 
+
 def create_task(request):
     if request.method == 'GET':
         task_form = TaskForm()
@@ -30,6 +31,7 @@ def create_task(request):
             task_form.save()
             return redirect('teacher_page')
     return render (request,'create_task.html',context)
+
 
 def edit_task(request,id):
     task = Task.objects.get(id = id)
@@ -49,10 +51,12 @@ def edit_task(request,id):
             return redirect('teacher_page')
     return render (request,'edit_task.html',context)
 
+
 def delete_task(request,id=None):
     task = Task.objects.get(id = id)
     task.delete()
     return redirect('teacher_page')
+
 
 def login(request):   
     if request.method == 'POST':
@@ -73,6 +77,7 @@ def login(request):
 
     else:
         return render(request, 'login.html')
+
 
 def register(request):
     if request.method == 'POST':
@@ -115,6 +120,7 @@ def register(request):
     else:
         return render(request, 'register.html')
 
+
 def student_page(request):
     user_object = User.objects.get(username=request.user.username)
     user_profile = Account.objects.get(user=user_object)
@@ -137,10 +143,12 @@ def student_page(request):
     
     return render(request, 'student_page.html',context)
 
+
 @login_required(login_url="login")
 def logout(request):
     auth.logout(request)
     return redirect('login')
+
 
 @login_required(login_url="login")
 def teacher_page(request):
@@ -150,8 +158,9 @@ def teacher_page(request):
     }
     return render (request,'teacher_page.html',context)
 
+
 @login_required(login_url="login")
-def task_to_student(request, id_task):
+def task_to_student0(request, id_task):
     task = Task.objects.get(id = id_task)
     student = Account.objects.get(id=request.user.id)
     new_homework = TaskPerStudent.objects.create(task = task, student = student)       
@@ -174,9 +183,68 @@ def task_to_student(request, id_task):
         }
         if task_form.is_valid():
             task_form.save()
-            return render("vacio.html")
+            return render("resolution_task_1.html")
     
     return render(request, 'resolution_task_0.html', context)
+
+
+@login_required(login_url="login")
+def task_to_student1(request, id_task):
+    task = Task.objects.get(id = id_task)
+    student = Account.objects.get(id=request.user.id)
+    new_homework = TaskPerStudent.objects.create(task = task, student = student)       
+    new_homework.save()
+    draw_sjon = new_homework.task.draw
+    
+    if request.method == 'GET':
+        task_form = TaskFormDraw()
+        context = {
+            'homework' : new_homework,
+            'form':task_form,
+            'draw_json': draw_sjon
+        }
+    else:
+        task_form = TaskFormDraw(request.POST, request.FILES)
+        context = {
+            'homework' : new_homework,
+            'form': task_form,
+            'draw_json': draw_sjon
+        }
+        if task_form.is_valid():
+            task_form.save()
+            return render("resolution_task_2.html")
+    
+    return render(request, 'resolution_task_1.html', context)
+
+
+@login_required(login_url="login")
+def task_to_student2(request, id_task):
+    task = Task.objects.get(id = id_task)
+    student = Account.objects.get(id=request.user.id)
+    new_homework = TaskPerStudent.objects.create(task = task, student = student)       
+    new_homework.save()
+    draw_sjon = new_homework.task.draw
+    
+    if request.method == 'GET':
+        task_form = TaskFormDraw()
+        context = {
+            'homework' : new_homework,
+            'form':task_form,
+            'draw_json': draw_sjon
+        }
+    else:
+        task_form = TaskFormDraw(request.POST, request.FILES)
+        context = {
+            'homework' : new_homework,
+            'form': task_form,
+            'draw_json': draw_sjon
+        }
+        if task_form.is_valid():
+            task_form.save()
+            return render("student_page.html")
+    
+    return render(request, 'resolution_task_2.html', context)
+
 
 def users_list(request):
     users = Account.objects.all()
@@ -189,6 +257,7 @@ def users_list(request):
         'users': h
     }       
     return render (request,'users_list.html',context)
+
 
 def users_details(request,id):
     print("/"*100)
