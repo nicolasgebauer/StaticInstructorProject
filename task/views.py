@@ -127,7 +127,7 @@ def student_page(request):
     current_user = User.objects.filter(username=request.user.username)
     p = user_profile.user_category
    
-    tasks = Task.objects.filter(category = p)
+    tasks = Task.objects.filter(category = p+1)
     s = 0
     l = []
     for i in tasks:
