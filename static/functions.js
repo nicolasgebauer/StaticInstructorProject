@@ -1582,7 +1582,12 @@ function compare(stage1, stage2){ //stage1 student  stage2 solution
 
     console.log("verificaciones")
     const listOfConditions = [verifyedInitialViga, verifyedVigas, verifyedAD, verifyedAND, verifyedEmpotrados, verifyedRotulas, verifyedBielas, verifyedMP, verifyedMN, verifyedFuerzas]
-    taskResolvedSuccefully = listOfConditions.every(condition => {condition == true});
+    console.log(listOfConditions)
+    taskResolvedSuccefully = true
+    listOfConditions.forEach(element => {
+        taskResolvedSuccefully &&= element
+    })
+    console.log(taskResolvedSuccefully)
     // console.clear();
     console.log(ERRORS);
 

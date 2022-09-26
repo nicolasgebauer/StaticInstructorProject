@@ -94,7 +94,7 @@
                                 <tr>
                                 <th scope="col">Task N°</th>
                                 <th scope="col">Enunciado</th>
-                                <th>                </th>
+                                <th>    </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -102,7 +102,30 @@
                                 <tr>
                                 <td>{{forloop.counter}}</td>
                                 <td>{{task.statement}}</td>                                   
-                                <td><a href="{% url 'task_to_student0' task.id%}" class="btn btn-lg btn-secondary">Realizar</a></td>
+                                <td><a id="btn-actualizar" href="{% url 'task_to_student' task.id%}" class="btn btn-lg btn-secondary">Aceptar Tarea</a></td>
+                                </tr>
+                                {% endfor%}        
+                            </tbody>
+                        </table>
+                    </div>    
+                </div>
+                <div class="row">
+                    <div class="col-12 col-lg-6 col-xl">
+                        <h1>Tareas Aceptadas:</h1>
+                        <table class="table">
+                            <thead class="thead-dark">
+                                <tr>
+                                <th scope="col">Task N°</th>
+                                <th scope="col">Enunciado</th>
+                                <th>    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for task in acepted_task%}
+                                <tr>
+                                <td>{{forloop.counter}}</td>
+                                <td>{{task.task.statement}}</td>                                   
+                                <td><a id="btn-actualizar" href="{% url 'task_to_student0' task.id%}" class="btn btn-lg btn-secondary">Realizar Tarea</a></td>
                                 </tr>
                                 {% endfor%}        
                             </tbody>

@@ -34,7 +34,7 @@
         </div>  
     </div>
     {%endif%}
-    <form method="post" enctype="multipart/form-data" action="{% url 'task_to_student1' task.id%}">
+    <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{form.as_p}}
         
@@ -50,7 +50,8 @@
         <script src="{%static '/functions.js'%}" ></script>
         <script src="{%static '/resolution_task_0.js'%}"></script> 
         <button id="askForHint" type="button" onclick="showHints();">HINT!</button>
-        <button type="submit">SIGUENTE</button>
+        <button id="btn-siguente" type="submit" disabled="True">SIGUENTE</button>
+        <script src="{%static '/verif.js'%}"></script> 
         <!-- <input type="submit" class="btn btn-lg btn-secondary" > SIGUENTE</a> -->
         <!-- href="{% url 'task_to_student1' task.id%}" -->
     </form>

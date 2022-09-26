@@ -3,7 +3,7 @@ let lastElementClick = undefined;
 const resolvingTask = true;
 let taskResolvedSuccefully = false;
 let ERRORS = hashOfErros();
-
+console.log(document.querySelector("#solutionJSON"));
 //------------------------------------------------------Recuperacion canvas-----------------------------------------------//
 const solutionJSON = JSON.parse(document.querySelector("#solutionJSON").textContent);
 console.log(solutionJSON);
