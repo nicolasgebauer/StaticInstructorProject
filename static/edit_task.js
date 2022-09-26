@@ -1,4 +1,5 @@
 const lastVigaNodeClick = {x: 0, y: 0};
+let lastElementClick = undefined;
 
 //------------------------------------------------------Recuperacion canvas-----------------------------------------------//
 const drawJSON = JSON.parse(document.querySelector("#drawJSON").textContent);
@@ -45,12 +46,16 @@ const divKonvaContainer = document.querySelector("#container");
 const equationsPanel = createEquationsPanel();
 const scorePanel = createScorePanel(stage.x,stage.y);
 const panel = createPanel(400, 80);
+const delPanel = createDelPanel(0,0);
 
 divEquationsContainer.appendChild(equationsPanel);
 divScoreContainer.appendChild(scorePanel);
 divKonvaContainer.appendChild(panel);
+divKonvaContainer.appendChild(delPanel);
+
 
 listenPanelMovement(panel);
+listenPanelMovement(delPanel);
 
 let stage2 = Konva.Node.create(JSON.parse(stage.clone({name: "stage2"}).toJSON()), 'container2');
 replaceApoyos();
@@ -63,5 +68,6 @@ updateEquations();
 
 listenCreateElement();
 listenDeleteElement();
+listenHiddePanels();
 listenSave();
 

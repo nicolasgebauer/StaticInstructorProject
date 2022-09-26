@@ -1091,12 +1091,14 @@ function listenCreateElement(){
     });
 }
 
+
 function deleteElement(element){
     idx = allDCLelements.indexOf(element);;
     allDCLelements.splice(idx, 1);
     element.destroy();
     delete element;
 }
+
 
 function listenDeleteElement(){
     stage.on("dblclick", (e) => {
@@ -1143,6 +1145,7 @@ function listenDeleteElement(){
     // });
 }
 
+
 function listenHiddePanels(){
     stage.on("click", () => {
         panel.style.visibility = "hidden";
@@ -1150,11 +1153,13 @@ function listenHiddePanels(){
     });
 }
 
+
 function updateAll(){
     updateEquations();
     updateScorePanel();
     replaceApoyos();
 }
+
 
 function replaceApoyos(){
     // console.log("ak47")
@@ -1256,6 +1261,7 @@ function replaceApoyos(){
 
 }
 
+
 function updateCounts(){
     stage.find( (element) => { 
        if (element.name() == "empotrado") countEmpotrado += 1;
@@ -1263,6 +1269,7 @@ function updateCounts(){
        else if (element.name() == "empotrado") countEmpotrado += 1;
     });
 }
+
 
 function moveVigasToTop(){
     // const vigas = layer.getChildren(element => {
@@ -1277,7 +1284,6 @@ function moveVigasToTop(){
     //     viga.moveToTop();
     // });
 }
-
 
 //------------------------------------------------------Delete panel-----------------------------------------------//
 function delElement(){
