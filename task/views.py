@@ -108,10 +108,10 @@ def register(request):
                 new_profile.save()
         
                 if username == "teacher":
-                    return render(request, 'login.html')
+                    return redirect('login')
                 
                 else:
-                    return render(request, 'login.html')
+                    return redirect('login')
                 
         else:
             messages.info(request, 'Las contraseñas no coinciden')
