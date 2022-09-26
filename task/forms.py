@@ -1,6 +1,6 @@
 from dataclasses import field
 from django import forms
-from .models import Task
+from .models import Task, TaskPerStudent
 
 
 class TaskForm(forms.ModelForm):
@@ -8,6 +8,14 @@ class TaskForm(forms.ModelForm):
     level_points = forms.IntegerField(widget=forms.HiddenInput())
     draw = forms.JSONField(widget=forms.HiddenInput())
     dcl = forms.JSONField(widget=forms.HiddenInput())
+    
     class Meta:
         model = Task
         fields = '__all__'
+        
+class TaskForm(forms.ModelForm):
+    student_draw = forms.JSONField #(widget=forms.HiddenInput())
+    
+    class Meta:
+        model = TaskPerStudent
+        fields = ["student_draw", ] #'__all__'

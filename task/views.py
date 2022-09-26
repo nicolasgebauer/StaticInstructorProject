@@ -106,9 +106,9 @@ def register(request):
                 new_profile.save()
         
                 if username == "teacher":
-                    return redirect('index')
+                    return render(request, 'login.html')
                 else:
-                    return render(request, 'register.html')
+                    return render(request, 'login.html')
         else:
             messages.info(request, 'Las contraseñas no coinciden')
             return redirect('register')
@@ -160,3 +160,24 @@ def task_to_student(request, id_task):
         'homework' : new_homework
     }
     return render(request, 'resolution_task.html', context)
+
+def users_list(request):
+    users = Account.objects.all()
+    h = []
+    for g in users:
+        if g.user != 'teacher':
+            h.append(g)
+                 
+    context = {
+        'users': h
+    }       
+    return render (request,'users_list.html',context)
+
+def users_details(request,id):
+    user = Account.objects.get(id = id)
+    print(user)
+    context = {
+        'user': user
+    }
+   
+    return render (request,'users_details.html',context)
