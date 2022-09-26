@@ -15,7 +15,7 @@ class TaskForm(forms.ModelForm):
         
 class TaskFormDraw(forms.ModelForm):
     student_draw = forms.JSONField(widget=forms.HiddenInput())
-   
+    solved = forms.BooleanField(widget=forms.HiddenInput())
     class Meta:
         model = TaskPerStudent
-        fields = ["student_draw", ] #'__all__'
+        fields = ["student_draw", "solved",] #'__all__'

@@ -30,6 +30,7 @@ class TaskPerStudent(models.Model):
     current_stage = models.IntegerField(default=0)
     student_draw = models.JSONField(null=True, blank = True)
     student_dcl = models.JSONField(null=True, blank = True)
+    solved = models.BooleanField(default = False)
     id = models.AutoField(primary_key=True)
     
     

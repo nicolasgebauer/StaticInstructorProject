@@ -126,17 +126,30 @@ def student_page(request):
     user_profile = Account.objects.get(user=user_object)
     
     p = user_profile.user_category
-    acepted_task = [] 
+    order_tasks = []
     tasks = list(Task.objects.filter(category = p+1))
-    for t in tasks:
-        acepted_task += TaskPerStudent.objects.filter(task = t, student = user_profile)
-    for t in acepted_task:
-        task = t.task
-        if task in tasks:
-            tasks.remove(task)
-    
+    ready_tasks = TaskPerStudent.objects.filter(student = user_profile, solved = True )
+    for rt in ready_tasks:
+        if rt.task in tasks:
+            tasks.remove(rt.task)
+    while tasks:
+        min = float("inf")
+        min_task = ""
+        for t in tasks:
+            if t.level_points <= min:
+                min = t.level_points
+                min_task = t
+        print(min_task)
+        print(tasks)
+        order_tasks.append(min_task)
+        tasks.remove(min_task)
+            
+    student = Account.objects.get(id=request.user.id)
+    next_task = TaskPerStudent.objects.create(task = order_tasks[0], student = student)       
+    next_task.save()
+    order_tasks.pop(0)
     print('ACA'*100)
-    print(acepted_task)
+    print(order_tasks)
     print(tasks)
     s = 0
     l = []
@@ -147,8 +160,9 @@ def student_page(request):
     print(l)
     
     context = {
-        'tasks': tasks,
-        'acepted_task': acepted_task,
+        'tasks': order_tasks,
+        'next_task': next_task,
+        'ready_tasks': ready_tasks,
         'user_profile': user_profile
     }   
     
@@ -206,7 +220,7 @@ def task_to_student0(request, id_task):
         }
         if task_form.is_valid():
             task_form.save()
-        return redirect('student_page')
+            return redirect('task_to_student1', id_task=new_homework.id)
         
     
     return render(request, 'resolution_task_0.html', context)
@@ -215,31 +229,37 @@ def task_to_student0(request, id_task):
 @login_required(login_url="login")
 
 def task_to_student1(request, id_task):
-    new_homework = TaskPerStudent.objects.get(id = id_task) 
+    new_homework = TaskPerStudent.objects.get(id = id_task)   
     task = Task.objects.get(id = new_homework.task.id)
     student = Account.objects.get(id=request.user.id)
-    new_homework = TaskPerStudent.objects.get(id = id_task)  
-    draw_sjon = new_homework.task.draw
-    
-    # if request.method == 'GET':
-    #     task_form = TaskFormDraw()
-    #     context = {
-    #         'homework' : new_homework,
-    #         'form':task_form,
-    #         'draw_json': draw_sjon
-    #     }
-    # else:
-    #     task_form = TaskFormDraw(request.POST, request.FILES)
-    #     context = {
-    #         'homework' : new_homework,
-    #         'form': task_form,
-    #         'draw_json': draw_sjon
-    #     }
-    #     if task_form.is_valid():
-    #         task_form.save()
-    #         return render("resolution_task_2.html")
-    
-    return render(request, 'resolution_task_1.html')
+    draw_json = new_homework.task.draw
+    dcl_json = new_homework.task.dcl
+    print("_"*100)
+    print(new_homework)
+    print(task)
+    print(student)
+    if request.method == 'GET':
+        task_form = TaskFormDraw(instance=new_homework)
+        context = {
+            'homework' : new_homework,
+            'form':task_form,
+            'draw_json': draw_json,
+            'dcl_json': dcl_json,
+            'task': task
+        }
+    else:
+        task_form = TaskFormDraw(request.POST, request.FILES, instance=new_homework)
+        context = {
+            'homework' : new_homework,
+            'form':task_form,
+            'draw_json': draw_json,
+            'dcl_json': dcl_json,
+            'task': task
+        }
+        if task_form.is_valid():
+            task_form.save()
+            return redirect('student_page')
+    return render(request, 'resolution_task_1.html',context)
 
 
 @login_required(login_url="login")
